@@ -1,0 +1,4 @@
+# Ignore pre-existing documentation folders and files to avoid formatting corruption
+architecture/
+engineering/
+AGENTS.md
