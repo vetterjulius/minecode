@@ -1,0 +1,14 @@
+# Coding guidelines 
+The following coding guidelines apply to all work done in this repository:
+
+- Follow general coding best practices for Typescript
+- Each piece of code must be tested with many unit tests covering all edge cases. We also need integration and end to end tests
+- Test belong in a separate tests/ folder
+- The test folder structure should be similar to the actual folder structure in the project so it is clear, what code is tested
+- Test coverage should be automatically generated during test runs
+- Use one testing framework consistently throughout the project
+- move reusable test helpers or in general any code that's related to tests but is not the tests themselves, into a desperate place (file or folder)
+- test function signatures should follow this pattern: test_Given_When_Then where Given, When and Then aren't written but instead placeholders for the tested piece of code (Given), e.g. a function, the input (When) and the expected output / behaviour (Then); all in CamelCase.
+- prefer longer, 
+- Prefer small functions with one clear responsibility over large ones
+- 
