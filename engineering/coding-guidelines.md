@@ -8,7 +8,9 @@ The following coding guidelines apply to all work done in this repository:
 - Test coverage should be automatically generated during test runs
 - Use one testing framework consistently throughout the project
 - move reusable test helpers or in general any code that's related to tests but is not the tests themselves, into a desperate place (file or folder)
-- test function signatures should follow this pattern: test_Given_When_Then where Given, When and Then aren't written but instead placeholders for the tested piece of code (Given), e.g. a function, the input (When) and the expected output / behaviour (Then); all in CamelCase.
-- prefer longer, 
-- Prefer small functions with one clear responsibility over large ones
-- 
+- test function signatures should follow this pattern: test_Given_When_Then where Given, When and Then aren't written but instead placeholders for the tested piece of code (Given), e.g. a function, the input (When) and the expected output / behaviour (Then); all in PascalCase. 
+- prefer longer, descriptive test function names and make sure that it's clear what each test function tests
+- Prefer small functions with one clear responsibility over large ones in general. This also applies to classes, etc.
+- Don't do very large files. Split up files into multiple smaller ones if needed
+- Do not use decorative comments. Only use comments where code is not self explanatory
+-
