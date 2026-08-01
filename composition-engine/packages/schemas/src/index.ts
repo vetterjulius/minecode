@@ -198,9 +198,11 @@ export const RawBlueprintSchema = z.object({
   application: z.object({
     name: z.string().min(1, 'Application name must be a non-empty string'),
   }),
-  stack: z.object({
-    id: z.string().min(1, 'Stack ID must be a non-empty string'),
-  }),
+  stack: z
+    .object({
+      id: z.string().min(1, 'Stack ID must be a non-empty string'),
+    })
+    .optional(),
   features: z.record(
     z.string(),
     z.object({
