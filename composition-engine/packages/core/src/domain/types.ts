@@ -1,14 +1,7 @@
-/**
- * Core domain types and models for Minecode composition engine.
- */
-
-// 1. FeatureVersion
 export type FeatureVersion = string;
 
-// 2. FeatureType
 export type FeatureType = 'business' | 'infrastructure' | 'starter' | 'primitive';
 
-// 3. FeatureMetadata
 export interface FeatureMetadata {
   name: string;
   description: string;
@@ -20,17 +13,15 @@ export interface FeatureMetadata {
   category?: string;
 }
 
-// 4. ExtensionPoint
 export type ExtensionPointType = 'function' | 'component' | 'slot' | 'config' | 'schema';
 
 export interface ExtensionPoint {
   name: string;
   type: ExtensionPointType;
   description: string;
-  schema?: Record<string, unknown>; // Optional JSON schema or configuration for this extension point
+  schema?: Record<string, unknown>;
 }
 
-// 5. Module
 export type ModuleType = 'database' | 'backend' | 'frontend' | 'test' | 'migration' | 'config';
 
 export interface Module {
@@ -39,14 +30,12 @@ export interface Module {
   description: string;
 }
 
-// 6. Dependency
 export interface Dependency {
   featureId: string;
   versionRange: string;
   optional?: boolean;
 }
 
-// 7. Contract
 export interface EntityField {
   name: string;
   type: string;
@@ -84,7 +73,6 @@ export interface Contract {
   };
 }
 
-// 8. Feature
 export interface Feature {
   id: string;
   version: FeatureVersion;
@@ -95,7 +83,6 @@ export interface Feature {
   modules: Module[];
 }
 
-// 9. Blueprint
 export interface FeatureConfig {
   version?: string;
   enabled?: boolean;
@@ -108,7 +95,6 @@ export interface Blueprint {
   features: Record<string, FeatureConfig>;
 }
 
-// 10. Application
 export interface Application {
   name: string;
   stackId: string;
