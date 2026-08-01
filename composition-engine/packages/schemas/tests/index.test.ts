@@ -14,10 +14,6 @@ test('test_GetSchemaInfo_NoArguments_ReturnsSchemaInfoWithCoreInfo', () => {
   expect(result).toBe('Minecode Schemas relying on: Minecode Core version 0.1.0');
 });
 
-// ============================================================================
-// parseFeatureYaml Tests
-// ============================================================================
-
 test('test_ParseFeatureYaml_ValidMinimalInput_ReturnsNormalizedFeature', () => {
   const yamlContent = `
 id: my-feature
@@ -99,7 +95,6 @@ modules:
   expect(result.metadata.category).toBe('Security');
   expect(result.metadata.stack).toEqual(['nextjs-supabase']);
 
-  // Contract verification
   expect(result.contract.provides?.entities?.[0].name).toBe('User');
   expect(result.contract.provides?.entities?.[0].fields?.[0].name).toBe('email');
   expect(result.contract.provides?.entities?.[0].fields?.[0].required).toBe(true);
@@ -107,7 +102,6 @@ modules:
   expect(result.contract.provides?.extensionPoints?.[0].name).toBe('custom_login_hook');
   expect(result.contract.provides?.extensionPoints?.[0].type).toBe('function');
 
-  // Dependencies verification
   expect(result.dependencies).toHaveLength(2);
   expect(result.dependencies[0]).toEqual({
     featureId: 'database',
@@ -120,7 +114,6 @@ modules:
     optional: true,
   });
 
-  // Modules verification
   expect(result.modules).toHaveLength(1);
   expect(result.modules[0]).toEqual({
     name: 'auth-lib',
@@ -162,10 +155,6 @@ type: business
   }
 });
 
-// ============================================================================
-// parseContractYaml Tests
-// ============================================================================
-
 test('test_ParseContractYaml_ValidSimpleInputs_ReturnsNormalizedContract', () => {
   const yamlContent = `
 provides:
@@ -184,8 +173,15 @@ requires:
   `;
   const result = parseContractYaml(yamlContent);
   expect(result.provides?.entities).toHaveLength(2);
-  expect(result.provides?.entities?.[0]).toEqual({ name: 'User', fields: [], description: '' });
-  expect(result.provides?.permissions?.[0]).toEqual({ name: 'profile.write', description: '' });
+  expect(result.provides?.entities?.[0]).toEqual({
+    name: 'User',
+    fields: [],
+    description: '',
+  });
+  expect(result.provides?.permissions?.[0]).toEqual({
+    name: 'profile.write',
+    description: '',
+  });
   expect(result.provides?.events?.[0]).toEqual({
     name: 'profile.updated',
     payloadSchema: {},
@@ -210,10 +206,6 @@ provides:
   expect(() => parseContractYaml(yamlContent)).toThrow(SchemaValidationError);
 });
 
-// ============================================================================
-// parseDependenciesYaml Tests
-// ============================================================================
-
 test('test_ParseDependenciesYaml_ValidFlatArray_ReturnsNormalizedDependencies', () => {
   const yamlContent = `
 - featureId: db
@@ -223,8 +215,16 @@ test('test_ParseDependenciesYaml_ValidFlatArray_ReturnsNormalizedDependencies', 
   `;
   const result = parseDependenciesYaml(yamlContent);
   expect(result).toHaveLength(2);
-  expect(result[0]).toEqual({ featureId: 'db', versionRange: '^1.0.0', optional: false });
-  expect(result[1]).toEqual({ featureId: 'logger', versionRange: '*', optional: true });
+  expect(result[0]).toEqual({
+    featureId: 'db',
+    versionRange: '^1.0.0',
+    optional: false,
+  });
+  expect(result[1]).toEqual({
+    featureId: 'logger',
+    versionRange: '*',
+    optional: true,
+  });
 });
 
 test('test_ParseDependenciesYaml_ValidWrappedStructure_ReturnsNormalizedDependencies', () => {
@@ -236,7 +236,11 @@ dependencies:
   `;
   const result = parseDependenciesYaml(yamlContent);
   expect(result).toHaveLength(1);
-  expect(result[0]).toEqual({ featureId: 'db-wrapped', versionRange: '>=2.0', optional: false });
+  expect(result[0]).toEqual({
+    featureId: 'db-wrapped',
+    versionRange: '>=2.0',
+    optional: false,
+  });
 });
 
 test('test_ParseDependenciesYaml_InvalidDependencies_ThrowsSchemaValidationError', () => {
@@ -245,10 +249,6 @@ test('test_ParseDependenciesYaml_InvalidDependencies_ThrowsSchemaValidationError
   `;
   expect(() => parseDependenciesYaml(yamlContent)).toThrow(SchemaValidationError);
 });
-
-// ============================================================================
-// parseBlueprintYaml Tests
-// ============================================================================
 
 test('test_ParseBlueprintYaml_ValidAppBlueprint_ReturnsNormalizedBlueprint', () => {
   const yamlContent = `
@@ -287,10 +287,6 @@ features: {}
   `;
   expect(() => parseBlueprintYaml(yamlContent)).toThrow(SchemaValidationError);
 });
-
-// ============================================================================
-// General YAML Syntax Errors
-// ============================================================================
 
 test('test_ParseBlueprintYaml_MalformedYamlSyntax_ThrowsGenericSyntaxError', () => {
   const yamlContent = `

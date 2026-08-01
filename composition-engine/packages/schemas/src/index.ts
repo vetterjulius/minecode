@@ -16,7 +16,6 @@ export function getSchemaInfo(): string {
   return `Minecode Schemas relying on: ${getCoreInfo()}`;
 }
 
-// Regex definitions
 const featureIdRegex = /^[a-zA-Z0-9-_]+$/;
 const semverRegex =
   /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;
@@ -46,9 +45,6 @@ export function formatZodError(error: ZodError): string[] {
   });
 }
 
-/**
- * Parses YAML securely, throwing structured errors if syntax is invalid.
- */
 function safeParseYaml(yamlContent: string): unknown {
   try {
     return yaml.load(yamlContent);
@@ -56,10 +52,6 @@ function safeParseYaml(yamlContent: string): unknown {
     throw new Error(`YAML Syntax Error: ${error.message || error}`);
   }
 }
-
-// ==========================================
-// Raw Validation Schemas (Zod)
-// ==========================================
 
 export const RawContractSchema = z.object({
   provides: z
@@ -218,10 +210,6 @@ export const RawBlueprintSchema = z.object({
     })
   ),
 });
-
-// ==========================================
-// Normalization Functions
-// ==========================================
 
 export function normalizeContract(raw: any): Contract {
   if (!raw) return {};
@@ -383,10 +371,6 @@ export function normalizeBlueprint(raw: any): Blueprint {
   };
 }
 
-// ==========================================
-// Object Validation Functions
-// ==========================================
-
 export function validateFeature(data: unknown): Feature {
   const result = RawFeatureSchema.safeParse(data);
   if (!result.success) {
@@ -424,10 +408,6 @@ export function validateBlueprint(data: unknown): Blueprint {
   }
   return normalizeBlueprint(result.data);
 }
-
-// ==========================================
-// YAML Parsing Functions
-// ==========================================
 
 export function parseFeatureYaml(yamlContent: string): Feature {
   const rawObj = safeParseYaml(yamlContent);
