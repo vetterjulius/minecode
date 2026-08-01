@@ -14,3 +14,4 @@ The following coding guidelines apply to all work done in this repository:
 - Don't create very large files. Split up files into multiple smaller ones if needed
 - one file should only contain code for the same topic (for example Auth). If one file gets to large, convert it to a folder and create new files in this folder (folder structure that's given from issues or other documents has higher priority then this principle)
 - Do not use decorative comments. Only use comments where code is not self explanatory. Prefer shorter comments over long ones
+- create new documentation in the docs/ folder or update existing documentation if necessary. Docs should be very detailed and easy to read
