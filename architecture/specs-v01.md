@@ -637,8 +637,16 @@ Jedes Feature muss bestehen:
 
 Schema Validation
 
-- YAML korrekt
-- Contracts korrekt
+- YAML korrekt: Syntaxprüfung mittels robuster YAML-Parser.
+- Contracts korrekt: Überprüfung gegen die Zod-Schemas im `@minecode/schemas`-Package.
+
+Die Validierungsschicht in `@minecode/schemas` validiert und konvertiert folgende deklarative YAML-Formate in `@minecode/core`-Domänenobjekte:
+- `feature.yaml` via `parseFeatureYaml` (zu `Feature`)
+- `contract.yaml` via `parseContractYaml` (zu `Contract`)
+- `dependencies.yaml` via `parseDependenciesYaml` (zu `Dependency[]`)
+- `app.yaml` (Blueprint) via `parseBlueprintYaml` (zu `Blueprint`)
+
+Bei Fehlern wird eine aussagekräftige `SchemaValidationError` mit detaillierten Fehlermeldungen pro Feld/Pfad geworfen.
 
 Dependency Validation
 
