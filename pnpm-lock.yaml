@@ -81,6 +81,15 @@ importers:
       '@minecode/core':
         specifier: workspace:*
         version: link:../core
+      '@types/js-yaml':
+        specifier: ^4.0.9
+        version: 4.0.9
+      js-yaml:
+        specifier: ^5.2.3
+        version: 5.2.3
+      zod:
+        specifier: ^4.4.3
+        version: 4.4.3
 
 packages:
   '@ampproject/remapping@2.3.0':
@@ -735,6 +744,12 @@ packages:
     resolution:
       {
         integrity: sha512-GhdPgy1el4/ImP05X05Uw4cw2/M93BCUmnEvWZNStlCzEKME4Fkk+YpoA5OiHNQmoS7Cafb8Xa3Pya8m1Qrzeg==,
+      }
+
+  '@types/js-yaml@4.0.9':
+    resolution:
+      {
+        integrity: sha512-k4MGaQl5TGo/iipqb2UDG2UwjXziSWkh0uysQelTlJpX1qGlpUZYm8PnO4DxG1qBomtJUdYJ6qR6xdIah10JLg==,
       }
 
   '@types/json-schema@7.0.15':
@@ -1536,6 +1551,13 @@ packages:
       }
     hasBin: true
 
+  js-yaml@5.2.3:
+    resolution:
+      {
+        integrity: sha512-n+mUVyUX5bVv7G/G2zyIHOhdxfuU1dY2NOFzTQUWiMUbFss8b57NFlgCCaggU78wSw5KVS9cllzeLyzyR+n5nw==,
+      }
+    hasBin: true
+
   json-buffer@3.0.1:
     resolution:
       {
@@ -2222,6 +2244,12 @@ packages:
       }
     engines: { node: '>=18' }
 
+  zod@4.4.3:
+    resolution:
+      {
+        integrity: sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ==,
+      }
+
 snapshots:
   '@ampproject/remapping@2.3.0':
     dependencies:
@@ -2494,6 +2522,8 @@ snapshots:
   '@types/deep-eql@4.0.2': {}
 
   '@types/estree@1.0.9': {}
+
+  '@types/js-yaml@4.0.9': {}
 
   '@types/json-schema@7.0.15': {}
 
@@ -3018,6 +3048,10 @@ snapshots:
     dependencies:
       argparse: 2.0.1
 
+  js-yaml@5.2.3:
+    dependencies:
+      argparse: 2.0.1
+
   json-buffer@3.0.1: {}
 
   json-schema-traverse@0.4.1: {}
@@ -3429,3 +3463,5 @@ snapshots:
   yocto-queue@0.1.0: {}
 
   yoctocolors@2.2.0: {}
+
+  zod@4.4.3: {}
