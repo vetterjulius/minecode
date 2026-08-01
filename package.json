@@ -8,14 +8,17 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "lint": "eslint .",
+    "lint": "eslint . && pnpm check-boundaries && pnpm check-circular",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write \"**/*.{ts,json,md,yaml,yml}\"",
-    "format:check": "prettier --check \"**/*.{ts,json,md,yaml,yml}\""
+    "format:check": "prettier --check \"**/*.{ts,json,md,yaml,yml}\"",
+    "check-boundaries": "node scripts/validate-package-boundaries.js",
+    "check-circular": "dpdm --exit-code circular:1 \"composition-engine/packages/*/src/**/*.ts\" \"composition-engine/apps/*/src/**/*.ts\""
   },
   "devDependencies": {
     "@eslint/js": "^9.20.0",
     "@vitest/coverage-v8": "^3.0.5",
+    "dpdm": "^4.3.0",
     "eslint": "^9.20.1",
     "eslint-config-prettier": "^10.0.1",
     "globals": "^15.15.0",
