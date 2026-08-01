@@ -99,7 +99,9 @@ describe('validatePackageDependencies', () => {
     expect(result).toHaveLength(1);
     expect(result[0].type).toBe('boundary');
     expect(result[0].project).toBe('@minecode/schemas');
-    expect(result[0].message).toContain("depends on an unknown monorepo package '@minecode/nonexistent'");
+    expect(result[0].message).toContain(
+      "depends on an unknown monorepo package '@minecode/nonexistent'"
+    );
   });
 });
 

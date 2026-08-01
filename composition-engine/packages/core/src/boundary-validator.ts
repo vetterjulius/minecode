@@ -121,7 +121,9 @@ export function validateFileImports(
     if (importPath.startsWith('.')) {
       const absoluteImportPath = path.resolve(path.dirname(filePath), importPath);
       const absolutePkgRoot = path.resolve(packageRootDir);
-      const isWithinRoot = absoluteImportPath === absolutePkgRoot || absoluteImportPath.startsWith(absolutePkgRoot + path.sep);
+      const isWithinRoot =
+        absoluteImportPath === absolutePkgRoot ||
+        absoluteImportPath.startsWith(absolutePkgRoot + path.sep);
       if (!isWithinRoot) {
         errors.push({
           type: 'relative-escape',
