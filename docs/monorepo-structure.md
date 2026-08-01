@@ -52,7 +52,7 @@ _Note: The CLI app (`@minecode/cli`) and MCP Server app (`@minecode/mcp-server`)
 
 ### `packages/core`
 
-- **Ownership:** Shared domain types, Base interfaces (`Feature`, `Contract`, `Dependency`), utilities, and shared error classes.
+- **Ownership:** Shared domain types, Base interfaces (`Feature`, `Contract`, `Dependency`), domain models, and interfaces. It officially owns all shared types within the monorepo.
 - **Rules:** Cannot depend on any other packages in the monorepo.
 
 ### `packages/schemas`
