@@ -5,3 +5,4 @@ export function getCoreInfo(): string {
 }
 
 export * from './boundary-validator.js';
+export * from './domain/types.js';
