@@ -295,3 +295,58 @@ application:
   `;
   expect(() => parseBlueprintYaml(yamlContent)).toThrow(/YAML Syntax Error/);
 });
+
+test('test_ParseContractYaml_ContractWithEventsAndCapabilities_ReturnsNormalizedContract', () => {
+  const yamlContent = `
+provides:
+  permissions:
+    - name: perm.custom
+      description: "Custom permission"
+  events:
+    - name: user.login
+      payloadSchema:
+        userId: string
+      description: "Triggered on login"
+    - user.logout
+  extensionPoints:
+    - name: on_init
+      type: slot
+      description: "Init slot"
+      schema:
+        config: boolean
+    - on_destroy
+requires:
+  capabilities:
+    - user_management
+  `;
+  const result = parseContractYaml(yamlContent);
+  expect(result.provides?.permissions).toHaveLength(1);
+  expect(result.provides?.permissions?.[0]).toEqual({
+    name: 'perm.custom',
+    description: 'Custom permission',
+  });
+  expect(result.provides?.events).toHaveLength(2);
+  expect(result.provides?.events?.[0]).toEqual({
+    name: 'user.login',
+    payloadSchema: { userId: 'string' },
+    description: 'Triggered on login',
+  });
+  expect(result.provides?.events?.[1]).toEqual({
+    name: 'user.logout',
+    payloadSchema: {},
+    description: '',
+  });
+  expect(result.provides?.extensionPoints?.[0]).toEqual({
+    name: 'on_init',
+    type: 'slot',
+    description: 'Init slot',
+    schema: { config: 'boolean' },
+  });
+  expect(result.provides?.extensionPoints?.[1]).toEqual({
+    name: 'on_destroy',
+    type: 'function',
+    description: '',
+    schema: {},
+  });
+  expect(result.requires?.capabilities).toEqual(['user_management']);
+});

@@ -1,3 +1,5 @@
+import * as path from 'path';
+
 export interface ProjectInfo {
   name: string;
   dependencies: Record<string, string>;
@@ -117,16 +119,19 @@ export function validateFileImports(
 
     // Check relative imports that attempt to escape package root
     if (importPath.startsWith('.')) {
-      // Direct relative escape check: looks for imports using '../..' that go above the packageRootDir
-      // We can do this in a mockable way. If the resolved absolute path of import does not start with packageRootDir,
-      // it is escaping the package boundaries.
-      // E.g., if filePath is 'composition-engine/packages/schemas/src/index.ts',
-      // and packageRootDir is 'composition-engine/packages/schemas',
-      // importPath '../../core/src' -> resolved: 'composition-engine/packages/core/src'
-      // This is not under 'composition-engine/packages/schemas'.
-      // For cross-platform stability, we resolve them virtually or using simple path operations.
-      // But in node/typescript, using real path.resolve is perfectly fine.
-      // Since path is built-in, we can import it.
+      const absoluteImportPath = path.resolve(path.dirname(filePath), importPath);
+      const absolutePkgRoot = path.resolve(packageRootDir);
+      const isWithinRoot =
+        absoluteImportPath === absolutePkgRoot ||
+        absoluteImportPath.startsWith(absolutePkgRoot + path.sep);
+      if (!isWithinRoot) {
+        errors.push({
+          type: 'relative-escape',
+          project: projectName,
+          file: filePath,
+          message: `File '${filePath}' has relative import '${importPath}' that escapes the package boundary.`,
+        });
+      }
     }
 
     if (importPath.startsWith('@minecode/')) {

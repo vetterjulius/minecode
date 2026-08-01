@@ -125,6 +125,60 @@ category: Data
   }
 });
 
+test('test_FileSystemRegistry_NonexistentRootDirectory_ReturnsEmptyList', () => {
+  const registry = new FileSystemRegistry('non-existent-directory-path-at-all');
+  registry.load();
+  expect(registry.listFeatures()).toHaveLength(0);
+});
+
+test('test_FileSystemRegistry_FilePassedAsRootDirectory_ReturnsEmptyList', () => {
+  const tempDir = createTempRegistryDir();
+  try {
+    const filePath = path.join(tempDir, 'some-file.txt');
+    fs.writeFileSync(filePath, 'hello');
+
+    const registry = new FileSystemRegistry(filePath);
+    registry.load();
+    expect(registry.listFeatures()).toHaveLength(0);
+  } finally {
+    deleteFolderRecursive(tempDir);
+  }
+});
+
+test('test_FileSystemRegistry_DotDirectoriesAndNodeModules_AreSkipped', () => {
+  const tempDir = createTempRegistryDir();
+  try {
+    const nodeModulesDir = path.join(tempDir, 'node_modules');
+    const dotDir = path.join(tempDir, '.git');
+    fs.mkdirSync(nodeModulesDir, { recursive: true });
+    fs.mkdirSync(dotDir, { recursive: true });
+
+    // Put a feature in both to see if they are traversed
+    fs.writeFileSync(
+      path.join(nodeModulesDir, 'feature.yaml'),
+      `
+id: ignored-node-modules
+version: 1.0.0
+type: business
+      `
+    );
+    fs.writeFileSync(
+      path.join(dotDir, 'feature.yaml'),
+      `
+id: ignored-dot-dir
+version: 1.0.0
+type: business
+      `
+    );
+
+    const registry = new FileSystemRegistry(tempDir);
+    registry.load();
+    expect(registry.listFeatures()).toHaveLength(0);
+  } finally {
+    deleteFolderRecursive(tempDir);
+  }
+});
+
 test('test_FileSystemRegistry_InvalidFeatureYaml_ThrowsSchemaValidationError', () => {
   const tempDir = createTempRegistryDir();
   try {
