@@ -1,9 +1,5 @@
 import { test, expect } from 'vitest';
-import {
-  Feature,
-  Blueprint,
-  Application
-} from '../../src/index.js';
+import { Feature, Blueprint, Application } from '../../src/index.js';
 
 test('test_FeatureCreation_WithValidAttributes_Succeeds', () => {
   const feature: Feature = {
@@ -15,10 +11,10 @@ test('test_FeatureCreation_WithValidAttributes_Succeeds', () => {
       description: 'Handles user register and login processes',
       maintainer: {
         type: 'builtin',
-        name: 'Minecode Team'
+        name: 'Minecode Team',
       },
       stack: ['nextjs-supabase'],
-      category: 'Identity'
+      category: 'Identity',
     },
     contract: {
       provides: {
@@ -27,39 +23,39 @@ test('test_FeatureCreation_WithValidAttributes_Succeeds', () => {
             name: 'User',
             fields: [
               { name: 'id', type: 'uuid', required: true, description: 'The unique identifier' },
-              { name: 'email', type: 'string', required: true }
+              { name: 'email', type: 'string', required: true },
             ],
-            description: 'User accounts'
-          }
+            description: 'User accounts',
+          },
         ],
-        permissions: [
-          { name: 'user.read', description: 'Read user profile' }
-        ],
-        events: [
-          { name: 'user.created', description: 'Fired when a new user is created' }
-        ],
+        permissions: [{ name: 'user.read', description: 'Read user profile' }],
+        events: [{ name: 'user.created', description: 'Fired when a new user is created' }],
         extensionPoints: [
-          { name: 'after_login', type: 'function', description: 'Callback run right after successful login' }
-        ]
+          {
+            name: 'after_login',
+            type: 'function',
+            description: 'Callback run right after successful login',
+          },
+        ],
       },
       requires: {
-        features: ['database']
-      }
+        features: ['database'],
+      },
     },
     dependencies: [
       {
         featureId: 'database',
         versionRange: '^1.0.0',
-        optional: false
-      }
+        optional: false,
+      },
     ],
     modules: [
       {
         name: 'auth-routes',
         type: 'backend',
-        description: 'Authentication HTTP endpoint handlers'
-      }
-    ]
+        description: 'Authentication HTTP endpoint handlers',
+      },
+    ],
   };
 
   expect(feature.id).toBe('authentication');
@@ -81,13 +77,13 @@ test('test_BlueprintCreation_WithValidAttributes_Succeeds', () => {
         version: '^1.0.0',
         enabled: true,
         config: {
-          providers: ['email', 'github']
-        }
+          providers: ['email', 'github'],
+        },
       },
       database: {
-        enabled: true
-      }
-    }
+        enabled: true,
+      },
+    },
   };
 
   expect(blueprint.applicationName).toBe('My Awesome SaaS');
@@ -100,7 +96,7 @@ test('test_ApplicationCreation_WithValidAttributes_Succeeds', () => {
   const blueprint: Blueprint = {
     applicationName: 'My Awesome SaaS',
     stackId: 'nextjs-supabase',
-    features: {}
+    features: {},
   };
 
   const app: Application = {
@@ -109,7 +105,7 @@ test('test_ApplicationCreation_WithValidAttributes_Succeeds', () => {
     blueprint,
     resolvedFeatures: [],
     generatedAt: '2026-08-01T12:00:00Z',
-    engineVersion: '0.1.0'
+    engineVersion: '0.1.0',
   };
 
   expect(app.name).toBe('My Awesome SaaS');
