@@ -84,6 +84,23 @@ describe('validatePackageDependencies', () => {
     expect(result[0].project).toBe('@minecode/generator');
     expect(result[0].message).toContain('is not allowed to depend on app');
   });
+
+  test('test_ValidatePackageDependencies_PackageDependingOnUnknownMonorepoPackage_ReturnsValidationError', () => {
+    const projects: Record<string, ProjectInfo> = {
+      '@minecode/schemas': {
+        name: '@minecode/schemas',
+        dependencies: {
+          '@minecode/nonexistent': 'workspace:*',
+        },
+      },
+    };
+
+    const result = validatePackageDependencies(projects);
+    expect(result).toHaveLength(1);
+    expect(result[0].type).toBe('boundary');
+    expect(result[0].project).toBe('@minecode/schemas');
+    expect(result[0].message).toContain("depends on an unknown monorepo package '@minecode/nonexistent'");
+  });
 });
 
 describe('validateFileImports', () => {
@@ -112,5 +129,21 @@ describe('validateFileImports', () => {
     expect(result[0].type).toBe('import');
     expect(result[0].project).toBe('@minecode/schemas');
     expect(result[0].message).toContain('is not declared as a dependency');
+  });
+
+  test('test_ValidateFileImports_RelativeImportEscapingBoundary_ReturnsRelativeEscapeError', () => {
+    const fileContent = `import { something } from '../../core/src/index.js';`;
+    const result = validateFileImports(
+      '@minecode/schemas',
+      'composition-engine/packages/schemas/src/index.ts',
+      fileContent,
+      'composition-engine/packages/schemas',
+      ['@minecode/core']
+    );
+    expect(result).toHaveLength(1);
+    expect(result[0].type).toBe('relative-escape');
+    expect(result[0].project).toBe('@minecode/schemas');
+    expect(result[0].file).toBe('composition-engine/packages/schemas/src/index.ts');
+    expect(result[0].message).toContain('escapes the package boundary');
   });
 });
