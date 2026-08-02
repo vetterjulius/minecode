@@ -288,6 +288,22 @@ features: {}
   expect(() => parseBlueprintYaml(yamlContent)).toThrow(SchemaValidationError);
 });
 
+test('test_ParseBlueprintYaml_WithoutStack_ReturnsNormalizedBlueprintWithEmptyStackId', () => {
+  const yamlContent = `
+application:
+  name: project-manager
+features:
+  authentication:
+    version: ^1.0
+  `;
+  const result = parseBlueprintYaml(yamlContent);
+  expect(result.applicationName).toBe('project-manager');
+  expect(result.stackId).toBe('');
+  expect(result.features.authentication).toEqual({
+    version: '^1.0',
+  });
+});
+
 test('test_ParseBlueprintYaml_MalformedYamlSyntax_ThrowsGenericSyntaxError', () => {
   const yamlContent = `
 application:
