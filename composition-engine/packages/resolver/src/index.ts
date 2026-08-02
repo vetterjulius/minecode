@@ -19,9 +19,6 @@ export class BlueprintValidationError extends Error {
   }
 }
 
-/**
- * Validates a feature configuration against a JSON-Schema-like structure.
- */
 function validateConfig(
   value: any,
   schema: any,
@@ -89,7 +86,6 @@ function validateConfig(
     }
   }
 
-  // Object checks
   if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
     if (Array.isArray(schema.required)) {
       for (const requiredProp of schema.required) {
@@ -122,30 +118,25 @@ export class BlueprintValidator {
     const errors: string[] = [];
     const warnings: string[] = [];
 
-    // Determine the stackId to use
     let stackId = blueprint.stackId;
     if (!stackId) {
       stackId = 'nextjs-supabase';
       warnings.push(`Blueprint does not specify a stack. Defaulting to 'nextjs-supabase'.`);
     }
 
-    // Iterate through requested features in the blueprint
     if (blueprint.features) {
       for (const [featureId, featureConfig] of Object.entries(blueprint.features)) {
-        // 1. Check if requested feature exists in the registry
         const feature = this.registry.getFeature(featureId);
         if (!feature) {
           errors.push(`Feature '${featureId}' requested in blueprint does not exist in registry.`);
           continue;
         }
 
-        // 2. Check version compatibility
         const requestedRange = featureConfig.version || '*';
         let isCompatible = false;
         try {
           isCompatible = semver.satisfies(feature.version, requestedRange);
         } catch {
-          // Fallback if semver fails (e.g., non-standard range tag like 'latest')
           isCompatible = feature.version === requestedRange;
         }
 
@@ -155,13 +146,11 @@ export class BlueprintValidator {
           );
         }
 
-        // 3. Check configuration against configSchema (if defined)
         if (feature.configSchema) {
           const config = featureConfig.config || {};
           validateConfig(config, feature.configSchema, '', featureId, errors);
         }
 
-        // 4. Check stack compatibility
         if (feature.metadata.stack && feature.metadata.stack.length > 0) {
           const supportsSelectedStack =
             feature.metadata.stack.includes(stackId) || feature.metadata.stack.includes('*');
