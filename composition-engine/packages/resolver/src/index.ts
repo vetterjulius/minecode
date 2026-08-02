@@ -3,6 +3,12 @@ import semver from 'semver';
 import { Blueprint, BlueprintValidationResult } from '@minecode/core';
 import { FileSystemRegistry, getRegistryInfo } from '@minecode/registry';
 
+export {
+  DependencyResolutionError,
+  CircularDependencyError,
+  FeatureDependencyResolver,
+} from './dependency-resolver.js';
+
 export function getResolverInfo(): string {
   return `Minecode Resolver relying on: ${getRegistryInfo()}`;
 }
