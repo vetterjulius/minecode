@@ -430,3 +430,7 @@ export function parseBlueprintYaml(yamlContent: string): Blueprint {
   const rawObj = safeParseYaml(yamlContent);
   return validateBlueprint(rawObj);
 }
+
+export function parseYaml(yamlContent: string): unknown {
+  return safeParseYaml(yamlContent);
+}

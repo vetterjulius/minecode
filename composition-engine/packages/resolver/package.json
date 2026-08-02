@@ -10,6 +10,12 @@
     "clean": "tsc --build --clean"
   },
   "dependencies": {
-    "@minecode/registry": "workspace:*"
+    "@minecode/core": "workspace:*",
+    "@minecode/schemas": "workspace:*",
+    "@minecode/registry": "workspace:*",
+    "semver": "^7.6.0"
+  },
+  "devDependencies": {
+    "@types/semver": "^7.5.8"
   }
 }
