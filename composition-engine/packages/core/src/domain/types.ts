@@ -81,6 +81,13 @@ export interface Feature {
   contract: Contract;
   dependencies: Dependency[];
   modules: Module[];
+  configSchema?: Record<string, unknown>;
+}
+
+export interface BlueprintValidationResult {
+  valid: boolean;
+  errors: string[];
+  warnings: string[];
 }
 
 export interface FeatureConfig {

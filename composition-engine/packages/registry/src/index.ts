@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as fs from 'fs';
 import * as path from 'path';
 import { Feature } from '@minecode/core';
@@ -5,6 +6,7 @@ import {
   parseFeatureYaml,
   parseContractYaml,
   parseDependenciesYaml,
+  parseYaml,
   getSchemaInfo,
 } from '@minecode/schemas';
 
@@ -147,6 +149,20 @@ export class FileSystemRegistry {
     const featureYamlPath = path.join(featureDir, 'feature.yaml');
     const featureYamlContent = fs.readFileSync(featureYamlPath, 'utf8');
     const feature = parseFeatureYaml(featureYamlContent);
+
+    // Load config.schema.yaml if it exists
+    const configSchemaPath = path.join(featureDir, 'config.schema.yaml');
+    if (fs.existsSync(configSchemaPath)) {
+      const configSchemaContent = fs.readFileSync(configSchemaPath, 'utf8');
+      try {
+        const configSchema = parseYaml(configSchemaContent) as Record<string, unknown>;
+        feature.configSchema = configSchema;
+      } catch (err: any) {
+        throw new RegistryError(
+          `Failed to parse config.schema.yaml in directory '${featureDir}': ${err.message || err}`
+        );
+      }
+    }
 
     // Load separate contract.yaml if it exists
     const contractYamlPath = path.join(featureDir, 'contract.yaml');

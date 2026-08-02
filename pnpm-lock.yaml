@@ -78,9 +78,22 @@ importers:
 
   composition-engine/packages/resolver:
     dependencies:
+      '@minecode/core':
+        specifier: workspace:*
+        version: link:../core
       '@minecode/registry':
         specifier: workspace:*
         version: link:../registry
+      '@minecode/schemas':
+        specifier: workspace:*
+        version: link:../schemas
+      semver:
+        specifier: ^7.6.0
+        version: 7.8.5
+    devDependencies:
+      '@types/semver':
+        specifier: ^7.5.8
+        version: 7.8.0
 
   composition-engine/packages/schemas:
     dependencies:
@@ -768,6 +781,12 @@ packages:
     resolution:
       {
         integrity: sha512-Vu4a5UFA9rIIFJ7rB/Vaafh9lrCQszopTCx6KjFboXTGQbPNasehVR5TEiithSDGyd1DEiUByggTZsg8jukeIg==,
+      }
+
+  '@types/semver@7.8.0':
+    resolution:
+      {
+        integrity: sha512-1mAINjtQCXXeLkJ9ehXkwOcBpqtLxiVtKhpUf83DdRNdQKV0iXZpaHYqRr7nj+wvxuJzoAmAwXI+sCNMv1CzLQ==,
       }
 
   '@typescript-eslint/eslint-plugin@8.65.0':
@@ -2548,6 +2567,8 @@ snapshots:
   '@types/node@26.1.2':
     dependencies:
       undici-types: 8.3.0
+
+  '@types/semver@7.8.0': {}
 
   '@typescript-eslint/eslint-plugin@8.65.0(@typescript-eslint/parser@8.65.0(eslint@9.39.5)(typescript@5.9.3))(eslint@9.39.5)(typescript@5.9.3)':
     dependencies:
