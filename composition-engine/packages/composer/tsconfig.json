@@ -5,5 +5,5 @@
     "outDir": "dist"
   },
   "include": ["src/**/*"],
-  "references": [{ "path": "../resolver" }]
+  "references": [{ "path": "../core" }, { "path": "../resolver" }]
 }
