@@ -9,6 +9,8 @@ export {
   FeatureDependencyResolver,
 } from './dependency-resolver.js';
 
+export { FeatureConflictError, FeatureConflictDetector } from './conflict-detector.js';
+
 export function getResolverInfo(): string {
   return `Minecode Resolver relying on: ${getRegistryInfo()}`;
 }
