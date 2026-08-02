@@ -126,9 +126,16 @@ export const RawContractSchema = z.object({
           ])
         )
         .optional(),
+      capabilities: z.array(z.string()).optional(),
     })
     .optional(),
   requires: z
+    .object({
+      features: z.array(z.string()).optional(),
+      capabilities: z.array(z.string()).optional(),
+    })
+    .optional(),
+  conflicts: z
     .object({
       features: z.array(z.string()).optional(),
       capabilities: z.array(z.string()).optional(),
@@ -218,6 +225,7 @@ export function normalizeContract(raw: any): Contract {
 
   const provides: Contract['provides'] = {};
   const requires: Contract['requires'] = {};
+  const conflicts: Contract['conflicts'] = {};
 
   if (raw.provides) {
     if (raw.provides.entities) {
@@ -278,6 +286,10 @@ export function normalizeContract(raw: any): Contract {
         };
       });
     }
+
+    if (raw.provides.capabilities) {
+      provides.capabilities = raw.provides.capabilities;
+    }
   }
 
   if (raw.requires) {
@@ -289,7 +301,16 @@ export function normalizeContract(raw: any): Contract {
     }
   }
 
-  return { provides, requires };
+  if (raw.conflicts) {
+    if (raw.conflicts.features) {
+      conflicts.features = raw.conflicts.features;
+    }
+    if (raw.conflicts.capabilities) {
+      conflicts.capabilities = raw.conflicts.capabilities;
+    }
+  }
+
+  return { provides, requires, conflicts };
 }
 
 export function normalizeDependencies(raw: any[] | undefined): Dependency[] {

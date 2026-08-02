@@ -66,8 +66,13 @@ export interface Contract {
     permissions?: PermissionDefinition[];
     events?: EventDefinition[];
     extensionPoints?: ExtensionPoint[];
+    capabilities?: string[];
   };
   requires?: {
+    features?: string[];
+    capabilities?: string[];
+  };
+  conflicts?: {
     features?: string[];
     capabilities?: string[];
   };
