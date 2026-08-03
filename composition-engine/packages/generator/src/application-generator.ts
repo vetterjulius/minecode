@@ -13,7 +13,7 @@ export class ApplicationGenerator {
     this.outDir = outDir;
   }
 
-  public generate(plan: CompositionPlan): void {
+  public generate(plan: CompositionPlan, options?: { runnable?: boolean }): void {
     if (!plan) {
       throw new Error('Composition plan must be specified.');
     }
@@ -37,7 +37,7 @@ export class ApplicationGenerator {
     }
 
     const adapter = new NextJsSupabaseAdapter();
-    const virtualFiles = adapter.generate(plan);
+    const virtualFiles = adapter.generate(plan, options);
 
     for (const [relPath, content] of Object.entries(virtualFiles)) {
       let targetPath: string;
@@ -49,6 +49,15 @@ export class ApplicationGenerator {
       } else if (relPath.startsWith('types/') || relPath.startsWith('components/')) {
         targetPath = path.join(this.outDir, 'generated', relPath);
       } else if (relPath.startsWith('supabase/migrations/')) {
+        targetPath = path.join(this.outDir, relPath);
+      } else if (
+        relPath === 'package.json' ||
+        relPath === 'tsconfig.json' ||
+        relPath === 'postcss.config.js' ||
+        relPath === 'tailwind.config.ts' ||
+        relPath === 'next.config.mjs' ||
+        relPath === '.env.local'
+      ) {
         targetPath = path.join(this.outDir, relPath);
       } else {
         targetPath = path.join(this.outDir, 'generated', relPath);

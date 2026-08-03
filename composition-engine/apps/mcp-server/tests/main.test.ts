@@ -584,3 +584,61 @@ features:
   fs.rmSync(tempOutDir, { recursive: true, force: true });
   spy.mockRestore();
 });
+
+test('test_ComposeApplication_WithRunnableFalse_DoesNotWriteConfigsAndPage', async () => {
+  const mockFeature: Feature = {
+    id: 'auth',
+    version: '1.0.0',
+    type: 'business',
+    metadata: {
+      name: 'Authentication',
+      description: 'User authentication',
+      category: 'security',
+    },
+    contract: {
+      provides: {
+        entities: [
+          {
+            name: 'User',
+            fields: [{ name: 'id', type: 'uuid', required: true }],
+          },
+        ],
+      },
+    },
+    dependencies: [],
+    modules: [],
+  };
+  const spy = vi.spyOn(registry, 'getFeature').mockReturnValue(mockFeature);
+
+  const tempOutDir = fs.mkdtempSync(path.join(os.tmpdir(), 'minecode-test-composition-no-run-'));
+
+  const blueprintStr = `
+application:
+  name: compose-test-no-run
+features:
+  auth:
+    version: "1.0.0"
+  `;
+
+  const callToolHandler = (server as any)._requestHandlers.get('tools/call');
+  const response = await callToolHandler({
+    method: 'tools/call',
+    params: {
+      name: 'compose_application',
+      arguments: { blueprint: blueprintStr, outDir: tempOutDir, runnable: false },
+    },
+  });
+
+  expect(response.isError).toBeFalsy();
+  const result = JSON.parse(response.content[0].text);
+  expect(result.success).toBe(true);
+  expect(result.files).not.toContain('package.json');
+  expect(result.files).not.toContain('tsconfig.json');
+
+  expect(fs.existsSync(path.join(tempOutDir, 'package.json'))).toBe(false);
+  expect(fs.existsSync(path.join(tempOutDir, 'tsconfig.json'))).toBe(false);
+
+  // Clean up
+  fs.rmSync(tempOutDir, { recursive: true, force: true });
+  spy.mockRestore();
+});

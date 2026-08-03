@@ -3,7 +3,7 @@ import { StackAdapter, CompositionPlan } from '@minecode/core';
 export class NextJsSupabaseAdapter implements StackAdapter {
   public readonly stackId = 'nextjs-supabase';
 
-  public generate(plan: CompositionPlan): Record<string, string> {
+  public generate(plan: CompositionPlan, options?: { runnable?: boolean }): Record<string, string> {
     const files: Record<string, string> = {};
 
     let dbTypesContent = `// Generated database type definitions for ${plan.applicationName}\n\n`;
@@ -83,264 +83,22 @@ export class NextJsSupabaseAdapter implements StackAdapter {
       const normalizedPath = apiDef.path.replace(/^\/+|\/+$/g, '');
       const method = apiDef.method || 'GET';
       const name = apiDef.name;
-      const desc = apiDef.description || `Handler for ${name} (${method})`;
+      const desc = apiDef.description || `Mock handler for ${name} (${method})`;
 
-      let apiRouteContent = '';
-
-      if (normalizedPath === 'api/auth/login') {
-        apiRouteContent = `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
-import { NextResponse } from 'next/server';
+      const apiRouteContent = `import { NextResponse } from 'next/server';
 
 /**
  * ${desc}
  * Path: /api/${normalizedPath}
  */
-export async function POST(request: Request) {
-  const supabase = createRouteHandlerClient({ cookies });
-  try {
-    const { email, password } = await request.json();
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    if (error) throw error;
-    return NextResponse.json({ success: true, user: data.user, session: data.session });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    return NextResponse.json({ success: false, error: message }, { status: 400 });
-  }
+export async function ${method.toUpperCase()}(_request: Request) {
+  return NextResponse.json({
+    message: "Mock response for ${name} API endpoint using ${method}",
+    success: true,
+    timestamp: new Date().toISOString()
+  });
 }
 `;
-      } else if (normalizedPath === 'api/auth/logout') {
-        apiRouteContent = `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
-import { NextResponse } from 'next/server';
-
-/**
- * ${desc}
- * Path: /api/${normalizedPath}
- */
-export async function POST(_request: Request) {
-  const supabase = createRouteHandlerClient({ cookies });
-  try {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
-    return NextResponse.json({ success: true, message: 'Logged out successfully' });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    return NextResponse.json({ success: false, error: message }, { status: 400 });
-  }
-}
-`;
-      } else if (normalizedPath === 'api/auth/reset-password') {
-        apiRouteContent = `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
-import { NextResponse } from 'next/server';
-
-/**
- * ${desc}
- * Path: /api/${normalizedPath}
- */
-export async function POST(request: Request) {
-  const supabase = createRouteHandlerClient({ cookies });
-  try {
-    const { email } = await request.json();
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: \`\${new URL(request.url).origin}/auth/update-password\`,
-    });
-    if (error) throw error;
-    return NextResponse.json({ success: true, message: 'Password reset email sent' });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    return NextResponse.json({ success: false, error: message }, { status: 400 });
-  }
-}
-`;
-      } else if (normalizedPath === 'api/organizations' && method === 'GET') {
-        apiRouteContent = `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
-import { NextResponse } from 'next/server';
-
-/**
- * ${desc}
- * Path: /api/${normalizedPath}
- */
-export async function GET(_request: Request) {
-  const supabase = createRouteHandlerClient({ cookies });
-  try {
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const { data: memberships, error: memberError } = await supabase
-      .from('membership')
-      .select('organizationId')
-      .eq('userId', user.id);
-
-    if (memberError) throw memberError;
-
-    const orgIds = memberships.map(m => m.organizationId);
-    const { data: organizations, error: orgError } = await supabase
-      .from('organization')
-      .select('*')
-      .in('id', orgIds);
-
-    if (orgError) throw orgError;
-
-    return NextResponse.json({ success: true, data: organizations });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    return NextResponse.json({ success: false, error: message }, { status: 500 });
-  }
-}
-`;
-      } else if (normalizedPath === 'api/organizations/invite') {
-        apiRouteContent = `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
-import { NextResponse } from 'next/server';
-
-/**
- * ${desc}
- * Path: /api/${normalizedPath}
- */
-export async function POST(request: Request) {
-  const supabase = createRouteHandlerClient({ cookies });
-  try {
-    const { organizationId, email, role } = await request.json();
-    const { data: invitation, error } = await supabase
-      .from('invitation')
-      .insert({
-        organizationId,
-        email,
-        role,
-        token: crypto.randomUUID(),
-        expiresAt: new Date(Date.now() + 259200 * 1000).toISOString()
-      })
-      .select()
-      .single();
-
-    if (error) throw error;
-    return NextResponse.json({ success: true, data: invitation });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    return NextResponse.json({ success: false, error: message }, { status: 400 });
-  }
-}
-`;
-      } else if (normalizedPath === 'api/billing/checkout') {
-        apiRouteContent = `import { NextResponse } from 'next/server';
-
-/**
- * ${desc}
- * Path: /api/${normalizedPath}
- */
-export async function POST(_request: Request) {
-  try {
-    const checkoutSessionUrl = \`https://checkout.stripe.com/pay/session_mock_\${crypto.randomUUID()}\`;
-    return NextResponse.json({ success: true, url: checkoutSessionUrl });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    return NextResponse.json({ success: false, error: message }, { status: 400 });
-  }
-}
-`;
-      } else if (normalizedPath === 'api/billing/webhook') {
-        apiRouteContent = `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
-import { NextResponse } from 'next/server';
-
-/**
- * ${desc}
- * Path: /api/${normalizedPath}
- */
-export async function POST(request: Request) {
-  const supabase = createRouteHandlerClient({ cookies });
-  try {
-    const payload = await request.json();
-    const eventType = payload.type;
-
-    if (eventType === 'checkout.session.completed') {
-      const session = payload.data.object;
-      const organizationId = session.metadata?.organizationId;
-      const stripeCustomerId = session.customer;
-
-      await supabase
-        .from('stripecustomer')
-        .insert({
-          organizationId,
-          stripeCustomerId
-        });
-    }
-
-    return NextResponse.json({ success: true, received: true });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    return NextResponse.json({ success: false, error: message }, { status: 400 });
-  }
-}
-`;
-      } else if (normalizedPath === 'api/rbac/roles') {
-        apiRouteContent = `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
-import { NextResponse } from 'next/server';
-
-/**
- * ${desc}
- * Path: /api/${normalizedPath}
- */
-export async function GET(_request: Request) {
-  const supabase = createRouteHandlerClient({ cookies });
-  try {
-    const { data: roles, error } = await supabase
-      .from('role')
-      .select('*');
-
-    if (error) throw error;
-    return NextResponse.json({ success: true, data: roles });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    return NextResponse.json({ success: false, error: message }, { status: 500 });
-  }
-}
-`;
-      } else {
-        apiRouteContent = `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
-import { NextResponse } from 'next/server';
-
-/**
- * ${desc}
- * Path: /api/${normalizedPath}
- */
-export async function ${method.toUpperCase()}(request: Request) {
-  const supabase = createRouteHandlerClient({ cookies });
-  try {
-    const tableName = '${normalizedPath.split('/').pop() || 'data'}';
-    if ('${method.toUpperCase()}' === 'GET') {
-      const { data, error } = await supabase
-        .from(tableName)
-        .select('*');
-      if (error) throw error;
-      return NextResponse.json({ success: true, data });
-    } else {
-      const body = await request.json();
-      const { data, error } = await supabase
-        .from(tableName)
-        .insert(body)
-        .select();
-      if (error) throw error;
-      return NextResponse.json({ success: true, data });
-    }
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    return NextResponse.json({ success: false, error: message }, { status: 500 });
-  }
-}
-`;
-      }
-
       files[`app/api/${normalizedPath}/route.ts`] = apiRouteContent;
     }
 
@@ -450,6 +208,201 @@ export function ${name}() {
       }
       extContent += `} as const;\n`;
       files['config/extensions.ts'] = extContent;
+    }
+
+    if (options?.runnable) {
+      files['package.json'] = `{
+  "name": "composed-app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "next": "^14.2.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "@supabase/supabase-js": "^2.43.2",
+    "@supabase/auth-helpers-nextjs": "^0.10.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.5",
+    "@types/node": "^20.12.12",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.3",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "^14.2.3"
+  }
+}
+`;
+
+      files['tsconfig.json'] = `{
+  "compilerOptions": {
+    "target": "es5",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": ["./*"]
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
+}
+`;
+
+      files['postcss.config.js'] = `module.exports = {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+};
+`;
+
+      files['tailwind.config.ts'] = `import type { Config } from "tailwindcss";
+
+const config: Config = {
+  content: [
+    "./app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./generated/**/*.{js,ts,jsx,tsx,mdx}",
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+};
+export default config;
+`;
+
+      files['next.config.mjs'] = `/** @type {import('next').NextConfig} */
+const nextConfig = {
+  reactStrictMode: true,
+};
+
+export default nextConfig;
+`;
+
+      files['.env.local'] = `NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+`;
+
+      files['app/globals.css'] = `@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+}
+`;
+
+      files['app/layout.tsx'] = `import React from 'react';
+import './globals.css';
+
+export const metadata = {
+  title: '${plan.applicationName}',
+  description: 'Generated with Minecode',
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en">
+      <body>{children}</body>
+    </html>
+  );
+}
+`;
+
+      const pageLinksList: string[] = [];
+      for (const uiDef of plan.ui) {
+        if (uiDef.route) {
+          const pathName = uiDef.route.replace(/^\/+|\/+$/g, '');
+          pageLinksList.push(
+            '              <li key="' +
+              pathName +
+              '">\n' +
+              '                <a\n' +
+              '                  href="/' +
+              pathName +
+              '"\n' +
+              '                  className="block p-4 rounded-lg border hover:bg-muted font-semibold transition"\n' +
+              '                >\n' +
+              '                  ' +
+              uiDef.name +
+              ' &rarr;\n' +
+              '                  <span className="block text-sm text-muted-foreground font-normal mt-1">\n' +
+              '                    Route: /' +
+              pathName +
+              '\n' +
+              '                  </span>\n' +
+              '                </a>\n' +
+              '              </li>'
+          );
+        }
+      }
+
+      files['app/page.tsx'] =
+        `import React from 'react';
+
+export default function HomePage() {
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen p-6 bg-background text-foreground">
+      <div className="max-w-3xl w-full p-8 border rounded-xl shadow-lg bg-card text-card-foreground space-y-6">
+        <h1 className="text-4xl font-extrabold tracking-tight">${plan.applicationName}</h1>
+        <p className="text-lg text-muted-foreground">
+          Welcome to your composed Next.js & Supabase application, generated entirely using Minecode.
+        </p>
+
+        <div className="space-y-4">
+          <h2 className="text-xl font-bold">Composed Routes</h2>
+          <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
+` +
+        pageLinksList.join('\n') +
+        `
+          </ul>
+        </div>
+      </div>
+    </div>
+  );
+}
+`;
     }
 
     return files;

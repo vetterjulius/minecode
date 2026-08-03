@@ -5,11 +5,9 @@ import { NextResponse } from 'next/server';
  * Path: /api/api/billing/checkout
  */
 export async function POST(_request: Request) {
-  try {
-    const checkoutSessionUrl = `https://checkout.stripe.com/pay/session_mock_${crypto.randomUUID()}`;
-    return NextResponse.json({ success: true, url: checkoutSessionUrl });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    return NextResponse.json({ success: false, error: message }, { status: 400 });
-  }
+  return NextResponse.json({
+    message: 'Mock response for Checkout API endpoint using POST',
+    success: true,
+    timestamp: new Date().toISOString(),
+  });
 }

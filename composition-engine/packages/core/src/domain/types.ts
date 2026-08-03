@@ -243,5 +243,5 @@ export interface Application {
 
 export interface StackAdapter {
   readonly stackId: string;
-  generate(plan: CompositionPlan): Record<string, string>;
+  generate(plan: CompositionPlan, options?: { runnable?: boolean }): Record<string, string>;
 }

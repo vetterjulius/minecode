@@ -44,6 +44,15 @@ test('test_B2bSaaSExample_GeneratedFiles_ExistAndAreValid', () => {
     'supabase/migrations/database/0002_orgs_schema.sql',
     'supabase/migrations/database/0003_rbac_schema.sql',
     'supabase/migrations/database/0004_billing_schema.sql',
+    'package.json',
+    'tsconfig.json',
+    'postcss.config.js',
+    'tailwind.config.ts',
+    'next.config.mjs',
+    '.env.local',
+    'app/page.tsx',
+    'app/globals.css',
+    'app/layout.tsx',
   ];
 
   for (const file of expectedFiles) {
