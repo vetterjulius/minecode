@@ -37,7 +37,7 @@ const samplePlan: CompositionPlan = {
       id: 'auth:login',
       featureId: 'auth',
       name: 'login',
-      path: '/auth/login', // Relative to API prefix in StackAdapter
+      path: '/auth/login',
       method: 'POST',
       description: 'Login endpoint',
     },
@@ -98,7 +98,7 @@ const samplePlan: CompositionPlan = {
   extensionPoints: [],
 };
 
-test('test_GivenValidCompositionPlan_WhenGenerateCalled_ThenCreatesProjectSkeletonDirectories', () => {
+test('test_Generate_ValidCompositionPlan_CreatesProjectSkeletonDirectories', () => {
   const generator = new ApplicationGenerator(tempDir);
   generator.generate(samplePlan);
 
@@ -108,27 +108,23 @@ test('test_GivenValidCompositionPlan_WhenGenerateCalled_ThenCreatesProjectSkelet
   expect(fs.existsSync(path.join(tempDir, 'config'))).toBe(true);
 });
 
-test('test_GivenValidCompositionPlan_WhenGenerateCalled_ThenSeparatesGeneratedAndConfigAndAppFiles', () => {
+test('test_Generate_ValidCompositionPlan_SeparatesGeneratedAndConfigAndAppFiles', () => {
   const generator = new ApplicationGenerator(tempDir);
   generator.generate(samplePlan);
 
-  // 1. Pages/routes in app/
   const apiRoutePath = path.join(tempDir, 'app/api/auth/login/route.ts');
   const pagePath = path.join(tempDir, 'app/dashboard/page.tsx');
   expect(fs.existsSync(apiRoutePath)).toBe(true);
   expect(fs.existsSync(pagePath)).toBe(true);
 
-  // Verify route content is correct
   const apiRouteContent = fs.readFileSync(apiRoutePath, 'utf8');
   expect(apiRouteContent).toContain('Login endpoint');
   expect(apiRouteContent).toContain('export async function POST');
 
-  // Verify page content is correct
   const pageContent = fs.readFileSync(pagePath, 'utf8');
   expect(pageContent).toContain('DashboardPagePage');
   expect(pageContent).toContain('Dashboard Page');
 
-  // 2. Config/Glue in config/
   const navConfigPath = path.join(tempDir, 'config/navigation.ts');
   const permConfigPath = path.join(tempDir, 'config/permissions.ts');
   const eventConfigPath = path.join(tempDir, 'config/events.ts');
@@ -136,7 +132,6 @@ test('test_GivenValidCompositionPlan_WhenGenerateCalled_ThenSeparatesGeneratedAn
   expect(fs.existsSync(permConfigPath)).toBe(true);
   expect(fs.existsSync(eventConfigPath)).toBe(true);
 
-  // 3. Managed code in generated/
   const dbTypesPath = path.join(tempDir, 'generated/types/database.ts');
   const componentPath = path.join(tempDir, 'generated/components/LoginForm.tsx');
   expect(fs.existsSync(dbTypesPath)).toBe(true);
@@ -149,25 +144,24 @@ test('test_GivenValidCompositionPlan_WhenGenerateCalled_ThenSeparatesGeneratedAn
   const componentContent = fs.readFileSync(componentPath, 'utf8');
   expect(componentContent).toContain('export function LoginForm()');
 
-  // 4. Migrations output under supabase/migrations
   const migrationPath = path.join(tempDir, 'supabase/migrations/0001_init.sql');
   const tableMigrationPath = path.join(tempDir, 'supabase/migrations/user_table.sql');
   expect(fs.existsSync(migrationPath)).toBe(true);
   expect(fs.existsSync(tableMigrationPath)).toBe(true);
 });
 
-test('test_GivenUnsupportedStackId_WhenGenerateCalled_ThenThrowsError', () => {
+test('test_Generate_UnsupportedStackId_ThrowsError', () => {
   const generator = new ApplicationGenerator(tempDir);
   const badPlan = { ...samplePlan, stackId: 'django-postgres' };
 
   expect(() => generator.generate(badPlan)).toThrow("Unsupported stack ID: 'django-postgres'.");
 });
 
-test('test_GivenMissingOutputDirectory_WhenInstantiated_ThenThrowsError', () => {
+test('test_Instantiated_MissingOutputDirectory_ThrowsError', () => {
   expect(() => new ApplicationGenerator('')).toThrow('Output directory path must be specified.');
 });
 
-test('test_GivenMissingCompositionPlan_WhenGenerateCalled_ThenThrowsError', () => {
+test('test_Generate_MissingCompositionPlan_ThrowsError', () => {
   const generator = new ApplicationGenerator(tempDir);
   expect(() => generator.generate(null as unknown as CompositionPlan)).toThrow(
     'Composition plan must be specified.'
