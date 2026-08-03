@@ -211,8 +211,14 @@ export function ${name}() {
     }
 
     if (options?.runnable) {
+      const formattedPkgName =
+        plan.applicationName
+          .toLowerCase()
+          .replace(/[^a-z0-9-_]+/g, '-')
+          .replace(/^-+|-+$/g, '') || 'composed-app';
+
       files['package.json'] = `{
-  "name": "composed-app",
+  "name": "${formattedPkgName}",
   "version": "0.1.0",
   "private": true,
   "scripts": {

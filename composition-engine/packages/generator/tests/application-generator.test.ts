@@ -179,7 +179,7 @@ test('test_Generate_WithRunnableOption_CreatesWorkspaceConfigsAndPagesCorrectly'
   expect(fs.existsSync(path.join(tempDir, '.env.local'))).toBe(true);
 
   const packageJsonContent = fs.readFileSync(path.join(tempDir, 'package.json'), 'utf8');
-  expect(packageJsonContent).toContain('"composed-app"');
+  expect(packageJsonContent).toContain('"test-saas"');
   expect(packageJsonContent).toContain('"next":');
 
   const pageContent = fs.readFileSync(path.join(tempDir, 'app/page.tsx'), 'utf8');
