@@ -8,6 +8,7 @@ const LAYERS = [
   '@minecode/registry',
   '@minecode/resolver',
   '@minecode/composer',
+  '@minecode/nextjs-supabase',
   '@minecode/generator'
 ];
 
@@ -22,6 +23,7 @@ function getLayerIndex(name) {
 
 const PACKAGES_DIR = 'composition-engine/packages';
 const APPS_DIR = 'composition-engine/apps';
+const STACKS_DIR = 'composition-engine/stacks';
 
 function getProjectDirectories() {
   const dirs = [];
@@ -29,6 +31,15 @@ function getProjectDirectories() {
   if (fs.existsSync(PACKAGES_DIR)) {
     for (const item of fs.readdirSync(PACKAGES_DIR)) {
       const fullPath = path.join(PACKAGES_DIR, item);
+      if (fs.statSync(fullPath).isDirectory() && fs.existsSync(path.join(fullPath, 'package.json'))) {
+        dirs.push(fullPath);
+      }
+    }
+  }
+
+  if (fs.existsSync(STACKS_DIR)) {
+    for (const item of fs.readdirSync(STACKS_DIR)) {
+      const fullPath = path.join(STACKS_DIR, item);
       if (fs.statSync(fullPath).isDirectory() && fs.existsSync(path.join(fullPath, 'package.json'))) {
         dirs.push(fullPath);
       }

@@ -69,6 +69,9 @@ importers:
       '@minecode/composer':
         specifier: workspace:*
         version: link:../composer
+      '@minecode/nextjs-supabase':
+        specifier: workspace:*
+        version: link:../../stacks/nextjs-supabase
 
   composition-engine/packages/registry:
     dependencies:
@@ -112,6 +115,12 @@ importers:
       zod:
         specifier: ^4.4.3
         version: 4.4.3
+
+  composition-engine/stacks/nextjs-supabase:
+    dependencies:
+      '@minecode/core':
+        specifier: workspace:*
+        version: link:../../packages/core
 
 packages:
   '@ampproject/remapping@2.3.0':

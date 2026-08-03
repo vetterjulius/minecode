@@ -13,7 +13,7 @@
     "format": "prettier --write \"**/*.{ts,json,md,yaml,yml}\"",
     "format:check": "prettier --check \"**/*.{ts,json,md,yaml,yml}\"",
     "check-boundaries": "node scripts/validate-package-boundaries.js",
-    "check-circular": "dpdm --exit-code circular:1 \"composition-engine/packages/*/src/**/*.ts\" \"composition-engine/apps/*/src/**/*.ts\""
+    "check-circular": "dpdm --exit-code circular:1 \"composition-engine/packages/*/src/**/*.ts\" \"composition-engine/apps/*/src/**/*.ts\" \"composition-engine/stacks/*/src/**/*.ts\""
   },
   "devDependencies": {
     "@eslint/js": "^9.20.0",

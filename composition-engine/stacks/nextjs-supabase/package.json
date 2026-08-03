@@ -1,5 +1,5 @@
 {
-  "name": "@minecode/generator",
+  "name": "@minecode/nextjs-supabase",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -10,7 +10,6 @@
     "clean": "tsc --build --clean"
   },
   "dependencies": {
-    "@minecode/composer": "workspace:*",
-    "@minecode/nextjs-supabase": "workspace:*"
+    "@minecode/core": "workspace:*"
   }
 }
