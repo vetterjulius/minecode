@@ -78,6 +78,9 @@ importers:
       '@minecode/composer':
         specifier: workspace:*
         version: link:../composer
+      '@minecode/core':
+        specifier: workspace:*
+        version: link:../core
       '@minecode/nextjs-supabase':
         specifier: workspace:*
         version: link:../../stacks/nextjs-supabase

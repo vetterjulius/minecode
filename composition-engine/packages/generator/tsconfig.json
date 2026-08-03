@@ -5,5 +5,9 @@
     "outDir": "dist"
   },
   "include": ["src/**/*"],
-  "references": [{ "path": "../composer" }, { "path": "../../stacks/nextjs-supabase" }]
+  "references": [
+    { "path": "../core" },
+    { "path": "../composer" },
+    { "path": "../../stacks/nextjs-supabase" }
+  ]
 }
