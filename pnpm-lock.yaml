@@ -55,6 +55,9 @@ importers:
 
   composition-engine/packages/composer:
     dependencies:
+      '@minecode/core':
+        specifier: workspace:*
+        version: link:../core
       '@minecode/resolver':
         specifier: workspace:*
         version: link:../resolver

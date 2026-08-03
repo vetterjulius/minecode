@@ -127,6 +127,39 @@ export const RawContractSchema = z.object({
         )
         .optional(),
       capabilities: z.array(z.string()).optional(),
+      api: z
+        .array(
+          z.object({
+            name: z.string().min(1),
+            path: z.string().min(1),
+            method: z.string().optional(),
+            description: z.string().optional(),
+          })
+        )
+        .optional(),
+      ui: z
+        .array(
+          z.object({
+            name: z.string().min(1),
+            component: z.string().optional(),
+            route: z.string().optional(),
+            slot: z.string().optional(),
+            description: z.string().optional(),
+          })
+        )
+        .optional(),
+      navigation: z
+        .array(
+          z.object({
+            name: z.string().min(1),
+            label: z.string().min(1),
+            path: z.string().min(1),
+            parent: z.string().optional(),
+            order: z.number().optional(),
+            icon: z.string().optional(),
+          })
+        )
+        .optional(),
     })
     .optional(),
   requires: z
@@ -140,6 +173,15 @@ export const RawContractSchema = z.object({
       features: z.array(z.string()).optional(),
       capabilities: z.array(z.string()).optional(),
     })
+    .optional(),
+  contributions: z
+    .array(
+      z.object({
+        targetExtensionPoint: z.string().min(1),
+        value: z.any(),
+        description: z.string().optional(),
+      })
+    )
     .optional(),
 });
 
@@ -226,6 +268,7 @@ export function normalizeContract(raw: any): Contract {
   const provides: Contract['provides'] = {};
   const requires: Contract['requires'] = {};
   const conflicts: Contract['conflicts'] = {};
+  let contributions: Contract['contributions'] = undefined;
 
   if (raw.provides) {
     if (raw.provides.entities) {
@@ -290,6 +333,36 @@ export function normalizeContract(raw: any): Contract {
     if (raw.provides.capabilities) {
       provides.capabilities = raw.provides.capabilities;
     }
+
+    if (raw.provides.api) {
+      provides.api = raw.provides.api.map((a: any) => ({
+        name: a.name,
+        path: a.path,
+        method: a.method,
+        description: a.description ?? '',
+      }));
+    }
+
+    if (raw.provides.ui) {
+      provides.ui = raw.provides.ui.map((u: any) => ({
+        name: u.name,
+        component: u.component,
+        route: u.route,
+        slot: u.slot,
+        description: u.description ?? '',
+      }));
+    }
+
+    if (raw.provides.navigation) {
+      provides.navigation = raw.provides.navigation.map((n: any) => ({
+        name: n.name,
+        label: n.label,
+        path: n.path,
+        parent: n.parent,
+        order: n.order,
+        icon: n.icon,
+      }));
+    }
   }
 
   if (raw.requires) {
@@ -310,7 +383,19 @@ export function normalizeContract(raw: any): Contract {
     }
   }
 
-  return { provides, requires, conflicts };
+  if (raw.contributions) {
+    contributions = raw.contributions.map((c: any) => ({
+      targetExtensionPoint: c.targetExtensionPoint,
+      value: c.value,
+      description: c.description ?? '',
+    }));
+  }
+
+  const resultContract: Contract = { provides, requires, conflicts };
+  if (contributions !== undefined) {
+    resultContract.contributions = contributions;
+  }
+  return resultContract;
 }
 
 export function normalizeDependencies(raw: any[] | undefined): Dependency[] {

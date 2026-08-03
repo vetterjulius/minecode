@@ -72,7 +72,7 @@ _Note: The CLI app (`@minecode/cli`) and MCP Server app (`@minecode/mcp-server`)
 
 ### `packages/composer`
 
-- **Ownership:** Mapping feature nodes into a complete Composition Plan (database migrations, schema bindings, API routes, and components).
+- **Ownership:** Mapping a resolved feature graph and blueprint into a deterministic `CompositionPlan` consisting of structured, merged abstract artifacts (`database`, `api`, `ui`, `navigation`, `events`, `permissions`, `migrations`, and `extensionPoints`) and handling extension points contributions.
 - **Rules:** Can only depend on `@minecode/resolver` and below.
 
 ### `packages/generator`
