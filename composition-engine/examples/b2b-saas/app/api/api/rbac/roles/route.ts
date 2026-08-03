@@ -1,3 +1,5 @@
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
 /**
@@ -5,9 +7,16 @@ import { NextResponse } from 'next/server';
  * Path: /api/api/rbac/roles
  */
 export async function GET(_request: Request) {
-  return NextResponse.json({
-    message: 'Mock response for ListRoles API endpoint using GET',
-    success: true,
-    timestamp: new Date().toISOString(),
-  });
+  const supabase = createRouteHandlerClient({ cookies });
+  try {
+    const { data: roles, error } = await supabase
+      .from('role')
+      .select('*');
+
+    if (error) throw error;
+    return NextResponse.json({ success: true, data: roles });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
+  }
 }

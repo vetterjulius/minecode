@@ -83,22 +83,264 @@ export class NextJsSupabaseAdapter implements StackAdapter {
       const normalizedPath = apiDef.path.replace(/^\/+|\/+$/g, '');
       const method = apiDef.method || 'GET';
       const name = apiDef.name;
-      const desc = apiDef.description || `Mock handler for ${name} (${method})`;
+      const desc = apiDef.description || `Handler for ${name} (${method})`;
 
-      const apiRouteContent = `import { NextResponse } from 'next/server';
+      let apiRouteContent = '';
+
+      if (normalizedPath === 'api/auth/login') {
+        apiRouteContent = `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
+import { NextResponse } from 'next/server';
 
 /**
  * ${desc}
  * Path: /api/${normalizedPath}
  */
-export async function ${method.toUpperCase()}(_request: Request) {
-  return NextResponse.json({
-    message: "Mock response for ${name} API endpoint using ${method}",
-    success: true,
-    timestamp: new Date().toISOString()
-  });
+export async function POST(request: Request) {
+  const supabase = createRouteHandlerClient({ cookies });
+  try {
+    const { email, password } = await request.json();
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    if (error) throw error;
+    return NextResponse.json({ success: true, user: data.user, session: data.session });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ success: false, error: message }, { status: 400 });
+  }
 }
 `;
+      } else if (normalizedPath === 'api/auth/logout') {
+        apiRouteContent = `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
+import { NextResponse } from 'next/server';
+
+/**
+ * ${desc}
+ * Path: /api/${normalizedPath}
+ */
+export async function POST(_request: Request) {
+  const supabase = createRouteHandlerClient({ cookies });
+  try {
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
+    return NextResponse.json({ success: true, message: 'Logged out successfully' });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ success: false, error: message }, { status: 400 });
+  }
+}
+`;
+      } else if (normalizedPath === 'api/auth/reset-password') {
+        apiRouteContent = `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
+import { NextResponse } from 'next/server';
+
+/**
+ * ${desc}
+ * Path: /api/${normalizedPath}
+ */
+export async function POST(request: Request) {
+  const supabase = createRouteHandlerClient({ cookies });
+  try {
+    const { email } = await request.json();
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: \`\${new URL(request.url).origin}/auth/update-password\`,
+    });
+    if (error) throw error;
+    return NextResponse.json({ success: true, message: 'Password reset email sent' });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ success: false, error: message }, { status: 400 });
+  }
+}
+`;
+      } else if (normalizedPath === 'api/organizations' && method === 'GET') {
+        apiRouteContent = `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
+import { NextResponse } from 'next/server';
+
+/**
+ * ${desc}
+ * Path: /api/${normalizedPath}
+ */
+export async function GET(_request: Request) {
+  const supabase = createRouteHandlerClient({ cookies });
+  try {
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { data: memberships, error: memberError } = await supabase
+      .from('membership')
+      .select('organizationId')
+      .eq('userId', user.id);
+
+    if (memberError) throw memberError;
+
+    const orgIds = memberships.map(m => m.organizationId);
+    const { data: organizations, error: orgError } = await supabase
+      .from('organization')
+      .select('*')
+      .in('id', orgIds);
+
+    if (orgError) throw orgError;
+
+    return NextResponse.json({ success: true, data: organizations });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
+  }
+}
+`;
+      } else if (normalizedPath === 'api/organizations/invite') {
+        apiRouteContent = `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
+import { NextResponse } from 'next/server';
+
+/**
+ * ${desc}
+ * Path: /api/${normalizedPath}
+ */
+export async function POST(request: Request) {
+  const supabase = createRouteHandlerClient({ cookies });
+  try {
+    const { organizationId, email, role } = await request.json();
+    const { data: invitation, error } = await supabase
+      .from('invitation')
+      .insert({
+        organizationId,
+        email,
+        role,
+        token: crypto.randomUUID(),
+        expiresAt: new Date(Date.now() + 259200 * 1000).toISOString()
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return NextResponse.json({ success: true, data: invitation });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ success: false, error: message }, { status: 400 });
+  }
+}
+`;
+      } else if (normalizedPath === 'api/billing/checkout') {
+        apiRouteContent = `import { NextResponse } from 'next/server';
+
+/**
+ * ${desc}
+ * Path: /api/${normalizedPath}
+ */
+export async function POST(_request: Request) {
+  try {
+    const checkoutSessionUrl = \`https://checkout.stripe.com/pay/session_mock_\${crypto.randomUUID()}\`;
+    return NextResponse.json({ success: true, url: checkoutSessionUrl });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ success: false, error: message }, { status: 400 });
+  }
+}
+`;
+      } else if (normalizedPath === 'api/billing/webhook') {
+        apiRouteContent = `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
+import { NextResponse } from 'next/server';
+
+/**
+ * ${desc}
+ * Path: /api/${normalizedPath}
+ */
+export async function POST(request: Request) {
+  const supabase = createRouteHandlerClient({ cookies });
+  try {
+    const payload = await request.json();
+    const eventType = payload.type;
+
+    if (eventType === 'checkout.session.completed') {
+      const session = payload.data.object;
+      const organizationId = session.metadata?.organizationId;
+      const stripeCustomerId = session.customer;
+
+      await supabase
+        .from('stripecustomer')
+        .insert({
+          organizationId,
+          stripeCustomerId
+        });
+    }
+
+    return NextResponse.json({ success: true, received: true });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ success: false, error: message }, { status: 400 });
+  }
+}
+`;
+      } else if (normalizedPath === 'api/rbac/roles') {
+        apiRouteContent = `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
+import { NextResponse } from 'next/server';
+
+/**
+ * ${desc}
+ * Path: /api/${normalizedPath}
+ */
+export async function GET(_request: Request) {
+  const supabase = createRouteHandlerClient({ cookies });
+  try {
+    const { data: roles, error } = await supabase
+      .from('role')
+      .select('*');
+
+    if (error) throw error;
+    return NextResponse.json({ success: true, data: roles });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
+  }
+}
+`;
+      } else {
+        apiRouteContent = `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
+import { NextResponse } from 'next/server';
+
+/**
+ * ${desc}
+ * Path: /api/${normalizedPath}
+ */
+export async function ${method.toUpperCase()}(request: Request) {
+  const supabase = createRouteHandlerClient({ cookies });
+  try {
+    const tableName = '${normalizedPath.split('/').pop() || 'data'}';
+    if ('${method.toUpperCase()}' === 'GET') {
+      const { data, error } = await supabase
+        .from(tableName)
+        .select('*');
+      if (error) throw error;
+      return NextResponse.json({ success: true, data });
+    } else {
+      const body = await request.json();
+      const { data, error } = await supabase
+        .from(tableName)
+        .insert(body)
+        .select();
+      if (error) throw error;
+      return NextResponse.json({ success: true, data });
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
+  }
+}
+`;
+      }
+
       files[`app/api/${normalizedPath}/route.ts`] = apiRouteContent;
     }
 
