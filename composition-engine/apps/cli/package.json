@@ -10,9 +10,16 @@
   },
   "scripts": {
     "build": "tsc --build",
-    "clean": "tsc --build --clean"
+    "clean": "tsc --build --clean",
+    "start": "node ./dist/main.js"
   },
   "dependencies": {
-    "@minecode/generator": "workspace:*"
+    "@minecode/core": "workspace:*",
+    "@minecode/schemas": "workspace:*",
+    "@minecode/registry": "workspace:*",
+    "@minecode/resolver": "workspace:*",
+    "@minecode/composer": "workspace:*",
+    "@minecode/generator": "workspace:*",
+    "commander": "^15.0.0"
   }
 }

@@ -5,5 +5,12 @@
     "outDir": "dist"
   },
   "include": ["src/**/*"],
-  "references": [{ "path": "../../packages/generator" }]
+  "references": [
+    { "path": "../../packages/core" },
+    { "path": "../../packages/schemas" },
+    { "path": "../../packages/registry" },
+    { "path": "../../packages/resolver" },
+    { "path": "../../packages/composer" },
+    { "path": "../../packages/generator" }
+  ]
 }
