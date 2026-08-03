@@ -1,3 +1,4 @@
 packages:
   - 'composition-engine/packages/*'
   - 'composition-engine/apps/*'
+  - 'composition-engine/stacks/*'

@@ -240,3 +240,8 @@ export interface Application {
   generatedAt: string;
   engineVersion: string;
 }
+
+export interface StackAdapter {
+  readonly stackId: string;
+  generate(plan: CompositionPlan): Record<string, string>;
+}
