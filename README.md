@@ -49,6 +49,52 @@ pnpm format:check
 pnpm lint
 ```
 
+## CLI Developer Interface
+
+Minecode provides a developer-friendly command-line interface via the `@minecode/cli` package, exposing all core composition engine capabilities to human developers without requiring MCP.
+
+Once built (`pnpm build`), you can run the CLI from the repository root:
+
+```bash
+node composition-engine/apps/cli/dist/main.js [command] [options]
+```
+
+### CLI Commands
+
+- **Initialize a blueprint (`init`)**:
+  Initializes a new `app.yaml` blueprint file in the current directory with explanatory comments.
+
+  ```bash
+  node composition-engine/apps/cli/dist/main.js init
+  ```
+
+- **Validate a blueprint (`validate`)**:
+  Validates a blueprint file (defaults to `app.yaml`) for correctness, version limits, dependencies, and capability conflicts.
+
+  ```bash
+  node composition-engine/apps/cli/dist/main.js validate [blueprintPath]
+  ```
+
+- **Build / Compose an application (`build`)**:
+  Processes and compiles a blueprint file (defaults to `app.yaml`) and physically writes the generated source files to the output directory (defaults to `./app`).
+
+  ```bash
+  node composition-engine/apps/cli/dist/main.js build [blueprintPath] --out-dir [path]
+  ```
+
+- **List available registry features (`feature list`)**:
+  Lists all available features in the registry in a clean tabular view.
+
+  ```bash
+  node composition-engine/apps/cli/dist/main.js feature list
+  ```
+
+- **Inspect a registry feature (`feature inspect`)**:
+  Shows detailed information, dependencies, contract declarations, and the full JSON configuration schema of a specific feature.
+  ```bash
+  node composition-engine/apps/cli/dist/main.js feature inspect <feature-id>
+  ```
+
 ## Engineering and Quality Standards
 
 All contributions to Minecode must adhere to our strict engineering guidelines and principles:
