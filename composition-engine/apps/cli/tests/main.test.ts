@@ -9,6 +9,8 @@ import {
   runBuildCommand,
   runFeatureListCommand,
   runFeatureInspectCommand,
+  runFeatureCreateCommand,
+  runFeatureValidateSpecificCommand,
 } from '../src/main.js';
 
 test('test_RunCLI_NoArguments_ReturnsCLIInfoAndLogs', () => {
@@ -110,6 +112,97 @@ test('test_RunValidateCommand_ValidBlueprint_ReturnsSuccess', () => {
   } finally {
     fs.rmSync(tempDir, { recursive: true, force: true });
   }
+});
+
+test('test_RunFeatureCreateCommand_WithArguments_CreatesStructure', async () => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'minecode-cli-create-'));
+  try {
+    const result = await runFeatureCreateCommand('test-feat', {
+      name: 'Test Feature',
+      features: tempDir,
+    });
+    expect(result.success).toBe(true);
+    expect(result.errors).toHaveLength(0);
+
+    const createdDir = result.targetDir!;
+    expect(fs.existsSync(path.join(createdDir, 'feature.yaml'))).toBe(true);
+    expect(fs.existsSync(path.join(createdDir, 'contract.yaml'))).toBe(true);
+    expect(fs.existsSync(path.join(createdDir, 'config.schema.yaml'))).toBe(true);
+    expect(fs.existsSync(path.join(createdDir, 'dependencies.yaml'))).toBe(true);
+    expect(fs.existsSync(path.join(createdDir, 'README.md'))).toBe(true);
+    expect(fs.existsSync(path.join(createdDir, 'tests', 'index.test.ts'))).toBe(true);
+
+    const featureContent = fs.readFileSync(path.join(createdDir, 'feature.yaml'), 'utf8');
+    expect(featureContent).toContain('id: test-feat');
+    expect(featureContent).toContain('name: "Test Feature"');
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+});
+
+test('test_RunFeatureCreateCommand_InvalidId_ReturnsError', async () => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'minecode-cli-create-err-'));
+  try {
+    const result = await runFeatureCreateCommand('invalid id!', {
+      name: 'Test Feature',
+      features: tempDir,
+    });
+    expect(result.success).toBe(false);
+    expect(result.errors.length).toBeGreaterThan(0);
+    expect(result.errors[0]).toContain('Invalid Feature ID');
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+});
+
+test('test_RunFeatureValidateSpecificCommand_ValidFeature_Succeeds', async () => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'minecode-cli-val-'));
+  try {
+    const createResult = await runFeatureCreateCommand('valid-feat', {
+      name: 'Valid Feature',
+      features: tempDir,
+    });
+    expect(createResult.success).toBe(true);
+
+    const valResult = runFeatureValidateSpecificCommand(createResult.targetDir!, {
+      features: tempDir,
+    });
+    expect(valResult.success).toBe(true);
+    expect(valResult.errors).toHaveLength(0);
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+});
+
+test('test_RunFeatureValidateSpecificCommand_InvalidFeature_ReturnsErrors', async () => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'minecode-cli-val-err-'));
+  try {
+    const createResult = await runFeatureCreateCommand('invalid-feat', {
+      name: 'Invalid Feature',
+      features: tempDir,
+    });
+    expect(createResult.success).toBe(true);
+
+    // Overwrite with invalid type and version
+    fs.writeFileSync(
+      path.join(createResult.targetDir!, 'feature.yaml'),
+      `id: invalid-feat\nversion: invalid_semver\ntype: bad_type`
+    );
+
+    const valResult = runFeatureValidateSpecificCommand(createResult.targetDir!, {
+      features: tempDir,
+    });
+    expect(valResult.success).toBe(false);
+    expect(valResult.errors.length).toBeGreaterThan(0);
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+});
+
+test('test_RunFeatureValidateSpecificCommand_NonexistentPath_ReturnsError', () => {
+  const result = runFeatureValidateSpecificCommand('/nonexistent/path/to/feature');
+  expect(result.success).toBe(false);
+  expect(result.errors.length).toBeGreaterThan(0);
 });
 
 test('test_RunValidateCommand_InvalidBlueprint_ReturnsErrors', () => {
