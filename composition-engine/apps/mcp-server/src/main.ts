@@ -158,8 +158,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           properties: {
             blueprint: {
               type: 'string',
-              description:
-                'YAML or JSON string representing the application blueprint to validate',
+              description: 'YAML or JSON string representing the application blueprint to validate',
             },
           },
           required: ['blueprint'],
@@ -174,8 +173,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           properties: {
             blueprint: {
               type: 'string',
-              description:
-                'YAML or JSON string representing the application blueprint to resolve',
+              description: 'YAML or JSON string representing the application blueprint to resolve',
             },
           },
           required: ['blueprint'],
@@ -190,8 +188,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           properties: {
             blueprint: {
               type: 'string',
-              description:
-                'YAML or JSON string representing the application blueprint to compose',
+              description: 'YAML or JSON string representing the application blueprint to compose',
             },
             outDir: {
               type: 'string',
@@ -220,7 +217,10 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     };
   }
 
-  const { name, arguments: args } = request.params as { name: string; arguments?: Record<string, any> };
+  const { name, arguments: args } = request.params as {
+    name: string;
+    arguments?: Record<string, any>;
+  };
 
   try {
     switch (name) {
