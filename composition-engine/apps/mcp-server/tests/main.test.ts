@@ -1,5 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { test, expect, vi } from 'vitest';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as os from 'os';
 import { runMCPServer, server, registry } from '../src/main.js';
 import { Feature } from '@minecode/core';
 
@@ -38,7 +41,8 @@ test('test_ListFeatures_NoParameters_ReturnsCompactFeatureList', async () => {
 
   // Call tools/list
   const toolsResponse = await listToolsHandler({ method: 'tools/list' });
-  expect(toolsResponse.tools).toHaveLength(4);
+  // Now includes our 3 new tools, so total is 4 + 3 = 7
+  expect(toolsResponse.tools).toHaveLength(7);
 
   // Call tools/call for list_features
   const response = await callToolHandler({
@@ -296,5 +300,287 @@ test('test_GetFeatureSchema_InvalidId_ReturnsErrorResponse', async () => {
   expect(response.isError).toBe(true);
   expect(response.content[0].text).toContain("Feature with ID 'non-existent' not found");
 
+  spy.mockRestore();
+});
+
+// New tests for validate_blueprint, resolve_blueprint, and compose_application
+
+test('test_ValidateBlueprint_ValidBlueprint_ReturnsValidTrue', async () => {
+  const mockFeature: Feature = {
+    id: 'auth',
+    version: '1.0.0',
+    type: 'business',
+    metadata: {
+      name: 'Authentication',
+      description: 'User authentication',
+      category: 'security',
+      stack: ['nextjs-supabase'],
+    },
+    contract: {},
+    dependencies: [],
+    modules: [],
+  };
+  const spy = vi.spyOn(registry, 'getFeature').mockReturnValue(mockFeature);
+
+  const blueprintStr = `
+application:
+  name: test-app
+stack:
+  id: nextjs-supabase
+features:
+  auth:
+    version: "^1.0.0"
+  `;
+
+  const callToolHandler = (server as any)._requestHandlers.get('tools/call');
+  const response = await callToolHandler({
+    method: 'tools/call',
+    params: {
+      name: 'validate_blueprint',
+      arguments: { blueprint: blueprintStr },
+    },
+  });
+
+  expect(response.isError).toBeFalsy();
+  const result = JSON.parse(response.content[0].text);
+  expect(result.valid).toBe(true);
+  expect(result.errors).toHaveLength(0);
+
+  spy.mockRestore();
+});
+
+test('test_ValidateBlueprint_InvalidYaml_ReturnsValidFalseWithParsingError', async () => {
+  const blueprintStr = `
+application:
+  name: test-app
+  invalid_yaml: : : :
+  `;
+
+  const callToolHandler = (server as any)._requestHandlers.get('tools/call');
+  const response = await callToolHandler({
+    method: 'tools/call',
+    params: {
+      name: 'validate_blueprint',
+      arguments: { blueprint: blueprintStr },
+    },
+  });
+
+  expect(response.isError).toBeFalsy();
+  const result = JSON.parse(response.content[0].text);
+  expect(result.valid).toBe(false);
+  expect(result.errors[0]).toContain('YAML Syntax Error');
+});
+
+test('test_ValidateBlueprint_IncompatibleVersion_ReturnsValidFalseWithValidationError', async () => {
+  const mockFeature: Feature = {
+    id: 'auth',
+    version: '1.0.0',
+    type: 'business',
+    metadata: {
+      name: 'Authentication',
+      description: 'User authentication',
+      category: 'security',
+    },
+    contract: {},
+    dependencies: [],
+    modules: [],
+  };
+  const spy = vi.spyOn(registry, 'getFeature').mockReturnValue(mockFeature);
+
+  const blueprintStr = `
+application:
+  name: test-app
+features:
+  auth:
+    version: "^2.0.0"
+  `;
+
+  const callToolHandler = (server as any)._requestHandlers.get('tools/call');
+  const response = await callToolHandler({
+    method: 'tools/call',
+    params: {
+      name: 'validate_blueprint',
+      arguments: { blueprint: blueprintStr },
+    },
+  });
+
+  expect(response.isError).toBeFalsy();
+  const result = JSON.parse(response.content[0].text);
+  expect(result.valid).toBe(false);
+  expect(result.errors[0]).toContain('does not satisfy requested version constraint');
+
+  spy.mockRestore();
+});
+
+test('test_ValidateBlueprint_FeatureConflict_ReturnsValidFalseWithConflictErrors', async () => {
+  const mockFeatures: Record<string, Feature> = {
+    auth: {
+      id: 'auth',
+      version: '1.0.0',
+      type: 'business',
+      metadata: { name: 'Auth', description: '' },
+      contract: { provides: { capabilities: ['identity'] } },
+      dependencies: [],
+      modules: [],
+    },
+    oauth: {
+      id: 'oauth',
+      version: '1.0.0',
+      type: 'business',
+      metadata: { name: 'OAuth', description: '' },
+      contract: { provides: { capabilities: ['identity'] } },
+      dependencies: [],
+      modules: [],
+    },
+  };
+  const spy = vi.spyOn(registry, 'getFeature').mockImplementation((id) => mockFeatures[id]);
+
+  const blueprintStr = `
+application:
+  name: test-app
+features:
+  auth:
+    version: "1.0.0"
+  oauth:
+    version: "1.0.0"
+  `;
+
+  const callToolHandler = (server as any)._requestHandlers.get('tools/call');
+  const response = await callToolHandler({
+    method: 'tools/call',
+    params: {
+      name: 'validate_blueprint',
+      arguments: { blueprint: blueprintStr },
+    },
+  });
+
+  expect(response.isError).toBeFalsy();
+  const result = JSON.parse(response.content[0].text);
+  expect(result.valid).toBe(false);
+  expect(result.errors[0]).toContain("Duplicate capability 'identity'");
+
+  spy.mockRestore();
+});
+
+test('test_ResolveBlueprint_ValidBlueprint_ReturnsCompactFeatureList', async () => {
+  const mockFeature: Feature = {
+    id: 'auth',
+    version: '1.0.0',
+    type: 'business',
+    metadata: {
+      name: 'Authentication',
+      description: 'User authentication',
+      category: 'security',
+    },
+    contract: {},
+    dependencies: [],
+    modules: [],
+  };
+  const spy = vi.spyOn(registry, 'getFeature').mockReturnValue(mockFeature);
+
+  const blueprintStr = `
+application:
+  name: test-app
+features:
+  auth:
+    version: "1.0.0"
+  `;
+
+  const callToolHandler = (server as any)._requestHandlers.get('tools/call');
+  const response = await callToolHandler({
+    method: 'tools/call',
+    params: {
+      name: 'resolve_blueprint',
+      arguments: { blueprint: blueprintStr },
+    },
+  });
+
+  expect(response.isError).toBeFalsy();
+  const result = JSON.parse(response.content[0].text);
+  expect(result).toHaveLength(1);
+  expect(result[0].id).toBe('auth');
+  expect(result[0].version).toBe('1.0.0');
+
+  spy.mockRestore();
+});
+
+test('test_ResolveBlueprint_InvalidBlueprint_ReturnsErrorResponse', async () => {
+  const blueprintStr = `
+application:
+  name: test-app
+  invalid_yaml: : : :
+  `;
+
+  const callToolHandler = (server as any)._requestHandlers.get('tools/call');
+  const response = await callToolHandler({
+    method: 'tools/call',
+    params: {
+      name: 'resolve_blueprint',
+      arguments: { blueprint: blueprintStr },
+    },
+  });
+
+  expect(response.isError).toBe(true);
+  expect(response.content[0].text).toContain('Blueprint resolution failed');
+});
+
+test('test_ComposeApplication_ValidBlueprint_WritesFilesAndReturnsFileList', async () => {
+  const mockFeature: Feature = {
+    id: 'auth',
+    version: '1.0.0',
+    type: 'business',
+    metadata: {
+      name: 'Authentication',
+      description: 'User authentication',
+      category: 'security',
+    },
+    contract: {
+      provides: {
+        entities: [
+          {
+            name: 'User',
+            fields: [{ name: 'id', type: 'uuid', required: true }],
+          },
+        ],
+      },
+    },
+    dependencies: [],
+    modules: [],
+  };
+  const spy = vi.spyOn(registry, 'getFeature').mockReturnValue(mockFeature);
+
+  const tempOutDir = fs.mkdtempSync(path.join(os.tmpdir(), 'minecode-test-composition-'));
+
+  const blueprintStr = `
+application:
+  name: compose-test
+features:
+  auth:
+    version: "1.0.0"
+  `;
+
+  const callToolHandler = (server as any)._requestHandlers.get('tools/call');
+  const response = await callToolHandler({
+    method: 'tools/call',
+    params: {
+      name: 'compose_application',
+      arguments: { blueprint: blueprintStr, outDir: tempOutDir },
+    },
+  });
+
+  expect(response.isError).toBeFalsy();
+  const result = JSON.parse(response.content[0].text);
+  expect(result.success).toBe(true);
+  expect(result.outDir).toBe(tempOutDir);
+  expect(result.files).toContain('supabase/migrations/user_table.sql');
+
+  // Verify that a file was physically written
+  const userTableFile = path.join(tempOutDir, 'supabase/migrations/user_table.sql');
+  expect(fs.existsSync(userTableFile)).toBe(true);
+  const content = fs.readFileSync(userTableFile, 'utf8');
+  expect(content).toContain('CREATE TABLE IF NOT EXISTS "user"');
+
+  // Clean up
+  fs.rmSync(tempOutDir, { recursive: true, force: true });
   spy.mockRestore();
 });

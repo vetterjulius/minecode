@@ -11,7 +11,10 @@
   },
   "dependencies": {
     "@minecode/core": "workspace:*",
+    "@minecode/schemas": "workspace:*",
     "@minecode/registry": "workspace:*",
+    "@minecode/resolver": "workspace:*",
+    "@minecode/composer": "workspace:*",
     "@minecode/generator": "workspace:*",
     "@modelcontextprotocol/sdk": "^1.30.0"
   }

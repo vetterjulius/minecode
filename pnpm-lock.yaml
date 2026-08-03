@@ -49,6 +49,9 @@ importers:
 
   composition-engine/apps/mcp-server:
     dependencies:
+      '@minecode/composer':
+        specifier: workspace:*
+        version: link:../../packages/composer
       '@minecode/core':
         specifier: workspace:*
         version: link:../../packages/core
@@ -58,6 +61,12 @@ importers:
       '@minecode/registry':
         specifier: workspace:*
         version: link:../../packages/registry
+      '@minecode/resolver':
+        specifier: workspace:*
+        version: link:../../packages/resolver
+      '@minecode/schemas':
+        specifier: workspace:*
+        version: link:../../packages/schemas
       '@modelcontextprotocol/sdk':
         specifier: ^1.30.0
         version: 1.30.0(zod@4.4.3)
