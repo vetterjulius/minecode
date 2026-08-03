@@ -1,0 +1,64 @@
+provides:
+  capabilities:
+    - billing
+  entities:
+    - name: StripeCustomer
+      description: "Mapping of organization to Stripe customer"
+      fields:
+        - name: id
+          type: uuid
+          required: true
+          description: "Primary key"
+        - name: organizationId
+          type: uuid
+          required: true
+          description: "Reference to Organization"
+        - name: stripeCustomerId
+          type: string
+          required: true
+          description: "Stripe customer identifier"
+    - name: Subscription
+      description: "Organization subscription details"
+      fields:
+        - name: id
+          type: uuid
+          required: true
+          description: "Primary key"
+        - name: organizationId
+          type: uuid
+          required: true
+          description: "Reference to Organization"
+        - name: status
+          type: string
+          required: true
+          description: "Subscription state"
+        - name: priceId
+          type: string
+          required: true
+          description: "Stripe price identifier"
+        - name: createdAt
+          type: timestamp
+          required: true
+          description: "Subscription start timestamp"
+  permissions:
+    - name: billing.read
+      description: "Read billing details and subscriptions"
+    - name: billing.write
+      description: "Modify subscriptions or create checkouts"
+  api:
+    - name: Checkout
+      path: /api/billing/checkout
+      method: POST
+      description: "Create a new checkout session."
+    - name: Webhook
+      path: /api/billing/webhook
+      method: POST
+      description: "Stripe secure webhook endpoint handler."
+  ui:
+    - name: BillingSettingsPage
+      route: billing
+      slot: main
+      description: "SaaS billing settings and pricing tables."
+requires:
+  features:
+    - organizations

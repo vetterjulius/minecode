@@ -1,0 +1,14 @@
+id: organizations
+version: 1.0.0
+type: business
+name: "Organizations"
+description: "Multi-tenant tenant management, memberships, and team invitations."
+maintainer:
+  type: builtin
+stack:
+  - nextjs-supabase
+category: Collaboration
+modules:
+  - name: "database/0002_orgs_schema.sql"
+    type: migration
+    description: "Create organization, membership, and invitation tables."

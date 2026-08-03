@@ -1,0 +1,9 @@
+type: object
+properties:
+  defaultRoles:
+    type: array
+    items:
+      type: string
+    default: [admin, member]
+    description: "System roles populated by default"
+required: []

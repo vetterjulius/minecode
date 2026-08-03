@@ -1,0 +1,52 @@
+provides:
+  capabilities:
+    - rbac
+  entities:
+    - name: Role
+      description: "User security group role"
+      fields:
+        - name: id
+          type: uuid
+          required: true
+          description: "Primary key"
+        - name: name
+          type: string
+          required: true
+          description: "Unique identifier name of the role"
+        - name: description
+          type: string
+          required: false
+          description: "Friendly description of the role"
+    - name: Permission
+      description: "Specific action permission key"
+      fields:
+        - name: id
+          type: uuid
+          required: true
+          description: "Primary key"
+        - name: name
+          type: string
+          required: true
+          description: "Unique permission handle (e.g. user.create)"
+        - name: description
+          type: string
+          required: false
+          description: "Purpose description"
+  permissions:
+    - name: rbac.read
+      description: "Read RBAC configurations"
+    - name: rbac.write
+      description: "Modify RBAC roles and permissions"
+  api:
+    - name: ListRoles
+      path: /api/rbac/roles
+      method: GET
+      description: "List available system roles."
+  ui:
+    - name: RbacAdminPage
+      route: rbac-admin
+      slot: main
+      description: "Role and authorization admin page."
+requires:
+  features:
+    - authentication

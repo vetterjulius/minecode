@@ -1,0 +1,14 @@
+id: authentication
+version: 1.0.0
+type: business
+name: "Authentication"
+description: "Comprehensive user authentication capability supporting email/password, social logins, and password reset."
+maintainer:
+  type: builtin
+stack:
+  - nextjs-supabase
+category: Security
+modules:
+  - name: "database/0001_auth_schema.sql"
+    type: migration
+    description: "Create users and sessions tables."
