@@ -1,0 +1,38 @@
+# Minecode Application Blueprint - B2B SaaS Example
+# This blueprint configures a fully end-to-end generated B2B SaaS application
+
+application:
+  name: 'B2B SaaS Reference Application'
+
+stack:
+  id: 'nextjs-supabase'
+
+features:
+  database:
+    version: '1.0.0'
+    config:
+      pooling: true
+  authentication:
+    version: '1.0.0'
+    config:
+      providers:
+        - 'email'
+        - 'google'
+      sessionTimeout: 86400
+  organizations:
+    version: '1.0.0'
+    config:
+      allowMultipleOrganizations: true
+      invitationExpirySeconds: 259200
+  rbac:
+    version: '1.0.0'
+    config:
+      defaultRoles:
+        - 'admin'
+        - 'member'
+        - 'billing_admin'
+  billing:
+    version: '1.0.0'
+    config:
+      provider: 'stripe'
+      currency: 'EUR'
