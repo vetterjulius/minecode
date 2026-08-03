@@ -5,7 +5,14 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { getGeneratorInfo, ApplicationGenerator } from '@minecode/generator';
 import { FileSystemRegistry } from '@minecode/registry';
-import { parseBlueprintYaml } from '@minecode/schemas';
+import * as readline from 'readline';
+import {
+  parseBlueprintYaml,
+  parseFeatureYaml,
+  parseContractYaml,
+  parseDependenciesYaml,
+  parseYaml,
+} from '@minecode/schemas';
 import {
   BlueprintValidator,
   FeatureDependencyResolver,
@@ -378,6 +385,346 @@ export function runFeatureInspectCommand(
   return { success: true, errors };
 }
 
+function askQuestion(query: string): Promise<string> {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+  return new Promise((resolve) => {
+    rl.question(query, (answer) => {
+      rl.close();
+      resolve(answer.trim());
+    });
+  });
+}
+
+export async function runFeatureCreateCommand(
+  idArg?: string,
+  options?: { name?: string; features?: string }
+): Promise<{ success: boolean; errors: string[]; warnings: string[]; targetDir?: string }> {
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  let id = idArg?.trim();
+  if (!id) {
+    id = await askQuestion(colors.yellow('Enter Feature ID (e.g. billing-engine): '));
+    id = id.trim();
+  }
+  if (!id) {
+    errors.push('Feature ID is required.');
+    return { success: false, errors, warnings };
+  }
+
+  // Validate ID format (must match featureIdRegex /^[a-zA-Z0-9-_]+$/)
+  const featureIdRegex = /^[a-zA-Z0-9-_]+$/;
+  if (!featureIdRegex.test(id)) {
+    errors.push(`Invalid Feature ID: '${id}'. Must be alphanumeric with dashes or underscores.`);
+    return { success: false, errors, warnings };
+  }
+
+  let name = options?.name?.trim();
+  if (!name) {
+    name = await askQuestion(
+      colors.yellow(`Enter Feature Name for '${id}' (e.g. Billing Engine): `)
+    );
+    name = name.trim();
+  }
+  if (!name) {
+    // Fallback to capitalizing ID
+    name = id.replace(/[-_]+/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+    warnings.push(`No Feature Name specified. Defaulted to: '${name}'`);
+  }
+
+  const defaultBaseDir = 'composition-engine/features';
+  const featuresDir =
+    options?.features ||
+    process.env.MINECODE_FEATURES_DIR ||
+    process.env.FEATURES_DIR ||
+    defaultBaseDir;
+
+  let targetDir = path.resolve(featuresDir, id);
+
+  // If featuresDir has a 'builtin' directory, let's place it there by default
+  const builtinSubdir = path.join(featuresDir, 'builtin');
+  if (fs.existsSync(builtinSubdir) && fs.statSync(builtinSubdir).isDirectory()) {
+    targetDir = path.resolve(builtinSubdir, id);
+  }
+
+  if (fs.existsSync(targetDir)) {
+    errors.push(`Directory already exists: ${targetDir}`);
+    return { success: false, errors, warnings };
+  }
+
+  try {
+    fs.mkdirSync(targetDir, { recursive: true });
+    fs.mkdirSync(path.join(targetDir, 'modules', 'database'), { recursive: true });
+    fs.mkdirSync(path.join(targetDir, 'modules', 'backend'), { recursive: true });
+    fs.mkdirSync(path.join(targetDir, 'modules', 'frontend'), { recursive: true });
+    fs.mkdirSync(path.join(targetDir, 'modules', 'migration'), { recursive: true });
+    fs.mkdirSync(path.join(targetDir, 'modules', 'config'), { recursive: true });
+    fs.mkdirSync(path.join(targetDir, 'tests'), { recursive: true });
+
+    // Write .gitkeep files
+    const subdirs = ['database', 'backend', 'frontend', 'migration', 'config'];
+    for (const subdir of subdirs) {
+      fs.writeFileSync(path.join(targetDir, 'modules', subdir, '.gitkeep'), '', 'utf8');
+    }
+
+    // Template 1: feature.yaml
+    const featureYamlContent = `id: ${id}
+version: 1.0.0
+type: business
+name: "${name}"
+description: "Description of ${name}"
+maintainer:
+  type: builtin
+stack:
+  - nextjs-supabase
+category: Custom
+`;
+    fs.writeFileSync(path.join(targetDir, 'feature.yaml'), featureYamlContent, 'utf8');
+
+    // Template 2: contract.yaml
+    const contractYamlContent = `provides:
+  capabilities:
+    - ${id}
+  entities: []
+  permissions: []
+  events: []
+  extensionPoints: []
+  api: []
+  ui: []
+  navigation: []
+requires:
+  features: []
+  capabilities: []
+conflicts:
+  features: []
+  capabilities: []
+`;
+    fs.writeFileSync(path.join(targetDir, 'contract.yaml'), contractYamlContent, 'utf8');
+
+    // Template 3: dependencies.yaml
+    const dependenciesYamlContent = `# List your feature dependencies here
+# Example:
+# - featureId: database
+#   versionRange: "^1.0.0"
+dependencies: []
+`;
+    fs.writeFileSync(path.join(targetDir, 'dependencies.yaml'), dependenciesYamlContent, 'utf8');
+
+    // Template 4: config.schema.yaml
+    const configSchemaYamlContent = `type: object
+properties:
+  enabled:
+    type: boolean
+    default: true
+required: []
+`;
+    fs.writeFileSync(path.join(targetDir, 'config.schema.yaml'), configSchemaYamlContent, 'utf8');
+
+    // Template 5: README.md
+    const readmeContent = `# ${name} (${id})
+
+Description of the feature \`${name}\`.
+
+## Specifications
+
+- **ID**: \`${id}\`
+- **Version**: \`1.0.0\`
+- **Type**: \`business\`
+- **Category**: \`Custom\`
+
+## Configuration Options
+
+See \`config.schema.yaml\` for full schema definition.
+
+## Extension Points & Contributions
+
+Define any extension points provided or contributions made to other features.
+
+---
+
+*Note: Built-in features intended for official inclusion in Minecode must provide tests, documentation, contracts, and migrations in accordance with the Definition of Done.*
+`;
+    fs.writeFileSync(path.join(targetDir, 'README.md'), readmeContent, 'utf8');
+
+    // Template 6: tests/index.test.ts
+    const testContent = `import { test, expect } from 'vitest';
+
+test('test_MyFeature_Always_Passes', () => {
+  expect(true).toBe(true);
+});
+`;
+    fs.writeFileSync(path.join(targetDir, 'tests', 'index.test.ts'), testContent, 'utf8');
+
+    console.log(colors.green(`Successfully scaffolded feature: ${name} (${id})`));
+    console.log(colors.green(`Output written to: ${targetDir}`));
+  } catch (error: any) {
+    errors.push(`Failed to scaffold feature: ${error.message || String(error)}`);
+    return { success: false, errors, warnings };
+  }
+
+  return { success: true, errors, warnings, targetDir };
+}
+
+export function runFeatureValidateSpecificCommand(
+  pathOrId: string,
+  options?: { features?: string }
+): { success: boolean; errors: string[]; warnings: string[] } {
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  const defaultBaseDir = 'composition-engine/features';
+  const featuresDir =
+    options?.features ||
+    process.env.MINECODE_FEATURES_DIR ||
+    process.env.FEATURES_DIR ||
+    defaultBaseDir;
+
+  let featureDir = path.resolve(pathOrId);
+
+  // If pathOrId is not a directory, treat it as a feature ID and search for it in featuresDir
+  if (!fs.existsSync(featureDir) || !fs.statSync(featureDir).isDirectory()) {
+    // Search registry
+    const registry = new FileSystemRegistry(featuresDir);
+    try {
+      registry.load();
+    } catch {
+      // If we failed to load registry, don't abort immediately because we might have been given a feature ID
+      // but let's log the registry error
+    }
+
+    const feature = registry.getFeature(pathOrId);
+    if (feature) {
+      // Find where feature.yaml is
+      // We can scan featuresDir recursively for feature.yaml containing id: pathOrId
+      const findFeaturePath = (dir: string): string | null => {
+        if (!fs.existsSync(dir)) return null;
+        if (fs.existsSync(path.join(dir, 'feature.yaml'))) {
+          try {
+            const content = fs.readFileSync(path.join(dir, 'feature.yaml'), 'utf8');
+            if (content.includes(`id: ${pathOrId}`) || content.includes(`id: "${pathOrId}"`)) {
+              return dir;
+            }
+          } catch {
+            // Ignore
+          }
+        }
+        const entries = fs.readdirSync(dir, { withFileTypes: true });
+        for (const entry of entries) {
+          if (entry.isDirectory() && entry.name !== 'node_modules' && !entry.name.startsWith('.')) {
+            const res = findFeaturePath(path.join(dir, entry.name));
+            if (res) return res;
+          }
+        }
+        return null;
+      };
+      const foundPath = findFeaturePath(featuresDir);
+      if (foundPath) {
+        featureDir = foundPath;
+      } else {
+        errors.push(
+          `Feature with ID '${pathOrId}' was found in registry, but its filesystem directory could not be located.`
+        );
+        return { success: false, errors, warnings };
+      }
+    } else {
+      errors.push(`Specified path or feature ID does not exist: '${pathOrId}'`);
+      return { success: false, errors, warnings };
+    }
+  }
+
+  // Now validate files in featureDir
+  const featureYamlPath = path.join(featureDir, 'feature.yaml');
+  if (!fs.existsSync(featureYamlPath)) {
+    errors.push(`Missing 'feature.yaml' in feature directory: ${featureDir}`);
+    return { success: false, errors, warnings };
+  }
+
+  // Validate feature.yaml
+  let featureObj: any;
+  try {
+    const content = fs.readFileSync(featureYamlPath, 'utf8');
+    featureObj = parseFeatureYaml(content);
+  } catch (err: any) {
+    if (err.errors && Array.isArray(err.errors)) {
+      errors.push(...err.errors.map((e: string) => `feature.yaml: ${e}`));
+    } else {
+      errors.push(`feature.yaml: ${err.message || String(err)}`);
+    }
+  }
+
+  // Validate contract.yaml if it exists
+  const contractYamlPath = path.join(featureDir, 'contract.yaml');
+  if (fs.existsSync(contractYamlPath)) {
+    try {
+      const content = fs.readFileSync(contractYamlPath, 'utf8');
+      parseContractYaml(content);
+    } catch (err: any) {
+      if (err.errors && Array.isArray(err.errors)) {
+        errors.push(...err.errors.map((e: string) => `contract.yaml: ${e}`));
+      } else {
+        errors.push(`contract.yaml: ${err.message || String(err)}`);
+      }
+    }
+  }
+
+  // Validate dependencies.yaml if it exists
+  const dependenciesYamlPath = path.join(featureDir, 'dependencies.yaml');
+  if (fs.existsSync(dependenciesYamlPath)) {
+    try {
+      const content = fs.readFileSync(dependenciesYamlPath, 'utf8');
+      parseDependenciesYaml(content);
+    } catch (err: any) {
+      if (err.errors && Array.isArray(err.errors)) {
+        errors.push(...err.errors.map((e: string) => `dependencies.yaml: ${e}`));
+      } else {
+        errors.push(`dependencies.yaml: ${err.message || String(err)}`);
+      }
+    }
+  }
+
+  // Validate config.schema.yaml if it exists
+  const configSchemaPath = path.join(featureDir, 'config.schema.yaml');
+  if (fs.existsSync(configSchemaPath)) {
+    try {
+      const content = fs.readFileSync(configSchemaPath, 'utf8');
+      parseYaml(content);
+    } catch (err: any) {
+      errors.push(`config.schema.yaml: ${err.message || String(err)}`);
+    }
+  }
+
+  // Check if it's a builtin feature being added to official list, and print warnings if missing requirements
+  if (featureObj) {
+    const isBuiltinFeature =
+      featureObj.maintainer?.type === 'builtin' ||
+      featureDir.includes(path.join('features', 'builtin'));
+
+    if (isBuiltinFeature) {
+      const testsDir = path.join(featureDir, 'tests');
+      if (!fs.existsSync(testsDir) || !fs.statSync(testsDir).isDirectory()) {
+        warnings.push(
+          `Built-in feature '${featureObj.id}' should provide a 'tests/' directory for automated tests.`
+        );
+      }
+      const readmePath = path.join(featureDir, 'README.md');
+      if (!fs.existsSync(readmePath)) {
+        warnings.push(
+          `Built-in feature '${featureObj.id}' should provide a 'README.md' file for documentation.`
+        );
+      }
+    }
+  }
+
+  return {
+    success: errors.length === 0,
+    errors,
+    warnings,
+  };
+}
+
 const program = new Command();
 
 program
@@ -465,6 +812,50 @@ featureCommand
       result.errors.forEach((e) => console.error(colors.red(`  - ${e}`)));
       process.exit(1);
     } else {
+      process.exit(0);
+    }
+  });
+
+featureCommand
+  .command('create [id]')
+  .alias('scaffold')
+  .description('Scaffold a new feature structure with templates and guidelines')
+  .option('-n, --name <name>', 'Name of the feature')
+  .option('-f, --features <dir>', 'Path to features registry directory')
+  .action(async (id, options) => {
+    const result = await runFeatureCreateCommand(id, options);
+    if (result.warnings.length > 0) {
+      console.warn(colors.yellow('Warnings:'));
+      result.warnings.forEach((w) => console.warn(colors.yellow(`  - ${w}`)));
+    }
+
+    if (!result.success) {
+      console.error(colors.red('Scaffolding Failed:'));
+      result.errors.forEach((e) => console.error(colors.red(`  - ${e}`)));
+      process.exit(1);
+    } else {
+      process.exit(0);
+    }
+  });
+
+featureCommand
+  .command('validate <pathOrId>')
+  .alias('check')
+  .description('Validate a specific feature on disk for schemas, contracts, and quality guidelines')
+  .option('-f, --features <dir>', 'Path to features registry directory')
+  .action((pathOrId, options) => {
+    const result = runFeatureValidateSpecificCommand(pathOrId, options);
+    if (result.warnings.length > 0) {
+      console.warn(colors.yellow('Warnings:'));
+      result.warnings.forEach((w) => console.warn(colors.yellow(`  - ${w}`)));
+    }
+
+    if (!result.success) {
+      console.error(colors.red('Validation Failed:'));
+      result.errors.forEach((e) => console.error(colors.red(`  - ${e}`)));
+      process.exit(1);
+    } else {
+      console.log(colors.green('Feature is valid and complies with guidelines!'));
       process.exit(0);
     }
   });
