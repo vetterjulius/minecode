@@ -1,0 +1,14 @@
+id: rbac
+version: 1.0.0
+type: business
+name: 'RBAC'
+description: 'Role-Based Access Control and authorization middleware management.'
+maintainer:
+  type: builtin
+stack:
+  - nextjs-supabase
+category: Security
+modules:
+  - name: 'database/0003_rbac_schema.sql'
+    type: migration
+    description: 'Create role and role_permission tables.'

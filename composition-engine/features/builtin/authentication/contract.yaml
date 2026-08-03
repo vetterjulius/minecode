@@ -1,0 +1,72 @@
+provides:
+  capabilities:
+    - authentication
+  entities:
+    - name: User
+      description: 'App user account'
+      fields:
+        - name: id
+          type: uuid
+          required: true
+          description: 'Primary key'
+        - name: email
+          type: string
+          required: true
+          description: "User's email address"
+        - name: name
+          type: string
+          required: false
+          description: 'Display name'
+        - name: createdAt
+          type: timestamp
+          required: true
+          description: 'Account creation timestamp'
+    - name: Session
+      description: 'Active session token'
+      fields:
+        - name: id
+          type: uuid
+          required: true
+          description: 'Primary key'
+        - name: userId
+          type: uuid
+          required: true
+          description: 'Reference to User'
+        - name: token
+          type: string
+          required: true
+          description: 'Session token'
+        - name: expiresAt
+          type: timestamp
+          required: true
+          description: 'Expiration timestamp'
+  permissions:
+    - name: auth.read
+      description: 'Read auth details'
+    - name: auth.write
+      description: 'Modify auth details'
+  api:
+    - name: Login
+      path: /api/auth/login
+      method: POST
+      description: 'Authenticate a user with email and password.'
+    - name: Logout
+      path: /api/auth/logout
+      method: POST
+      description: 'Invalidate the active session.'
+    - name: ResetPassword
+      path: /api/auth/reset-password
+      method: POST
+      description: 'Request password reset.'
+  ui:
+    - name: LoginPage
+      route: auth/login
+      slot: main
+      description: 'Standard user login page.'
+    - name: ResetPasswordPage
+      route: auth/reset-password
+      slot: main
+      description: 'Standard password reset page.'
+requires:
+  features:
+    - database

@@ -1,0 +1,14 @@
+id: database
+version: 1.0.0
+type: primitive
+name: 'Database Primitive'
+description: 'Core PostgreSQL and Supabase database primitive feature with schema migration support.'
+maintainer:
+  type: builtin
+stack:
+  - nextjs-supabase
+category: Infrastructure
+modules:
+  - name: 'database/0000_init_schema.sql'
+    type: migration
+    description: 'Initialize core migration system and system metadata tables.'

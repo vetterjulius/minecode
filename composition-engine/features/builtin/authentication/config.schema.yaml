@@ -1,0 +1,14 @@
+type: object
+properties:
+  providers:
+    type: array
+    items:
+      type: string
+      enum: [email, google, github]
+    default: [email]
+    description: 'Enabled authentication providers'
+  sessionTimeout:
+    type: integer
+    default: 86400
+    description: 'Session timeout duration in seconds'
+required: []
