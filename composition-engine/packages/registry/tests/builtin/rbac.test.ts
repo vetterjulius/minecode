@@ -11,10 +11,10 @@ test('test_RbacFeature_LoadedFromRegistry_HasSecurityCategoryAndRolesPermissions
   expect(feature?.metadata.category).toBe('Security');
 
   const entities = feature?.contract.provides?.entities || [];
-  const entityNames = entities.map(e => e.name);
+  const entityNames = entities.map((e) => e.name);
   expect(entityNames).toContain('Role');
   expect(entityNames).toContain('Permission');
 
   const dependencies = feature?.dependencies || [];
-  expect(dependencies.some(d => d.featureId === 'authentication')).toBe(true);
+  expect(dependencies.some((d) => d.featureId === 'authentication')).toBe(true);
 });

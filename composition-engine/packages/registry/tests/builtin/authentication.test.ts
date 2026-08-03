@@ -13,11 +13,11 @@ test('test_AuthenticationFeature_LoadedFromRegistry_ContainsUserAndSessionEntiti
 
   // Verify entities
   const entities = feature?.contract.provides?.entities || [];
-  const entityNames = entities.map(e => e.name);
+  const entityNames = entities.map((e) => e.name);
   expect(entityNames).toContain('User');
   expect(entityNames).toContain('Session');
 
   // Verify dependencies
   const dependencies = feature?.dependencies || [];
-  expect(dependencies.some(d => d.featureId === 'database')).toBe(true);
+  expect(dependencies.some((d) => d.featureId === 'database')).toBe(true);
 });

@@ -3,91 +3,91 @@ provides:
     - organizations
   entities:
     - name: Organization
-      description: "App organization (tenant)"
+      description: 'App organization (tenant)'
       fields:
         - name: id
           type: uuid
           required: true
-          description: "Primary key"
+          description: 'Primary key'
         - name: name
           type: string
           required: true
-          description: "Name of the organization"
+          description: 'Name of the organization'
         - name: createdAt
           type: timestamp
           required: true
-          description: "Tenant creation timestamp"
+          description: 'Tenant creation timestamp'
     - name: Membership
-      description: "User membership inside an organization"
+      description: 'User membership inside an organization'
       fields:
         - name: id
           type: uuid
           required: true
-          description: "Primary key"
+          description: 'Primary key'
         - name: organizationId
           type: uuid
           required: true
-          description: "Reference to Organization"
+          description: 'Reference to Organization'
         - name: userId
           type: uuid
           required: true
-          description: "Reference to User"
+          description: 'Reference to User'
         - name: role
           type: string
           required: true
-          description: "User role inside organization"
+          description: 'User role inside organization'
         - name: createdAt
           type: timestamp
           required: true
-          description: "Membership assignment timestamp"
+          description: 'Membership assignment timestamp'
     - name: Invitation
-      description: "Organization join invitation"
+      description: 'Organization join invitation'
       fields:
         - name: id
           type: uuid
           required: true
-          description: "Primary key"
+          description: 'Primary key'
         - name: organizationId
           type: uuid
           required: true
-          description: "Reference to Organization"
+          description: 'Reference to Organization'
         - name: email
           type: string
           required: true
-          description: "Recipient email address"
+          description: 'Recipient email address'
         - name: role
           type: string
           required: true
-          description: "Target membership role"
+          description: 'Target membership role'
         - name: token
           type: string
           required: true
-          description: "Secure invitation token"
+          description: 'Secure invitation token'
         - name: expiresAt
           type: timestamp
           required: true
-          description: "Expiration timestamp"
+          description: 'Expiration timestamp'
   permissions:
     - name: org.read
-      description: "Read organization details"
+      description: 'Read organization details'
     - name: org.write
-      description: "Modify organization details"
+      description: 'Modify organization details'
     - name: org.invite
-      description: "Invite members to organization"
+      description: 'Invite members to organization'
   api:
     - name: ListOrganizations
       path: /api/organizations
       method: GET
-      description: "List organizations for current user."
+      description: 'List organizations for current user.'
     - name: InviteMember
       path: /api/organizations/invite
       method: POST
-      description: "Invite a new member via email."
+      description: 'Invite a new member via email.'
   ui:
     - name: OrganizationsDashboard
       route: organizations
       slot: main
-      description: "Multi-tenant workspace dashboard."
+      description: 'Multi-tenant workspace dashboard.'
 requires:
   features:
     - authentication

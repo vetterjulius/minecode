@@ -4,9 +4,9 @@ properties:
     type: string
     enum: [stripe, paddle, braintree]
     default: stripe
-    description: "SaaS payment provider integration"
+    description: 'SaaS payment provider integration'
   currency:
     type: string
     default: USD
-    description: "System currency handle"
+    description: 'System currency handle'
 required: []

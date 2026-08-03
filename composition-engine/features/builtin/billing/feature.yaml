@@ -1,14 +1,14 @@
 id: billing
 version: 1.0.0
 type: business
-name: "Billing"
-description: "SaaS billing integration supporting Stripe checkouts, subscriptions, and webhook events."
+name: 'Billing'
+description: 'SaaS billing integration supporting Stripe checkouts, subscriptions, and webhook events.'
 maintainer:
   type: builtin
 stack:
   - nextjs-supabase
 category: Commerce
 modules:
-  - name: "database/0004_billing_schema.sql"
+  - name: 'database/0004_billing_schema.sql'
     type: migration
-    description: "Create stripe_customer and subscription tables."
+    description: 'Create stripe_customer and subscription tables.'

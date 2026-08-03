@@ -2,9 +2,9 @@ type: object
 properties:
   connectionString:
     type: string
-    description: "PostgreSQL connection string URL"
+    description: 'PostgreSQL connection string URL'
   pooling:
     type: boolean
     default: true
-    description: "Enable connection pooling"
+    description: 'Enable connection pooling'
 required: []

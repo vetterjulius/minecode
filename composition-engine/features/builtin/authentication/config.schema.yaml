@@ -6,9 +6,9 @@ properties:
       type: string
       enum: [email, google, github]
     default: [email]
-    description: "Enabled authentication providers"
+    description: 'Enabled authentication providers'
   sessionTimeout:
     type: integer
     default: 86400
-    description: "Session timeout duration in seconds"
+    description: 'Session timeout duration in seconds'
 required: []

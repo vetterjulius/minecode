@@ -11,10 +11,10 @@ test('test_BillingFeature_LoadedFromRegistry_DependsOnOrganizationsAndHasStripe'
   expect(feature?.metadata.category).toBe('Commerce');
 
   const entities = feature?.contract.provides?.entities || [];
-  const entityNames = entities.map(e => e.name);
+  const entityNames = entities.map((e) => e.name);
   expect(entityNames).toContain('StripeCustomer');
   expect(entityNames).toContain('Subscription');
 
   const dependencies = feature?.dependencies || [];
-  expect(dependencies.some(d => d.featureId === 'organizations')).toBe(true);
+  expect(dependencies.some((d) => d.featureId === 'organizations')).toBe(true);
 });

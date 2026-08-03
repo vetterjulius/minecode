@@ -3,9 +3,9 @@ properties:
   allowMultipleOrganizations:
     type: boolean
     default: true
-    description: "Allow users to belong to multiple organizations"
+    description: 'Allow users to belong to multiple organizations'
   invitationExpirySeconds:
     type: integer
     default: 259200
-    description: "Organization invitation validity duration"
+    description: 'Organization invitation validity duration'
 required: []

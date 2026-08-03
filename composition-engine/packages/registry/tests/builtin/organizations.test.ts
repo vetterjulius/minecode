@@ -11,11 +11,11 @@ test('test_OrganizationsFeature_LoadedFromRegistry_HasCollaborationCategoryAndEn
   expect(feature?.metadata.category).toBe('Collaboration');
 
   const entities = feature?.contract.provides?.entities || [];
-  const entityNames = entities.map(e => e.name);
+  const entityNames = entities.map((e) => e.name);
   expect(entityNames).toContain('Organization');
   expect(entityNames).toContain('Membership');
   expect(entityNames).toContain('Invitation');
 
   const dependencies = feature?.dependencies || [];
-  expect(dependencies.some(d => d.featureId === 'authentication')).toBe(true);
+  expect(dependencies.some((d) => d.featureId === 'authentication')).toBe(true);
 });
