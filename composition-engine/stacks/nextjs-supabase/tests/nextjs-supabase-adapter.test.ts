@@ -2,12 +2,12 @@ import { test, expect } from 'vitest';
 import { CompositionPlan } from '@minecode/core';
 import { NextJsSupabaseAdapter } from '../src/index.js';
 
-test('test_GivenNextJsSupabaseAdapter_WhenInstantiated_ThenHasCorrectStackId', () => {
+test('test_NextJsSupabaseAdapter_Instantiation_HasCorrectStackId', () => {
   const adapter = new NextJsSupabaseAdapter();
   expect(adapter.stackId).toBe('nextjs-supabase');
 });
 
-test('test_GivenCompositionPlanWithDatabaseEntities_WhenGenerateCalled_ThenCreatesDdlAndTypes', () => {
+test('test_DatabaseEntities_Generate_CreatesDdlAndTypes', () => {
   const adapter = new NextJsSupabaseAdapter();
   const plan: CompositionPlan = {
     applicationName: 'Test SaaS',
@@ -38,11 +38,9 @@ test('test_GivenCompositionPlanWithDatabaseEntities_WhenGenerateCalled_ThenCreat
 
   const files = adapter.generate(plan);
 
-  // Check that migration and typescript types files are generated
   expect(files['supabase/migrations/user_table.sql']).toBeDefined();
   expect(files['types/database.ts']).toBeDefined();
 
-  // Validate SQL contents
   const sql = files['supabase/migrations/user_table.sql'];
   expect(sql).toContain('CREATE TABLE IF NOT EXISTS "user"');
   expect(sql).toContain('"id" UUID PRIMARY KEY NOT NULL');
@@ -51,7 +49,6 @@ test('test_GivenCompositionPlanWithDatabaseEntities_WhenGenerateCalled_ThenCreat
   expect(sql).toContain('"isActive" BOOLEAN NOT NULL');
   expect(sql).toContain('"createdAt" TIMESTAMP WITH TIME ZONE NOT NULL');
 
-  // Validate TypeScript types contents
   const ts = files['types/database.ts'];
   expect(ts).toContain('export interface User {');
   expect(ts).toContain('id: string;');
@@ -61,7 +58,7 @@ test('test_GivenCompositionPlanWithDatabaseEntities_WhenGenerateCalled_ThenCreat
   expect(ts).toContain('createdAt: string;');
 });
 
-test('test_GivenCompositionPlanWithApiRoutes_WhenGenerateCalled_ThenCreatesNextJsAppRouterHandlers', () => {
+test('test_ApiRoutes_Generate_CreatesNextJsAppRouterHandlers', () => {
   const adapter = new NextJsSupabaseAdapter();
   const plan: CompositionPlan = {
     applicationName: 'Test SaaS',
@@ -94,7 +91,7 @@ test('test_GivenCompositionPlanWithApiRoutes_WhenGenerateCalled_ThenCreatesNextJ
   expect(apiCode).toContain('Authenticates a user');
 });
 
-test('test_GivenCompositionPlanWithUiArtifacts_WhenGenerateCalled_ThenCreatesPagesAndComponents', () => {
+test('test_UiArtifacts_Generate_CreatesPagesAndComponents', () => {
   const adapter = new NextJsSupabaseAdapter();
   const plan: CompositionPlan = {
     applicationName: 'Test SaaS',
@@ -127,20 +124,18 @@ test('test_GivenCompositionPlanWithUiArtifacts_WhenGenerateCalled_ThenCreatesPag
 
   const files = adapter.generate(plan);
 
-  // Check Page
   expect(files['app/dashboard/page.tsx']).toBeDefined();
   const pageCode = files['app/dashboard/page.tsx'];
   expect(pageCode).toContain('export default function OverviewPage()');
   expect(pageCode).toContain("import React from 'react';");
 
-  // Check Component
   expect(files['components/LoginForm.tsx']).toBeDefined();
   const compCode = files['components/LoginForm.tsx'];
   expect(compCode).toContain('export function LoginForm()');
   expect(compCode).toContain('Slot: auth-slot');
 });
 
-test('test_GivenCompositionPlanWithMigrations_WhenGenerateCalled_ThenCreatesMigrationSqlFiles', () => {
+test('test_Migrations_Generate_CreatesMigrationSqlFiles', () => {
   const adapter = new NextJsSupabaseAdapter();
   const plan: CompositionPlan = {
     applicationName: 'Test SaaS',
@@ -171,7 +166,7 @@ test('test_GivenCompositionPlanWithMigrations_WhenGenerateCalled_ThenCreatesMigr
   expect(migCode).toContain('Initial database migrations');
 });
 
-test('test_GivenCompositionPlanWithNavigation_WhenGenerateCalled_ThenCreatesNavigationConfig', () => {
+test('test_Navigation_Generate_CreatesNavigationConfig', () => {
   const adapter = new NextJsSupabaseAdapter();
   const plan: CompositionPlan = {
     applicationName: 'Test SaaS',
@@ -205,7 +200,7 @@ test('test_GivenCompositionPlanWithNavigation_WhenGenerateCalled_ThenCreatesNavi
   expect(navCode).toContain('"label": "Dashboard"');
 });
 
-test('test_GivenCompositionPlanWithPermissionsEventsAndExtensionPoints_WhenGenerateCalled_ThenCreatesConfigurationGlue', () => {
+test('test_PermissionsEventsAndExtensionPoints_Generate_CreatesConfigurationGlue', () => {
   const adapter = new NextJsSupabaseAdapter();
   const plan: CompositionPlan = {
     applicationName: 'Test SaaS',
@@ -252,18 +247,15 @@ test('test_GivenCompositionPlanWithPermissionsEventsAndExtensionPoints_WhenGener
 
   const files = adapter.generate(plan);
 
-  // Check permissions config
   expect(files['config/permissions.ts']).toBeDefined();
   const permCode = files['config/permissions.ts'];
   expect(permCode).toContain('"user.read": "auth:user.read"');
 
-  // Check events config
   expect(files['config/events.ts']).toBeDefined();
   const eventCode = files['config/events.ts'];
   expect(eventCode).toContain('"user.created"');
   expect(eventCode).toContain('"auth:user.created"');
 
-  // Check extension points config
   expect(files['config/extensions.ts']).toBeDefined();
   const extCode = files['config/extensions.ts'];
   expect(extCode).toContain('"pricing_rules"');
