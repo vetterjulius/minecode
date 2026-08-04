@@ -10,6 +10,8 @@ For detailed concepts and technical designs:
 
 - Read our [Architecture Concept](architecture/architecture-concept.md)
 - Explore the [Technical Specification v0.1](architecture/specs-v01.md)
+- Review the [v0.1 Known Limitations](docs/known-limitations.md)
+- Read the [v0.2 Next Steps Roadmap](architecture/v02-next-steps.md)
 
 ## Repository Structure
 
@@ -24,6 +26,7 @@ For a detailed breakdown of the packages, their responsibilities, and expected d
 To set up, build, test, and develop on Minecode locally:
 
 - Follow the [Local Development Guide](docs/local-development.md)
+- Learn how to add features by reading the [Developer Guide: Adding Features](docs/adding-features.md)
 
 ### Quick Commands
 
