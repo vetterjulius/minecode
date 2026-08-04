@@ -725,6 +725,176 @@ export function runFeatureValidateSpecificCommand(
   };
 }
 
+export async function runFeatureRegisterSubgeneratorsCommand(
+  pathOrId: string,
+  options?: { features?: string }
+): Promise<{ success: boolean; errors: string[]; warnings: string[] }> {
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  const defaultBaseDir = 'composition-engine/features';
+  const featuresDir =
+    options?.features ||
+    process.env.MINECODE_FEATURES_DIR ||
+    process.env.FEATURES_DIR ||
+    defaultBaseDir;
+
+  let featureDir = path.resolve(pathOrId);
+
+  // Locate feature folder
+  if (!fs.existsSync(featureDir) || !fs.statSync(featureDir).isDirectory()) {
+    const registry = new FileSystemRegistry(featuresDir);
+    try {
+      registry.load();
+    } catch {
+      // Ignore
+    }
+
+    const feature = registry.getFeature(pathOrId);
+    if (feature) {
+      const findFeaturePath = (dir: string): string | null => {
+        if (!fs.existsSync(dir)) return null;
+        if (fs.existsSync(path.join(dir, 'feature.yaml'))) {
+          try {
+            const content = fs.readFileSync(path.join(dir, 'feature.yaml'), 'utf8');
+            if (content.includes(`id: ${pathOrId}`) || content.includes(`id: "${pathOrId}"`)) {
+              return dir;
+            }
+          } catch {
+            // Ignore
+          }
+        }
+        const entries = fs.readdirSync(dir, { withFileTypes: true });
+        for (const entry of entries) {
+          if (entry.isDirectory() && entry.name !== 'node_modules' && !entry.name.startsWith('.')) {
+            const res = findFeaturePath(path.join(dir, entry.name));
+            if (res) return res;
+          }
+        }
+        return null;
+      };
+      const foundPath = findFeaturePath(featuresDir);
+      if (foundPath) {
+        featureDir = foundPath;
+      } else {
+        errors.push(`Feature with ID '${pathOrId}' directory could not be located.`);
+        return { success: false, errors, warnings };
+      }
+    } else {
+      errors.push(`Specified path or feature ID does not exist: '${pathOrId}'`);
+      return { success: false, errors, warnings };
+    }
+  }
+
+  const localSubGensDir = path.join(featureDir, 'sub-generators');
+  if (!fs.existsSync(localSubGensDir) || !fs.statSync(localSubGensDir).isDirectory()) {
+    warnings.push(`No 'sub-generators/' directory found in feature: '${featureDir}'.`);
+    return { success: true, errors, warnings };
+  }
+
+  const files = fs.readdirSync(localSubGensDir).filter((f) => f.endsWith('.ts'));
+  if (files.length === 0) {
+    warnings.push(`No sub-generator .ts files found in '${localSubGensDir}'.`);
+    return { success: true, errors, warnings };
+  }
+
+  // Global target directory
+  const globalGeneratorsDir = path.resolve(
+    process.cwd(),
+    'composition-engine/packages/sub-generators/src/generators'
+  );
+
+  if (!fs.existsSync(globalGeneratorsDir)) {
+    errors.push(`Global sub-generators generators directory not found at: ${globalGeneratorsDir}`);
+    return { success: false, errors, warnings };
+  }
+
+  // Copy files to global directory
+  for (const file of files) {
+    const srcPath = path.join(localSubGensDir, file);
+    const destPath = path.join(globalGeneratorsDir, file);
+    try {
+      fs.copyFileSync(srcPath, destPath);
+      console.log(colors.green(`Copied local sub-generator '${file}' to global folder.`));
+    } catch (err: any) {
+      errors.push(`Failed to copy '${file}': ${err.message || String(err)}`);
+      return { success: false, errors, warnings };
+    }
+  }
+
+  // Rewrite global registry and index files
+  try {
+    rewriteRegistryAndIndex(globalGeneratorsDir);
+    console.log(colors.green(`Successfully updated sub-generators registry and index files!`));
+  } catch (err: any) {
+    errors.push(`Failed to rewrite registry/index: ${err.message || String(err)}`);
+    return { success: false, errors, warnings };
+  }
+
+  return { success: true, errors, warnings };
+}
+
+function toPascalCase(str: string): string {
+  return str
+    .replace(/[-_]+/g, ' ')
+    .replace(/\b\w/g, (c) => c.toUpperCase())
+    .replace(/\s+/g, '');
+}
+
+export function rewriteRegistryAndIndex(generatorsDir: string): void {
+  const files = fs.readdirSync(generatorsDir).filter((f) => f.endsWith('.ts'));
+
+  const generatorsInfo = files.map((file) => {
+    const id = path.basename(file, '.ts');
+    const className = `${toPascalCase(id)}SubGenerator`;
+    return { id, file, className };
+  });
+
+  // 1. Generate registry.ts
+  let registryContent = `import { SubGenerator } from '@minecode/core';\n`;
+  for (const gen of generatorsInfo) {
+    registryContent += `import { ${gen.className} } from './generators/${gen.id}.js';\n`;
+  }
+
+  registryContent += `\nexport const BUILTIN_SUB_GENERATORS: SubGenerator[] = [\n`;
+  for (const gen of generatorsInfo) {
+    registryContent += `  new ${gen.className}(),\n`;
+  }
+  registryContent += `];\n\n`;
+
+  registryContent += `export class SubGeneratorRegistry {\n`;
+  registryContent += `  private generators: Map<string, SubGenerator> = new Map();\n\n`;
+  registryContent += `  constructor() {\n`;
+  registryContent += `    for (const gen of BUILTIN_SUB_GENERATORS) {\n`;
+  registryContent += `      this.generators.set(gen.id, gen);\n`;
+  registryContent += `    }\n`;
+  registryContent += `  }\n\n`;
+  registryContent += `  public register(gen: SubGenerator): void {\n`;
+  registryContent += `    this.generators.set(gen.id, gen);\n`;
+  registryContent += `  }\n\n`;
+  registryContent += `  public get(id: string): SubGenerator | undefined {\n`;
+  registryContent += `    return this.generators.get(id);\n`;
+  registryContent += `  }\n\n`;
+  registryContent += `  public list(): SubGenerator[] {\n`;
+  registryContent += `    return Array.from(this.generators.values());\n`;
+  registryContent += `  }\n\n`;
+  registryContent += `  public has(id: string): boolean {\n`;
+  registryContent += `    return this.generators.has(id);\n`;
+  registryContent += `  }\n`;
+  registryContent += `}\n`;
+
+  const registryPath = path.join(path.dirname(generatorsDir), 'registry.ts');
+  fs.writeFileSync(registryPath, registryContent, 'utf8');
+
+  // 2. Generate index.ts
+  let indexContent = `export * from './registry.js';\n`;
+  for (const gen of generatorsInfo) {
+    indexContent += `export * from './generators/${gen.id}.js';\n`;
+  }
+  const indexPath = path.join(path.dirname(generatorsDir), 'index.ts');
+  fs.writeFileSync(indexPath, indexContent, 'utf8');
+}
+
 const program = new Command();
 
 program
@@ -857,6 +1027,27 @@ featureCommand
       process.exit(1);
     } else {
       console.log(colors.green('Feature is valid and complies with guidelines!'));
+      process.exit(0);
+    }
+  });
+
+featureCommand
+  .command('register-subgenerators <pathOrId>')
+  .alias('reg-sub')
+  .description('Register and copy local feature sub-generators to the global repository')
+  .option('-f, --features <dir>', 'Path to features registry directory')
+  .action(async (pathOrId, options) => {
+    const result = await runFeatureRegisterSubgeneratorsCommand(pathOrId, options);
+    if (result.warnings.length > 0) {
+      console.warn(colors.yellow('Warnings:'));
+      result.warnings.forEach((w) => console.warn(colors.yellow(`  - ${w}`)));
+    }
+
+    if (!result.success) {
+      console.error(colors.red('Registration Failed:'));
+      result.errors.forEach((e) => console.error(colors.red(`  - ${e}`)));
+      process.exit(1);
+    } else {
       process.exit(0);
     }
   });

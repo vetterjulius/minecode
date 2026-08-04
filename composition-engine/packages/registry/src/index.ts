@@ -63,6 +63,54 @@ export class FileSystemRegistry {
         throw new RegistryError(`Failed to load feature in directory '${dir}': ${msg}`);
       }
     }
+
+    // Validate subGenerators declared by loaded features
+    const globalIds = this.getGlobalSubGeneratorIds();
+
+    for (const feature of this.features.values()) {
+      if (feature.subGenerators && feature.subGenerators.length > 0) {
+        for (const subGenId of feature.subGenerators) {
+          let exists = globalIds.has(subGenId);
+
+          if (!exists && feature.featureDir) {
+            const localPath = path.join(feature.featureDir, 'sub-generators', `${subGenId}.ts`);
+            const localJsPath = path.join(feature.featureDir, 'sub-generators', `${subGenId}.js`);
+            if (fs.existsSync(localPath) || fs.existsSync(localJsPath)) {
+              exists = true;
+            }
+          }
+
+          if (!exists) {
+            throw new RegistryError(
+              `Feature '${feature.id}' depends on missing sub-generator '${subGenId}'. ` +
+                `It must exist either globally in sub-generators or locally in '${feature.id}/sub-generators/'.`
+            );
+          }
+        }
+      }
+    }
+  }
+
+  private getGlobalSubGeneratorIds(): Set<string> {
+    const ids = new Set<string>();
+    const possiblePaths = [
+      path.resolve(process.cwd(), 'composition-engine/packages/sub-generators/src/generators'),
+      path.resolve(process.cwd(), 'packages/sub-generators/src/generators'),
+    ];
+
+    for (const p of possiblePaths) {
+      if (fs.existsSync(p) && fs.statSync(p).isDirectory()) {
+        const files = fs.readdirSync(p);
+        for (const file of files) {
+          if (file.endsWith('.ts') || file.endsWith('.js')) {
+            const id = path.basename(file, path.extname(file));
+            ids.add(id);
+          }
+        }
+        break;
+      }
+    }
+    return ids;
   }
 
   /**
