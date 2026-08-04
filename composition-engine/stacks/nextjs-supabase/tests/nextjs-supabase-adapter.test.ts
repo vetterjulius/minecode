@@ -261,3 +261,44 @@ test('test_PermissionsEventsAndExtensionPoints_Generate_CreatesConfigurationGlue
   expect(extCode).toContain('"pricing_rules"');
   expect(extCode).toContain('"billing:pricing_rules"');
 });
+
+test('test_NextJsSupabaseAdapter_GenerateWithRunnableOption_CreatesWorkspaceConfigsAndPages', () => {
+  const adapter = new NextJsSupabaseAdapter();
+  const plan: CompositionPlan = {
+    applicationName: 'Test SaaS',
+    stackId: 'nextjs-supabase',
+    database: [],
+    api: [],
+    ui: [
+      {
+        id: 'dashboard:overview',
+        featureId: 'dashboard',
+        name: 'Overview',
+        route: '/dashboard',
+        description: 'Dashboard main overview',
+      },
+    ],
+    navigation: [],
+    events: [],
+    permissions: [],
+    migrations: [],
+    extensionPoints: [],
+  };
+
+  const files = adapter.generate(plan, { runnable: true });
+
+  expect(files['package.json']).toBeDefined();
+  expect(files['tsconfig.json']).toBeDefined();
+  expect(files['postcss.config.js']).toBeDefined();
+  expect(files['tailwind.config.ts']).toBeDefined();
+  expect(files['next.config.mjs']).toBeDefined();
+  expect(files['.env.local']).toBeDefined();
+  expect(files['app/globals.css']).toBeDefined();
+  expect(files['app/layout.tsx']).toBeDefined();
+  expect(files['app/page.tsx']).toBeDefined();
+
+  const homePageCode = files['app/page.tsx'];
+  expect(homePageCode).toContain('Test SaaS');
+  expect(homePageCode).toContain('Overview');
+  expect(homePageCode).toContain('Route: /dashboard');
+});

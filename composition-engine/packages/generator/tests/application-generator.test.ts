@@ -167,3 +167,22 @@ test('test_Generate_MissingCompositionPlan_ThrowsError', () => {
     'Composition plan must be specified.'
   );
 });
+
+test('test_Generate_WithRunnableOption_CreatesWorkspaceConfigsAndPagesCorrectly', () => {
+  const generator = new ApplicationGenerator(tempDir);
+  generator.generate(samplePlan, { runnable: true });
+
+  expect(fs.existsSync(path.join(tempDir, 'package.json'))).toBe(true);
+  expect(fs.existsSync(path.join(tempDir, 'tsconfig.json'))).toBe(true);
+  expect(fs.existsSync(path.join(tempDir, 'tailwind.config.ts'))).toBe(true);
+  expect(fs.existsSync(path.join(tempDir, 'app/page.tsx'))).toBe(true);
+  expect(fs.existsSync(path.join(tempDir, '.env.local'))).toBe(true);
+
+  const packageJsonContent = fs.readFileSync(path.join(tempDir, 'package.json'), 'utf8');
+  expect(packageJsonContent).toContain('"test-saas"');
+  expect(packageJsonContent).toContain('"next":');
+
+  const pageContent = fs.readFileSync(path.join(tempDir, 'app/page.tsx'), 'utf8');
+  expect(pageContent).toContain('Test SaaS');
+  expect(pageContent).toContain('DashboardPage');
+});

@@ -114,6 +114,28 @@ test('test_RunValidateCommand_ValidBlueprint_ReturnsSuccess', () => {
   }
 });
 
+test('test_RunBuildCommand_WithNoRunnableOption_DoesNotGenerateConfigsAndPage', () => {
+  const { tempDir, registryDir, blueprintPath } = createTempTestEnv();
+  const outDir = path.join(tempDir, 'app');
+
+  const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+
+  try {
+    const result = runBuildCommand(blueprintPath, {
+      features: registryDir,
+      outDir,
+      runnable: false,
+    });
+    expect(result.success).toBe(true);
+    expect(fs.existsSync(path.join(outDir, 'package.json'))).toBe(false);
+    expect(fs.existsSync(path.join(outDir, 'tsconfig.json'))).toBe(false);
+    expect(fs.existsSync(path.join(outDir, 'app/page.tsx'))).toBe(false);
+  } finally {
+    logSpy.mockRestore();
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+});
+
 test('test_RunFeatureCreateCommand_WithArguments_CreatesStructure', async () => {
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'minecode-cli-create-'));
   try {

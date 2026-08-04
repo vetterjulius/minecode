@@ -161,7 +161,7 @@ export function runValidateCommand(
 
 export function runBuildCommand(
   blueprintPathArg?: string,
-  options?: { features?: string; outDir?: string }
+  options?: { features?: string; outDir?: string; runnable?: boolean }
 ): { success: boolean; errors: string[]; warnings: string[] } {
   const blueprintPath = path.resolve(process.cwd(), blueprintPathArg || 'app.yaml');
   const featuresDir =
@@ -186,7 +186,7 @@ export function runBuildCommand(
 
     // Generate application files
     const generator = new ApplicationGenerator(outDir);
-    generator.generate(plan);
+    generator.generate(plan, { runnable: options?.runnable !== false });
 
     console.log(
       colors.green(`Successfully composed and generated application: ${plan.applicationName}`)
@@ -769,6 +769,7 @@ program
   .argument('[blueprintPath]', 'Path to the app.yaml blueprint file', 'app.yaml')
   .option('-f, --features <dir>', 'Path to features registry directory')
   .option('-o, --out-dir <dir>', 'Output directory', 'app')
+  .option('--no-runnable', 'Disable generation of standard workspace config and root files')
   .action((blueprintPath, options) => {
     const result = runBuildCommand(blueprintPath, options);
     if (result.warnings.length > 0) {

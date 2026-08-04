@@ -195,6 +195,11 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
               description:
                 "The directory where the application will be written. Defaults to 'generated-app'.",
             },
+            runnable: {
+              type: 'boolean',
+              description:
+                'Whether to generate a fully runnable workspace layout (package.json, config files, pages). Defaults to true.',
+            },
           },
           required: ['blueprint'],
         },
@@ -477,6 +482,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         }
 
         const outDir = args?.outDir || 'generated-app';
+        const runnable = args?.runnable !== false;
 
         const result = processBlueprint(blueprintStr);
         if (!result.valid) {
@@ -497,11 +503,11 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
         // 2. Generate application files
         const generator = new ApplicationGenerator(outDir);
-        generator.generate(plan);
+        generator.generate(plan, { runnable });
 
         // 3. Build list of files written
         const adapter = new NextJsSupabaseAdapter();
-        const virtualFiles = adapter.generate(plan);
+        const virtualFiles = adapter.generate(plan, { runnable });
         const writtenPaths: string[] = [];
 
         for (const relPath of Object.keys(virtualFiles)) {
