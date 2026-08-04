@@ -12,6 +12,8 @@ import {
   MigrationArtifact,
   ExtensionPointArtifact,
 } from '@minecode/core';
+import * as fs from 'fs';
+import * as path from 'path';
 
 export function getComposerInfo(): string {
   return `Minecode Composer relying on: ${getResolverInfo()}`;
@@ -162,12 +164,20 @@ export class Composer {
             const uniqueKey = `${feature.id}:${mod.name}`;
             if (!migrationsSeen.has(uniqueKey)) {
               migrationsSeen.add(uniqueKey);
+              let migrationContent: string | undefined;
+              if (feature.featureDir) {
+                const fullMigrationPath = path.join(feature.featureDir, 'modules', mod.name);
+                if (fs.existsSync(fullMigrationPath)) {
+                  migrationContent = fs.readFileSync(fullMigrationPath, 'utf8');
+                }
+              }
               migrations.push({
                 id: uniqueKey,
                 featureId: feature.id,
                 name: mod.name,
                 type: 'database', // Default to database type
                 description: mod.description,
+                content: migrationContent,
               });
             }
           }

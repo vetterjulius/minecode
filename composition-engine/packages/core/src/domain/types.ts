@@ -172,6 +172,7 @@ export interface MigrationArtifact {
   name: string;
   type: 'database' | 'schema' | 'seed';
   description?: string;
+  content?: string;
 }
 
 export interface ExtensionPointContributionArtifact {
@@ -212,6 +213,7 @@ export interface Feature {
   dependencies: Dependency[];
   modules: Module[];
   configSchema?: Record<string, unknown>;
+  featureDir?: string;
 }
 
 export interface BlueprintValidationResult {

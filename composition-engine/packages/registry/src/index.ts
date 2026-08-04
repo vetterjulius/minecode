@@ -199,6 +199,8 @@ export class FileSystemRegistry {
       feature.dependencies = dependencies;
     }
 
+    feature.featureDir = featureDir;
+
     return feature;
   }
 }

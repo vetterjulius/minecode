@@ -109,7 +109,302 @@ export async function ${method.toUpperCase()}(_request: Request) {
 
       if (uiDef.route) {
         const normalizedRoute = uiDef.route.replace(/^\/+|\/+$/g, '');
-        const pageContent = `import React from 'react';
+        let pageContent = '';
+
+        if (normalizedRoute === 'auth/login') {
+          pageContent = `import React, { useState } from 'react';
+
+export default function LoginPage() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [status, setStatus] = useState('');
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus('Logging in...');
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setStatus('Logged in successfully!');
+      } else {
+        setStatus('Error: ' + data.error);
+      }
+    } catch (err: any) {
+      const message = err instanceof Error ? err.message : String(err);
+      setStatus('Failed: ' + message);
+    }
+  };
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen p-6 bg-background text-foreground">
+      <form onSubmit={handleLogin} className="max-w-md w-full p-8 border rounded-xl shadow-lg bg-card text-card-foreground space-y-4">
+        <h1 className="text-3xl font-extrabold tracking-tight">Login</h1>
+        <div>
+          <label className="block text-sm font-medium mb-1">Email</label>
+          <input type="email" value={email} onChange={e => setEmail(e.target.value)} required className="w-full p-2 border rounded-md" />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Password</label>
+          <input type="password" value={password} onChange={e => setPassword(e.target.value)} required className="w-full p-2 border rounded-md" />
+        </div>
+        <button type="submit" className="w-full p-2 bg-foreground text-background font-bold rounded-md hover:opacity-90">Sign In</button>
+        {status && <p className="text-center text-sm font-semibold">{status}</p>}
+      </form>
+    </div>
+  );
+}
+`;
+        } else if (normalizedRoute === 'auth/reset-password') {
+          pageContent = `import React, { useState } from 'react';
+
+export default function ResetPasswordPage() {
+  const [email, setEmail] = useState('');
+  const [status, setStatus] = useState('');
+
+  const handleReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus('Sending reset email...');
+    try {
+      const res = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setStatus('Reset email sent successfully!');
+      } else {
+        setStatus('Error: ' + data.error);
+      }
+    } catch (err: any) {
+      const message = err instanceof Error ? err.message : String(err);
+      setStatus('Failed: ' + message);
+    }
+  };
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen p-6 bg-background text-foreground">
+      <form onSubmit={handleReset} className="max-w-md w-full p-8 border rounded-xl shadow-lg bg-card text-card-foreground space-y-4">
+        <h1 className="text-3xl font-extrabold tracking-tight">Reset Password</h1>
+        <p className="text-sm text-muted-foreground">Enter your email and we'll send you a password reset link.</p>
+        <div>
+          <label className="block text-sm font-medium mb-1">Email</label>
+          <input type="email" value={email} onChange={e => setEmail(e.target.value)} required className="w-full p-2 border rounded-md" />
+        </div>
+        <button type="submit" className="w-full p-2 bg-foreground text-background font-bold rounded-md hover:opacity-90">Send Reset Link</button>
+        {status && <p className="text-center text-sm font-semibold">{status}</p>}
+      </form>
+    </div>
+  );
+}
+`;
+        } else if (normalizedRoute === 'billing') {
+          pageContent = `import React, { useState } from 'react';
+
+export default function BillingSettingsPage() {
+  const [organizationId, setOrganizationId] = useState('');
+  const [priceId, setPriceId] = useState('');
+  const [status, setStatus] = useState('');
+
+  const handleCheckout = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus('Creating checkout session...');
+    try {
+      const res = await fetch('/api/billing/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ organizationId, priceId }),
+      });
+      const data = await res.json();
+      if (data.success && data.url) {
+        window.location.href = data.url;
+      } else {
+        setStatus('Error: ' + data.error);
+      }
+    } catch (err: any) {
+      const message = err instanceof Error ? err.message : String(err);
+      setStatus('Failed: ' + message);
+    }
+  };
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen p-6 bg-background text-foreground">
+      <div className="max-w-xl w-full p-8 border rounded-xl shadow-lg bg-card text-card-foreground space-y-6">
+        <h1 className="text-3xl font-extrabold tracking-tight">Billing Settings</h1>
+        <p className="text-sm text-muted-foreground">Manage your organization's subscription and billing integrations.</p>
+
+        <form onSubmit={handleCheckout} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-1">Organization ID</label>
+            <input type="text" value={organizationId} onChange={e => setOrganizationId(e.target.value)} required className="w-full p-2 border rounded-md" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Price ID</label>
+            <input type="text" value={priceId} onChange={e => setPriceId(e.target.value)} required className="w-full p-2 border rounded-md" />
+          </div>
+          <button type="submit" className="w-full p-2 bg-foreground text-background font-bold rounded-md hover:opacity-90">Checkout with Stripe</button>
+          {status && <p className="text-center text-sm font-semibold">{status}</p>}
+        </form>
+      </div>
+    </div>
+  );
+}
+`;
+        } else if (normalizedRoute === 'organizations') {
+          pageContent = `import React, { useState, useEffect } from 'react';
+
+export default function OrganizationsDashboard() {
+  const [organizations, setOrganizations] = useState<any[]>([]);
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteRole, setInviteRole] = useState('member');
+  const [selectedOrgId, setSelectedOrgId] = useState('');
+  const [status, setStatus] = useState('');
+
+  useEffect(() => {
+    fetch('/api/organizations')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.data) {
+          setOrganizations(data.data);
+          if (data.data.length > 0) setSelectedOrgId(data.data[0].id);
+        }
+      })
+      .catch(err => console.error('Failed to load organizations:', err));
+  }, []);
+
+  const handleInvite = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedOrgId) {
+      setStatus('Please select or enter an organization ID first.');
+      return;
+    }
+    setStatus('Sending invitation...');
+    try {
+      const res = await fetch('/api/organizations/invite', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ organizationId: selectedOrgId, email: inviteEmail, role: inviteRole }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setStatus('Invitation sent successfully!');
+      } else {
+        setStatus('Error: ' + data.error);
+      }
+    } catch (err: any) {
+      const message = err instanceof Error ? err.message : String(err);
+      setStatus('Failed: ' + message);
+    }
+  };
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen p-6 bg-background text-foreground">
+      <div className="max-w-2xl w-full p-8 border rounded-xl shadow-lg bg-card text-card-foreground space-y-6">
+        <h1 className="text-3xl font-extrabold tracking-tight">Organizations Dashboard</h1>
+
+        <div className="space-y-4">
+          <h2 className="text-xl font-bold">Your Organizations</h2>
+          {organizations.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No organizations found. Join or create one to get started.</p>
+          ) : (
+            <ul className="divide-y border rounded-md p-4 bg-muted/20">
+              {organizations.map(org => (
+                <li key={org.id} className="py-2 flex justify-between items-center">
+                  <span className="font-semibold">{org.name}</span>
+                  <span className="text-xs font-mono text-muted-foreground">{org.id}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        <form onSubmit={handleInvite} className="space-y-4 pt-4 border-t">
+          <h2 className="text-xl font-bold">Invite Member</h2>
+          <div>
+            <label className="block text-sm font-medium mb-1">Organization ID</label>
+            <input type="text" value={selectedOrgId} onChange={e => setSelectedOrgId(e.target.value)} required className="w-full p-2 border rounded-md" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Email</label>
+            <input type="email" value={inviteEmail} onChange={e => setInviteEmail(e.target.value)} required className="w-full p-2 border rounded-md" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Role</label>
+            <select value={inviteRole} onChange={e => setInviteRole(e.target.value)} className="w-full p-2 border rounded-md bg-background">
+              <option value="member">Member</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <button type="submit" className="w-full p-2 bg-foreground text-background font-bold rounded-md hover:opacity-90">Send Invitation</button>
+          {status && <p className="text-center text-sm font-semibold">{status}</p>}
+        </form>
+      </div>
+    </div>
+  );
+}
+`;
+        } else if (normalizedRoute === 'rbac-admin') {
+          pageContent = `import React, { useState, useEffect } from 'react';
+
+export default function RbacAdminPage() {
+  const [roles, setRoles] = useState<any[]>([]);
+  const [status, setStatus] = useState('');
+
+  useEffect(() => {
+    setStatus('Loading roles...');
+    fetch('/api/rbac/roles')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.data) {
+          setRoles(data.data);
+          setStatus('');
+        } else {
+          setStatus('Error: ' + data.error);
+        }
+      })
+      .catch(err => {
+        const message = err instanceof Error ? err.message : String(err);
+        setStatus('Failed to load roles: ' + message);
+      });
+  }, []);
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen p-6 bg-background text-foreground">
+      <div className="max-w-2xl w-full p-8 border rounded-xl shadow-lg bg-card text-card-foreground space-y-6">
+        <h1 className="text-3xl font-extrabold tracking-tight">RBAC Administration</h1>
+        <p className="text-sm text-muted-foreground">Manage security roles and assign user access permissions across the system.</p>
+
+        <div className="space-y-4">
+          <h2 className="text-xl font-bold">Configured System Roles</h2>
+          {status && <p className="text-sm font-semibold text-muted-foreground">{status}</p>}
+          {roles.length === 0 && !status ? (
+            <p className="text-sm text-muted-foreground">No roles configured in the database.</p>
+          ) : (
+            <ul className="divide-y border rounded-md p-4 bg-muted/20">
+              {roles.map(role => (
+                <li key={role.id} className="py-3 flex flex-col space-y-1">
+                  <div className="flex justify-between items-center">
+                    <span className="font-bold">{role.name}</span>
+                    <span className="text-xs font-mono text-muted-foreground">{role.id}</span>
+                  </div>
+                  {role.description && <p className="text-sm text-muted-foreground">{role.description}</p>}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+`;
+        } else {
+          pageContent = `import React from 'react';
 
 /**
  * ${desc}
@@ -129,6 +424,8 @@ export default function ${name}Page() {
   );
 }
 `;
+        }
+
         files[`app/${normalizedRoute}/page.tsx`] = pageContent;
       } else {
         const componentContent = `import React from 'react';
@@ -154,11 +451,14 @@ export function ${name}() {
 
     for (const mig of plan.migrations) {
       const cleanName = mig.name.replace(/^\/+|\/+$/g, '');
-      const typeDesc = mig.type || 'database';
-      const desc = mig.description || `Migration for ${mig.name}`;
-
-      const sqlMigrationContent = `-- Migration: ${mig.name} (${typeDesc})\n-- Description: ${desc}\n\n-- TODO: Add your custom ${typeDesc} migration script here\n`;
-      files[`supabase/migrations/${cleanName}`] = sqlMigrationContent;
+      if (mig.content) {
+        files[`supabase/migrations/${cleanName}`] = mig.content;
+      } else {
+        const typeDesc = mig.type || 'database';
+        const desc = mig.description || `Migration for ${mig.name}`;
+        const sqlMigrationContent = `-- Migration: ${mig.name} (${typeDesc})\n-- Description: ${desc}\n\n-- TODO: Add your custom ${typeDesc} migration script here\n`;
+        files[`supabase/migrations/${cleanName}`] = sqlMigrationContent;
+      }
     }
 
     if (plan.navigation.length > 0) {
