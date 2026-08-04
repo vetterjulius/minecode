@@ -4,7 +4,7 @@
 This repository contains the source code for a modular software engineering system.
 
 ## State
-We are currently in Development of the v0.1 release. The definition of done for this release can be found [here](engineering/definition-of-done.md)
+We are currently in active Development of the v0.2 release. The technical specification for v0.2 can be found [here](architecture/specs-v02.md), and the next steps roadmap is documented [here](architecture/v02-next-steps.md).
 
 ## Architecture
 The architectural basis is documented in the `architecture/` folder.

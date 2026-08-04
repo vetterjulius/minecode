@@ -6,10 +6,15 @@ Modular AI-first software architecture system made up of building blocks that ju
 
 Minecode is not a template system or a simple code generator. It is a **compiler for declarative software capabilities**. It translates standard high-level application descriptions (blueprints) into fully composed, normal, production-ready software projects with well-defined boundaries.
 
+We are currently in active development of the **v0.2 release**.
+
 For detailed concepts and technical designs:
 
 - Read our [Architecture Concept](architecture/architecture-concept.md)
-- Explore the [Technical Specification v0.1](architecture/specs-v01.md)
+- Explore the [Technical Specification v0.2](architecture/specs-v02.md)
+- Learn about the [v0.2 Next Steps Roadmap](architecture/v02-next-steps.md)
+- Review the [v0.1 Technical Specification](architecture/specs-v01.md)
+- Review the [v0.1 Known Limitations](docs/known-limitations.md)
 
 ## Repository Structure
 
@@ -24,6 +29,7 @@ For a detailed breakdown of the packages, their responsibilities, and expected d
 To set up, build, test, and develop on Minecode locally:
 
 - Follow the [Local Development Guide](docs/local-development.md)
+- Learn how to add features by reading the [Developer Guide: Adding Features](docs/adding-features.md)
 
 ### Quick Commands
 
