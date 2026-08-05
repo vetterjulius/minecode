@@ -8,6 +8,7 @@ const LAYERS = [
   '@minecode/registry',
   '@minecode/resolver',
   '@minecode/composer',
+  '@minecode/sub-generators',
   '@minecode/nextjs-supabase',
   '@minecode/generator'
 ];

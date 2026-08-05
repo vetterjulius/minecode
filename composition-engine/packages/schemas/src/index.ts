@@ -183,6 +183,8 @@ export const RawContractSchema = z.object({
       })
     )
     .optional(),
+  subGenerators: z.array(z.string()).optional(),
+  sub_generators: z.array(z.string()).optional(),
 });
 
 export const RawDependencyEntrySchema = z.union([
@@ -460,6 +462,8 @@ export function normalizeFeature(raw: any): Feature {
     description: m.description || '',
   }));
 
+  const subGenerators = raw.subGenerators || raw.sub_generators || undefined;
+
   return {
     id,
     version,
@@ -468,6 +472,7 @@ export function normalizeFeature(raw: any): Feature {
     contract,
     dependencies,
     modules,
+    subGenerators,
   };
 }
 

@@ -214,6 +214,12 @@ export interface Feature {
   modules: Module[];
   configSchema?: Record<string, unknown>;
   featureDir?: string;
+  subGenerators?: string[];
+}
+
+export interface SubGenerator {
+  readonly id: string;
+  generate(plan: CompositionPlan, options?: { runnable?: boolean }): Record<string, string>;
 }
 
 export interface BlueprintValidationResult {

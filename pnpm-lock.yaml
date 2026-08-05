@@ -155,11 +155,20 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
 
+  composition-engine/packages/sub-generators:
+    dependencies:
+      '@minecode/core':
+        specifier: workspace:*
+        version: link:../core
+
   composition-engine/stacks/nextjs-supabase:
     dependencies:
       '@minecode/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@minecode/sub-generators':
+        specifier: workspace:*
+        version: link:../../packages/sub-generators
 
 packages:
   '@ampproject/remapping@2.3.0':

@@ -6,6 +6,7 @@
     { "path": "composition-engine/packages/registry" },
     { "path": "composition-engine/packages/resolver" },
     { "path": "composition-engine/packages/composer" },
+    { "path": "composition-engine/packages/sub-generators" },
     { "path": "composition-engine/packages/generator" },
     { "path": "composition-engine/stacks/nextjs-supabase" },
     { "path": "composition-engine/apps/cli" },

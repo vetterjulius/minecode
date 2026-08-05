@@ -28,17 +28,37 @@ export default function LoginPage() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-6 bg-background text-foreground">
-      <form onSubmit={handleLogin} className="max-w-md w-full p-8 border rounded-xl shadow-lg bg-card text-card-foreground space-y-4">
+      <form
+        onSubmit={handleLogin}
+        className="max-w-md w-full p-8 border rounded-xl shadow-lg bg-card text-card-foreground space-y-4"
+      >
         <h1 className="text-3xl font-extrabold tracking-tight">Login</h1>
         <div>
           <label className="block text-sm font-medium mb-1">Email</label>
-          <input type="email" value={email} onChange={e => setEmail(e.target.value)} required className="w-full p-2 border rounded-md" />
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className="w-full p-2 border rounded-md"
+          />
         </div>
         <div>
           <label className="block text-sm font-medium mb-1">Password</label>
-          <input type="password" value={password} onChange={e => setPassword(e.target.value)} required className="w-full p-2 border rounded-md" />
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            className="w-full p-2 border rounded-md"
+          />
         </div>
-        <button type="submit" className="w-full p-2 bg-foreground text-background font-bold rounded-md hover:opacity-90">Sign In</button>
+        <button
+          type="submit"
+          className="w-full p-2 bg-foreground text-background font-bold rounded-md hover:opacity-90"
+        >
+          Sign In
+        </button>
         {status && <p className="text-center text-sm font-semibold">{status}</p>}
       </form>
     </div>

@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import { execSync } from 'child_process';
 import { CompositionPlan } from '@minecode/core';
 import { NextJsSupabaseAdapter } from '@minecode/nextjs-supabase';
 
@@ -69,6 +70,13 @@ export class ApplicationGenerator {
       }
 
       fs.writeFileSync(targetPath, content, 'utf8');
+    }
+
+    // Format the generated folder using Prettier to ensure 100% compliant formatting
+    try {
+      execSync(`npx prettier --write "${this.outDir}"`, { stdio: 'ignore' });
+    } catch {
+      // Ignore formatting errors if Prettier fails
     }
   }
 }
