@@ -14,6 +14,17 @@ export class SupabaseGenericApiSubGenerator implements SubGenerator {
       'api/billing/checkout',
       'api/billing/webhook',
       'api/rbac/roles',
+      'api/storage/upload',
+      'api/storage/delete',
+      'api/notifications/send',
+      'api/search',
+      'api/audit-logs',
+      'api/ai/chat',
+      'api/whiteboards',
+      'api/tickets',
+      'api/feedback',
+      'api/analytics/metrics',
+      'api/kb/articles',
     ];
 
     for (const apiDef of plan.api) {

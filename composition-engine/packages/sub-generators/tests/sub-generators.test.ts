@@ -10,6 +10,16 @@ test('test_SubGeneratorRegistry_BuiltinGenerators_AreLoadedCorrectly', () => {
   expect(registry.has('nextjs-supabase-billing')).toBe(true);
   expect(registry.has('nextjs-supabase-orgs')).toBe(true);
   expect(registry.has('nextjs-supabase-rbac')).toBe(true);
+  expect(registry.has('nextjs-supabase-storage')).toBe(true);
+  expect(registry.has('nextjs-supabase-notifications')).toBe(true);
+  expect(registry.has('nextjs-supabase-search')).toBe(true);
+  expect(registry.has('nextjs-supabase-audit-logging')).toBe(true);
+  expect(registry.has('nextjs-supabase-ai-chat')).toBe(true);
+  expect(registry.has('nextjs-supabase-whiteboard')).toBe(true);
+  expect(registry.has('nextjs-supabase-ticketing')).toBe(true);
+  expect(registry.has('nextjs-supabase-customer-feedback')).toBe(true);
+  expect(registry.has('nextjs-supabase-analytics')).toBe(true);
+  expect(registry.has('nextjs-supabase-knowledge-base')).toBe(true);
   expect(registry.has('supabase-generic-api')).toBe(true);
   expect(registry.has('nextjs-generic-ui')).toBe(true);
   expect(registry.has('nextjs-navigation')).toBe(true);

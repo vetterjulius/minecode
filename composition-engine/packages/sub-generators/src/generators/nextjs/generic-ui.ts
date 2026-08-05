@@ -12,6 +12,16 @@ export class NextjsGenericUiSubGenerator implements SubGenerator {
       'billing',
       'organizations',
       'rbac-admin',
+      'storage',
+      'notifications',
+      'search',
+      'audit-logs',
+      'ai/chat',
+      'whiteboard',
+      'tickets',
+      'feedback',
+      'analytics',
+      'kb',
     ];
 
     for (const uiDef of plan.ui) {

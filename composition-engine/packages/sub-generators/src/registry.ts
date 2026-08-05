@@ -5,6 +5,16 @@ import { NextjsSupabaseAuthSubGenerator } from './generators/nextjs-supabase/aut
 import { NextjsSupabaseBillingSubGenerator } from './generators/nextjs-supabase/billing.js';
 import { NextjsSupabaseOrgsSubGenerator } from './generators/nextjs-supabase/orgs.js';
 import { NextjsSupabaseRbacSubGenerator } from './generators/nextjs-supabase/rbac.js';
+import { NextjsSupabaseStorageSubGenerator } from './generators/nextjs-supabase/storage.js';
+import { NextjsSupabaseNotificationsSubGenerator } from './generators/nextjs-supabase/notifications.js';
+import { NextjsSupabaseSearchSubGenerator } from './generators/nextjs-supabase/search.js';
+import { NextjsSupabaseAuditLoggingSubGenerator } from './generators/nextjs-supabase/audit-logging.js';
+import { NextjsSupabaseAiChatSubGenerator } from './generators/nextjs-supabase/ai-chat.js';
+import { NextjsSupabaseWhiteboardSubGenerator } from './generators/nextjs-supabase/whiteboard.js';
+import { NextjsSupabaseTicketingSubGenerator } from './generators/nextjs-supabase/ticketing.js';
+import { NextjsSupabaseFeedbackSubGenerator } from './generators/nextjs-supabase/customer-feedback.js';
+import { NextjsSupabaseAnalyticsSubGenerator } from './generators/nextjs-supabase/analytics.js';
+import { NextjsSupabaseKnowledgeBaseSubGenerator } from './generators/nextjs-supabase/knowledge-base.js';
 import { NextjsGenericUiSubGenerator } from './generators/nextjs/generic-ui.js';
 import { NextjsNavigationSubGenerator } from './generators/nextjs/navigation.js';
 import { NextjsWorkspaceSubGenerator } from './generators/nextjs/workspace.js';
@@ -18,6 +28,16 @@ export const BUILTIN_SUB_GENERATORS: SubGenerator[] = [
   new NextjsSupabaseBillingSubGenerator(),
   new NextjsSupabaseOrgsSubGenerator(),
   new NextjsSupabaseRbacSubGenerator(),
+  new NextjsSupabaseStorageSubGenerator(),
+  new NextjsSupabaseNotificationsSubGenerator(),
+  new NextjsSupabaseSearchSubGenerator(),
+  new NextjsSupabaseAuditLoggingSubGenerator(),
+  new NextjsSupabaseAiChatSubGenerator(),
+  new NextjsSupabaseWhiteboardSubGenerator(),
+  new NextjsSupabaseTicketingSubGenerator(),
+  new NextjsSupabaseFeedbackSubGenerator(),
+  new NextjsSupabaseAnalyticsSubGenerator(),
+  new NextjsSupabaseKnowledgeBaseSubGenerator(),
   new NextjsGenericUiSubGenerator(),
   new NextjsNavigationSubGenerator(),
   new NextjsWorkspaceSubGenerator(),
