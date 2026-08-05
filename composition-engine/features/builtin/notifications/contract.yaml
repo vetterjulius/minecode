@@ -1,0 +1,54 @@
+provides:
+  capabilities:
+    - notifications
+  entities:
+    - name: Notification
+      description: 'Notification tracking and status'
+      fields:
+        - name: id
+          type: uuid
+          required: true
+          description: 'Primary key'
+        - name: userId
+          type: uuid
+          required: true
+          description: 'Reference to User'
+        - name: channel
+          type: string
+          required: true
+          description: 'Notification delivery channel (email, sms, slack)'
+        - name: title
+          type: string
+          required: true
+          description: 'Notification title or header'
+        - name: content
+          type: string
+          required: true
+          description: 'Notification body text'
+        - name: status
+          type: string
+          required: true
+          description: 'Delivery status (pending, sent, failed)'
+        - name: createdAt
+          type: timestamp
+          required: true
+          description: 'Timestamp of notification'
+  permissions:
+    - name: notifications.read
+      description: 'Read notifications history'
+    - name: notifications.write
+      description: 'Send and manage notifications'
+  api:
+    - name: SendNotification
+      path: /api/notifications/send
+      method: POST
+      description: 'Send a new notification.'
+  ui:
+    - name: NotificationCenter
+      route: notifications
+      slot: main
+      description: 'User notification inbox UI.'
+requires:
+  features:
+    - database
+    - authentication

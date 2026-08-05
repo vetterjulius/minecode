@@ -1,0 +1,54 @@
+provides:
+  capabilities:
+    - knowledge-base
+  entities:
+    - name: Article
+      description: 'Help center knowledge article'
+      fields:
+        - name: id
+          type: uuid
+          required: true
+          description: 'Primary key'
+        - name: title
+          type: string
+          required: true
+          description: 'Article heading title'
+        - name: content
+          type: string
+          required: true
+          description: 'Full markdown body content'
+        - name: category
+          type: string
+          required: true
+          description: 'Article help topic category'
+        - name: authorId
+          type: uuid
+          required: true
+          description: 'User ID of the author'
+        - name: organizationId
+          type: uuid
+          required: true
+          description: 'Reference to Organization'
+        - name: createdAt
+          type: timestamp
+          required: true
+          description: 'Article publication timestamp'
+  permissions:
+    - name: articles.read
+      description: 'Read help articles'
+    - name: articles.write
+      description: 'Author and modify help articles'
+  api:
+    - name: GetArticles
+      path: /api/kb/articles
+      method: GET
+      description: 'Fetch knowledge base articles.'
+  ui:
+    - name: HelpCenter
+      route: kb
+      slot: main
+      description: 'Public self-service Help Center and guides directory.'
+requires:
+  features:
+    - database
+    - organizations

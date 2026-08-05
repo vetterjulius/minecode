@@ -1,0 +1,54 @@
+provides:
+  capabilities:
+    - ticketing
+  entities:
+    - name: Ticket
+      description: 'Customer support ticket tracking'
+      fields:
+        - name: id
+          type: uuid
+          required: true
+          description: 'Primary key'
+        - name: title
+          type: string
+          required: true
+          description: 'Ticket short summary title'
+        - name: status
+          type: string
+          required: true
+          description: 'Ticket state (open, in_progress, resolved, closed)'
+        - name: priority
+          type: string
+          required: true
+          description: 'Ticket urgency priority (low, medium, high, urgent)'
+        - name: assigneeId
+          type: uuid
+          required: false
+          description: 'User ID of assigned staff support agent'
+        - name: organizationId
+          type: uuid
+          required: true
+          description: 'Reference to Organization'
+        - name: createdAt
+          type: timestamp
+          required: true
+          description: 'Ticket creation timestamp'
+  permissions:
+    - name: tickets.read
+      description: 'View organization support tickets'
+    - name: tickets.write
+      description: 'Create and update tickets'
+  api:
+    - name: CreateTicket
+      path: /api/tickets
+      method: POST
+      description: 'Submit a new support ticket.'
+  ui:
+    - name: TicketInbox
+      route: tickets
+      slot: main
+      description: 'Support agent ticket queue and filtering.'
+requires:
+  features:
+    - database
+    - organizations

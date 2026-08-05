@@ -1,0 +1,44 @@
+provides:
+  capabilities:
+    - analytics
+  entities:
+    - name: Metric
+      description: 'System metrics and resource usages'
+      fields:
+        - name: id
+          type: uuid
+          required: true
+          description: 'Primary key'
+        - name: name
+          type: string
+          required: true
+          description: 'Name of the logged metric'
+        - name: value
+          type: float
+          required: true
+          description: 'Value of the metric'
+        - name: organizationId
+          type: uuid
+          required: true
+          description: 'Reference to Organization'
+        - name: createdAt
+          type: timestamp
+          required: true
+          description: 'Timestamp of metric'
+  permissions:
+    - name: analytics.view
+      description: 'View metric analytics dashboards'
+  api:
+    - name: GetMetrics
+      path: /api/analytics/metrics
+      method: GET
+      description: 'Fetch organization usage metric logs.'
+  ui:
+    - name: AnalyticsDashboard
+      route: analytics
+      slot: main
+      description: 'Usage analytics charts and KPI reports.'
+requires:
+  features:
+    - database
+    - organizations

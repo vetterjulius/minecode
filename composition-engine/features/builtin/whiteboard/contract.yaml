@@ -1,0 +1,42 @@
+provides:
+  capabilities:
+    - whiteboard
+  entities:
+    - name: WhiteboardSession
+      description: 'Collaborative whiteboard drawing session'
+      fields:
+        - name: id
+          type: uuid
+          required: true
+          description: 'Primary key'
+        - name: name
+          type: string
+          required: true
+          description: 'Session display name'
+        - name: organizationId
+          type: uuid
+          required: true
+          description: 'Reference to Organization'
+        - name: createdAt
+          type: timestamp
+          required: true
+          description: 'Timestamp of session creation'
+  permissions:
+    - name: whiteboard.create
+      description: 'Create new whiteboard sessions'
+    - name: whiteboard.view
+      description: 'View whiteboards'
+  api:
+    - name: GetWhiteboardSessions
+      path: /api/whiteboards
+      method: GET
+      description: 'Fetch all whiteboard sessions for organization.'
+  ui:
+    - name: WhiteboardCanvas
+      route: whiteboard
+      slot: main
+      description: 'Collaborative drawings and shapes canvas page.'
+requires:
+  features:
+    - database
+    - organizations

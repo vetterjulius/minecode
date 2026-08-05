@@ -1,0 +1,8 @@
+type: object
+properties:
+  enableRealtimeDrawing:
+    type: boolean
+    default: true
+  maxShapesPerBoard:
+    type: integer
+    default: 1000

@@ -1,0 +1,50 @@
+provides:
+  capabilities:
+    - customer-feedback
+  entities:
+    - name: Feedback
+      description: 'Customer satisfaction rating and text feedback'
+      fields:
+        - name: id
+          type: uuid
+          required: true
+          description: 'Primary key'
+        - name: rating
+          type: integer
+          required: true
+          description: 'Satisfaction rating score (1-5)'
+        - name: comment
+          type: string
+          required: false
+          description: 'Customer comments text'
+        - name: userId
+          type: uuid
+          required: true
+          description: 'Reference to User'
+        - name: organizationId
+          type: uuid
+          required: true
+          description: 'Reference to Organization'
+        - name: createdAt
+          type: timestamp
+          required: true
+          description: 'Timestamp of feedback submission'
+  permissions:
+    - name: feedback.read
+      description: 'Read organization feedback ratings'
+    - name: feedback.write
+      description: 'Submit feedback ratings'
+  api:
+    - name: PostFeedback
+      path: /api/feedback
+      method: POST
+      description: 'Submit customer satisfaction feedback.'
+  ui:
+    - name: FeedbackDashboard
+      route: feedback
+      slot: main
+      description: 'Analytics dashboard of customer feedback scores.'
+requires:
+  features:
+    - database
+    - organizations

@@ -1,0 +1,8 @@
+type: object
+properties:
+  searchEngine:
+    type: string
+    default: 'postgres-fts'
+  indexingIntervalSeconds:
+    type: integer
+    default: 60

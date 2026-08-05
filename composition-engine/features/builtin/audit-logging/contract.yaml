@@ -1,0 +1,51 @@
+provides:
+  capabilities:
+    - audit-logging
+  entities:
+    - name: AuditLog
+      description: 'Audit log entry tracking security events'
+      fields:
+        - name: id
+          type: uuid
+          required: true
+          description: 'Primary key'
+        - name: action
+          type: string
+          required: true
+          description: 'Type of event or action executed'
+        - name: actorId
+          type: uuid
+          required: false
+          description: 'User ID of the actor initiating the event'
+        - name: entityName
+          type: string
+          required: false
+          description: 'Name of the altered database entity'
+        - name: entityId
+          type: string
+          required: false
+          description: 'Identifier of the altered entity'
+        - name: payload
+          type: string
+          required: false
+          description: 'Event context metadata'
+        - name: createdAt
+          type: timestamp
+          required: true
+          description: 'Timestamp of the log entry'
+  permissions:
+    - name: audit.read
+      description: 'View full system audit logs'
+  api:
+    - name: GetAuditLogs
+      path: /api/audit-logs
+      method: GET
+      description: 'Fetch and filter system audit logs.'
+  ui:
+    - name: AuditLogDashboard
+      route: audit-logs
+      slot: main
+      description: 'Audit log history and analytics UI.'
+requires:
+  features:
+    - database

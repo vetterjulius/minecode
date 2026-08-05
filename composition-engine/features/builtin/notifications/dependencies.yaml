@@ -1,0 +1,4 @@
+- featureId: database
+  versionRange: '^1.0.0'
+- featureId: authentication
+  versionRange: '^1.0.0'

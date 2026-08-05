@@ -1,0 +1,8 @@
+type: object
+properties:
+  allowAnonymousFeedback:
+    type: boolean
+    default: false
+  surveyTriggerEvent:
+    type: string
+    default: 'ticket_resolved'

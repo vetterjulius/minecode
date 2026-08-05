@@ -1,0 +1,14 @@
+id: storage
+version: 1.0.0
+type: business
+name: 'Storage'
+description: 'File upload and bucket storage management capability.'
+maintainer:
+  type: builtin
+stack:
+  - nextjs-supabase
+category: Infrastructure
+modules:
+  - name: 'database/0005_storage_schema.sql'
+    type: migration
+    description: 'Create storage buckets and file tracking tables.'

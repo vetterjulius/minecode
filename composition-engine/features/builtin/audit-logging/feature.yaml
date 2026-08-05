@@ -1,0 +1,14 @@
+id: audit-logging
+version: 1.0.0
+type: business
+name: 'Audit Logging'
+description: 'Tamper-evident system audit logs tracking sensitive user and organization actions.'
+maintainer:
+  type: builtin
+stack:
+  - nextjs-supabase
+category: Security
+modules:
+  - name: 'database/0008_audit_logging_schema.sql'
+    type: migration
+    description: 'Create audit logs tracking table.'
