@@ -1,7 +1,7 @@
 import { SubGenerator, CompositionPlan } from '@minecode/core';
 
-export class WorkspaceSubGenerator implements SubGenerator {
-  public readonly id = 'workspace';
+export class NextjsWorkspaceSubGenerator implements SubGenerator {
+  public readonly id = 'nextjs-workspace';
 
   public generate(plan: CompositionPlan, options?: { runnable?: boolean }): Record<string, string> {
     const files: Record<string, string> = {};

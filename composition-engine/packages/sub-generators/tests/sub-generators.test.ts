@@ -5,17 +5,17 @@ import { CompositionPlan } from '@minecode/core';
 test('test_SubGeneratorRegistry_BuiltinGenerators_AreLoadedCorrectly', () => {
   const registry = new SubGeneratorRegistry();
   expect(registry.list().length).toBe(BUILTIN_SUB_GENERATORS.length);
-  expect(registry.has('database')).toBe(true);
-  expect(registry.has('auth')).toBe(true);
-  expect(registry.has('billing')).toBe(true);
-  expect(registry.has('orgs')).toBe(true);
-  expect(registry.has('rbac')).toBe(true);
-  expect(registry.has('generic-api')).toBe(true);
-  expect(registry.has('generic-ui')).toBe(true);
-  expect(registry.has('navigation')).toBe(true);
-  expect(registry.has('events')).toBe(true);
-  expect(registry.has('extensions')).toBe(true);
-  expect(registry.has('workspace')).toBe(true);
+  expect(registry.has('supabase-database')).toBe(true);
+  expect(registry.has('nextjs-supabase-auth')).toBe(true);
+  expect(registry.has('nextjs-supabase-billing')).toBe(true);
+  expect(registry.has('nextjs-supabase-orgs')).toBe(true);
+  expect(registry.has('nextjs-supabase-rbac')).toBe(true);
+  expect(registry.has('supabase-generic-api')).toBe(true);
+  expect(registry.has('nextjs-generic-ui')).toBe(true);
+  expect(registry.has('nextjs-navigation')).toBe(true);
+  expect(registry.has('common-events')).toBe(true);
+  expect(registry.has('common-extensions')).toBe(true);
+  expect(registry.has('nextjs-workspace')).toBe(true);
 });
 
 test('test_SubGeneratorRegistry_RegisterCustomGenerator_RegistersSuccessfully', () => {

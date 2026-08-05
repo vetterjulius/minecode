@@ -1,7 +1,7 @@
 import { SubGenerator, CompositionPlan } from '@minecode/core';
 
-export class EventsSubGenerator implements SubGenerator {
-  public readonly id = 'events';
+export class CommonEventsSubGenerator implements SubGenerator {
+  public readonly id = 'common-events';
 
   public generate(plan: CompositionPlan): Record<string, string> {
     const files: Record<string, string> = {};

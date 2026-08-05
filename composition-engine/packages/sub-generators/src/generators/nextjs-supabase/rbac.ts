@@ -1,7 +1,7 @@
 import { SubGenerator, CompositionPlan } from '@minecode/core';
 
-export class RbacSubGenerator implements SubGenerator {
-  public readonly id = 'rbac';
+export class NextjsSupabaseRbacSubGenerator implements SubGenerator {
+  public readonly id = 'nextjs-supabase-rbac';
 
   public generate(plan: CompositionPlan): Record<string, string> {
     const files: Record<string, string> = {};
@@ -17,8 +17,7 @@ export class RbacSubGenerator implements SubGenerator {
         : `api/${normalizedPath}`;
 
       if (fullRoutePath === 'api/rbac/roles') {
-        files[`app/${fullRoutePath}/route.ts`] =
-          `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+        files[`app/${fullRoutePath}/route.ts`] = `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
@@ -49,8 +48,7 @@ export async function GET(_request: Request) {
         const normalizedRoute = uiDef.route.replace(/^\/+|\/+$/g, '');
 
         if (normalizedRoute === 'rbac-admin') {
-          files[`app/${normalizedRoute}/page.tsx`] =
-            `import React, { useState, useEffect } from 'react';
+          files[`app/${normalizedRoute}/page.tsx`] = `import React, { useState, useEffect } from 'react';
 
 export default function RbacAdminPage() {
   const [roles, setRoles] = useState<any[]>([]);

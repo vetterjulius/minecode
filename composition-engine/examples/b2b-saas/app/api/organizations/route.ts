@@ -9,10 +9,7 @@ import { NextResponse } from 'next/server';
 export async function GET(_request: Request) {
   const supabase = createRouteHandlerClient({ cookies });
   try {
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
@@ -24,7 +21,7 @@ export async function GET(_request: Request) {
 
     if (memberError) throw memberError;
 
-    const orgIds = memberships.map((m) => m.organizationId);
+    const orgIds = memberships.map(m => m.organizationId);
     const { data: organizations, error: orgError } = await supabase
       .from('organization')
       .select('*')

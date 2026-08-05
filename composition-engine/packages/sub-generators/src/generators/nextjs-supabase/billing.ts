@@ -1,7 +1,7 @@
 import { SubGenerator, CompositionPlan } from '@minecode/core';
 
-export class BillingSubGenerator implements SubGenerator {
-  public readonly id = 'billing';
+export class NextjsSupabaseBillingSubGenerator implements SubGenerator {
+  public readonly id = 'nextjs-supabase-billing';
 
   public generate(plan: CompositionPlan): Record<string, string> {
     const files: Record<string, string> = {};
@@ -34,8 +34,7 @@ export async function POST(_request: Request) {
 }
 `;
       } else if (fullRoutePath === 'api/billing/webhook') {
-        files[`app/${fullRoutePath}/route.ts`] =
-          `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+        files[`app/${fullRoutePath}/route.ts`] = `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 

@@ -1,28 +1,28 @@
 import { SubGenerator } from '@minecode/core';
-import { DatabaseSubGenerator } from './generators/database.js';
-import { AuthSubGenerator } from './generators/auth.js';
-import { BillingSubGenerator } from './generators/billing.js';
-import { OrgsSubGenerator } from './generators/orgs.js';
-import { RbacSubGenerator } from './generators/rbac.js';
-import { GenericApiSubGenerator } from './generators/generic-api.js';
-import { GenericUiSubGenerator } from './generators/generic-ui.js';
-import { NavigationSubGenerator } from './generators/navigation.js';
-import { EventsSubGenerator } from './generators/events.js';
-import { ExtensionsSubGenerator } from './generators/extensions.js';
-import { WorkspaceSubGenerator } from './generators/workspace.js';
+import { SupabaseDatabaseSubGenerator } from './generators/supabase/database.js';
+import { SupabaseGenericApiSubGenerator } from './generators/supabase/generic-api.js';
+import { NextjsSupabaseAuthSubGenerator } from './generators/nextjs-supabase/auth.js';
+import { NextjsSupabaseBillingSubGenerator } from './generators/nextjs-supabase/billing.js';
+import { NextjsSupabaseOrgsSubGenerator } from './generators/nextjs-supabase/orgs.js';
+import { NextjsSupabaseRbacSubGenerator } from './generators/nextjs-supabase/rbac.js';
+import { NextjsGenericUiSubGenerator } from './generators/nextjs/generic-ui.js';
+import { NextjsNavigationSubGenerator } from './generators/nextjs/navigation.js';
+import { NextjsWorkspaceSubGenerator } from './generators/nextjs/workspace.js';
+import { CommonEventsSubGenerator } from './generators/common/events.js';
+import { CommonExtensionsSubGenerator } from './generators/common/extensions.js';
 
 export const BUILTIN_SUB_GENERATORS: SubGenerator[] = [
-  new DatabaseSubGenerator(),
-  new AuthSubGenerator(),
-  new BillingSubGenerator(),
-  new OrgsSubGenerator(),
-  new RbacSubGenerator(),
-  new GenericApiSubGenerator(),
-  new GenericUiSubGenerator(),
-  new NavigationSubGenerator(),
-  new EventsSubGenerator(),
-  new ExtensionsSubGenerator(),
-  new WorkspaceSubGenerator(),
+  new SupabaseDatabaseSubGenerator(),
+  new SupabaseGenericApiSubGenerator(),
+  new NextjsSupabaseAuthSubGenerator(),
+  new NextjsSupabaseBillingSubGenerator(),
+  new NextjsSupabaseOrgsSubGenerator(),
+  new NextjsSupabaseRbacSubGenerator(),
+  new NextjsGenericUiSubGenerator(),
+  new NextjsNavigationSubGenerator(),
+  new NextjsWorkspaceSubGenerator(),
+  new CommonEventsSubGenerator(),
+  new CommonExtensionsSubGenerator(),
 ];
 
 export class SubGeneratorRegistry {

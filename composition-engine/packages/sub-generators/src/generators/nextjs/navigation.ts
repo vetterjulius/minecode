@@ -1,7 +1,7 @@
 import { SubGenerator, CompositionPlan } from '@minecode/core';
 
-export class NavigationSubGenerator implements SubGenerator {
-  public readonly id = 'navigation';
+export class NextjsNavigationSubGenerator implements SubGenerator {
+  public readonly id = 'nextjs-navigation';
 
   public generate(plan: CompositionPlan): Record<string, string> {
     const files: Record<string, string> = {};

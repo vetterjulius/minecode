@@ -1,7 +1,7 @@
 import { SubGenerator, CompositionPlan } from '@minecode/core';
 
-export class DatabaseSubGenerator implements SubGenerator {
-  public readonly id = 'database';
+export class SupabaseDatabaseSubGenerator implements SubGenerator {
+  public readonly id = 'supabase-database';
 
   public generate(plan: CompositionPlan): Record<string, string> {
     const files: Record<string, string> = {};

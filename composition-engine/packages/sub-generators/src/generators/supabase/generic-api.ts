@@ -1,7 +1,7 @@
 import { SubGenerator, CompositionPlan } from '@minecode/core';
 
-export class GenericApiSubGenerator implements SubGenerator {
-  public readonly id = 'generic-api';
+export class SupabaseGenericApiSubGenerator implements SubGenerator {
+  public readonly id = 'supabase-generic-api';
 
   public generate(plan: CompositionPlan): Record<string, string> {
     const files: Record<string, string> = {};
@@ -13,7 +13,7 @@ export class GenericApiSubGenerator implements SubGenerator {
       'api/organizations/invite',
       'api/billing/checkout',
       'api/billing/webhook',
-      'api/rbac/roles',
+      'api/rbac/roles'
     ];
 
     for (const apiDef of plan.api) {
@@ -34,8 +34,7 @@ export class GenericApiSubGenerator implements SubGenerator {
         continue;
       }
 
-      files[`app/${fullRoutePath}/route.ts`] =
-        `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+      files[`app/${fullRoutePath}/route.ts`] = `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 

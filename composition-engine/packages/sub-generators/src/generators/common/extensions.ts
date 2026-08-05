@@ -1,7 +1,7 @@
 import { SubGenerator, CompositionPlan } from '@minecode/core';
 
-export class ExtensionsSubGenerator implements SubGenerator {
-  public readonly id = 'extensions';
+export class CommonExtensionsSubGenerator implements SubGenerator {
+  public readonly id = 'common-extensions';
 
   public generate(plan: CompositionPlan): Record<string, string> {
     const files: Record<string, string> = {};

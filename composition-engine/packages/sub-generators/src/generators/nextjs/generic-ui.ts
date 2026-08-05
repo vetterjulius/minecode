@@ -1,7 +1,7 @@
 import { SubGenerator, CompositionPlan } from '@minecode/core';
 
-export class GenericUiSubGenerator implements SubGenerator {
-  public readonly id = 'generic-ui';
+export class NextjsGenericUiSubGenerator implements SubGenerator {
+  public readonly id = 'nextjs-generic-ui';
 
   public generate(plan: CompositionPlan): Record<string, string> {
     const files: Record<string, string> = {};
@@ -11,7 +11,7 @@ export class GenericUiSubGenerator implements SubGenerator {
       'auth/reset-password',
       'billing',
       'organizations',
-      'rbac-admin',
+      'rbac-admin'
     ];
 
     for (const uiDef of plan.ui) {
