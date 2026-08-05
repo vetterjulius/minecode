@@ -17,7 +17,8 @@ export class NextjsSupabaseOrgsSubGenerator implements SubGenerator {
         : `api/${normalizedPath}`;
 
       if (fullRoutePath === 'api/organizations' && method === 'GET') {
-        files[`app/${fullRoutePath}/route.ts`] = `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+        files[`app/${fullRoutePath}/route.ts`] =
+          `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
@@ -56,7 +57,8 @@ export async function GET(_request: Request) {
 }
 `;
       } else if (fullRoutePath === 'api/organizations/invite') {
-        files[`app/${fullRoutePath}/route.ts`] = `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+        files[`app/${fullRoutePath}/route.ts`] =
+          `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
@@ -96,7 +98,8 @@ export async function POST(request: Request) {
         const normalizedRoute = uiDef.route.replace(/^\/+|\/+$/g, '');
 
         if (normalizedRoute === 'organizations') {
-          files[`app/${normalizedRoute}/page.tsx`] = `import React, { useState, useEffect } from 'react';
+          files[`app/${normalizedRoute}/page.tsx`] =
+            `import React, { useState, useEffect } from 'react';
 
 export default function OrganizationsDashboard() {
   const [organizations, setOrganizations] = useState<any[]>([]);

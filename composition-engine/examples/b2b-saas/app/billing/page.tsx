@@ -30,18 +30,37 @@ export default function BillingSettingsPage() {
     <div className="flex flex-col items-center justify-center min-h-screen p-6 bg-background text-foreground">
       <div className="max-w-xl w-full p-8 border rounded-xl shadow-lg bg-card text-card-foreground space-y-6">
         <h1 className="text-3xl font-extrabold tracking-tight">Billing Settings</h1>
-        <p className="text-sm text-muted-foreground">Manage your organization's subscription and billing integrations.</p>
+        <p className="text-sm text-muted-foreground">
+          Manage your organization's subscription and billing integrations.
+        </p>
 
         <form onSubmit={handleCheckout} className="space-y-4">
           <div>
             <label className="block text-sm font-medium mb-1">Organization ID</label>
-            <input type="text" value={organizationId} onChange={e => setOrganizationId(e.target.value)} required className="w-full p-2 border rounded-md" />
+            <input
+              type="text"
+              value={organizationId}
+              onChange={(e) => setOrganizationId(e.target.value)}
+              required
+              className="w-full p-2 border rounded-md"
+            />
           </div>
           <div>
             <label className="block text-sm font-medium mb-1">Price ID</label>
-            <input type="text" value={priceId} onChange={e => setPriceId(e.target.value)} required className="w-full p-2 border rounded-md" />
+            <input
+              type="text"
+              value={priceId}
+              onChange={(e) => setPriceId(e.target.value)}
+              required
+              className="w-full p-2 border rounded-md"
+            />
           </div>
-          <button type="submit" className="w-full p-2 bg-foreground text-background font-bold rounded-md hover:opacity-90">Checkout with Stripe</button>
+          <button
+            type="submit"
+            className="w-full p-2 bg-foreground text-background font-bold rounded-md hover:opacity-90"
+          >
+            Checkout with Stripe
+          </button>
           {status && <p className="text-center text-sm font-semibold">{status}</p>}
         </form>
       </div>

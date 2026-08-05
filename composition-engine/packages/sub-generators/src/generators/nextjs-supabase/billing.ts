@@ -34,7 +34,8 @@ export async function POST(_request: Request) {
 }
 `;
       } else if (fullRoutePath === 'api/billing/webhook') {
-        files[`app/${fullRoutePath}/route.ts`] = `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+        files[`app/${fullRoutePath}/route.ts`] =
+          `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 

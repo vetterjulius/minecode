@@ -17,7 +17,7 @@ export async function POST(request: Request) {
         email,
         role,
         token: crypto.randomUUID(),
-        expiresAt: new Date(Date.now() + 259200 * 1000).toISOString()
+        expiresAt: new Date(Date.now() + 259200 * 1000).toISOString(),
       })
       .select()
       .single();

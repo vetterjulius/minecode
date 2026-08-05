@@ -11,7 +11,7 @@ export class NextjsGenericUiSubGenerator implements SubGenerator {
       'auth/reset-password',
       'billing',
       'organizations',
-      'rbac-admin'
+      'rbac-admin',
     ];
 
     for (const uiDef of plan.ui) {

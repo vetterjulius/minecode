@@ -17,7 +17,8 @@ export class NextjsSupabaseAuthSubGenerator implements SubGenerator {
         : `api/${normalizedPath}`;
 
       if (fullRoutePath === 'api/auth/login') {
-        files[`app/${fullRoutePath}/route.ts`] = `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+        files[`app/${fullRoutePath}/route.ts`] =
+          `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
@@ -42,7 +43,8 @@ export async function POST(request: Request) {
 }
 `;
       } else if (fullRoutePath === 'api/auth/logout') {
-        files[`app/${fullRoutePath}/route.ts`] = `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+        files[`app/${fullRoutePath}/route.ts`] =
+          `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
@@ -63,7 +65,8 @@ export async function POST(_request: Request) {
 }
 `;
       } else if (fullRoutePath === 'api/auth/reset-password') {
-        files[`app/${fullRoutePath}/route.ts`] = `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+        files[`app/${fullRoutePath}/route.ts`] =
+          `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
