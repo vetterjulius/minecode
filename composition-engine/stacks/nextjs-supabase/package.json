@@ -10,7 +10,6 @@
     "clean": "tsc --build --clean"
   },
   "dependencies": {
-    "@minecode/core": "workspace:*",
-    "@minecode/sub-generators": "workspace:*"
+    "@minecode/core": "workspace:*"
   }
 }

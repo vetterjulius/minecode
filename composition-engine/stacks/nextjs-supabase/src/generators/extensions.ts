@@ -22,6 +22,18 @@ export class CommonExtensionsSubGenerator implements SubGenerator {
       files['config/extensions.ts'] = extContent;
     }
 
+    if (plan.permissions.length > 0) {
+      let permContent = `// Permissions list for ${plan.applicationName}\n\n`;
+      permContent += `export const permissions = {\n`;
+      for (const perm of plan.permissions) {
+        permContent += `  /** ${perm.description || 'Permission for ' + perm.name} */\n`;
+        permContent += `  "${perm.name}": "${perm.id}",\n`;
+      }
+      permContent += `} as const;\n\n`;
+      permContent += `export type Permission = keyof typeof permissions;\n`;
+      files['config/permissions.ts'] = permContent;
+    }
+
     return files;
   }
 }

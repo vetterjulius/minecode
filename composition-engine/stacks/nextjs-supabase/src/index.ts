@@ -1,16 +1,35 @@
 import { StackAdapter, CompositionPlan, SubGenerator } from '@minecode/core';
-import { BUILTIN_SUB_GENERATORS } from '@minecode/sub-generators';
+import { SupabaseDatabaseSubGenerator } from './generators/database.js';
+import { NextjsSupabaseApiSubGenerator } from './generators/api.js';
+import { NextjsSupabaseUiSubGenerator } from './generators/ui.js';
+import { NextjsNavigationSubGenerator } from './generators/navigation.js';
+import { NextjsWorkspaceSubGenerator } from './generators/workspace.js';
+import { CommonEventsSubGenerator } from './generators/events.js';
+import { CommonExtensionsSubGenerator } from './generators/extensions.js';
 
 export class NextJsSupabaseAdapter implements StackAdapter {
   public readonly stackId = 'nextjs-supabase';
-  private subGenerators: SubGenerator[] = [];
 
-  constructor(subGenerators?: SubGenerator[]) {
-    if (subGenerators && subGenerators.length > 0) {
-      this.subGenerators = [...subGenerators];
-    } else {
-      this.subGenerators = [...BUILTIN_SUB_GENERATORS];
-    }
+  public readonly databaseGenerator = new SupabaseDatabaseSubGenerator();
+  public readonly apiGenerator = new NextjsSupabaseApiSubGenerator();
+  public readonly uiGenerator = new NextjsSupabaseUiSubGenerator();
+  public readonly navigationGenerator = new NextjsNavigationSubGenerator();
+  public readonly workspaceGenerator = new NextjsWorkspaceSubGenerator();
+  public readonly eventsGenerator = new CommonEventsSubGenerator();
+  public readonly extensionsGenerator = new CommonExtensionsSubGenerator();
+
+  private subGenerators: SubGenerator[];
+
+  constructor() {
+    this.subGenerators = [
+      this.databaseGenerator,
+      this.apiGenerator,
+      this.uiGenerator,
+      this.navigationGenerator,
+      this.workspaceGenerator,
+      this.eventsGenerator,
+      this.extensionsGenerator,
+    ];
   }
 
   public registerSubGenerator(subGen: SubGenerator): void {
@@ -32,3 +51,11 @@ export class NextJsSupabaseAdapter implements StackAdapter {
     return files;
   }
 }
+
+export * from './generators/database.js';
+export * from './generators/api.js';
+export * from './generators/ui.js';
+export * from './generators/navigation.js';
+export * from './generators/workspace.js';
+export * from './generators/events.js';
+export * from './generators/extensions.js';

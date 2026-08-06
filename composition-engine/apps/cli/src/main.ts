@@ -726,112 +726,15 @@ export function runFeatureValidateSpecificCommand(
 }
 
 export async function runFeatureRegisterSubgeneratorsCommand(
-  pathOrId: string,
-  options?: { features?: string }
+  _pathOrId: string,
+  _options?: { features?: string }
 ): Promise<{ success: boolean; errors: string[]; warnings: string[] }> {
   const errors: string[] = [];
   const warnings: string[] = [];
-
-  const defaultBaseDir = 'composition-engine/features';
-  const featuresDir =
-    options?.features ||
-    process.env.MINECODE_FEATURES_DIR ||
-    process.env.FEATURES_DIR ||
-    defaultBaseDir;
-
-  let featureDir = path.resolve(pathOrId);
-
-  // Locate feature folder
-  if (!fs.existsSync(featureDir) || !fs.statSync(featureDir).isDirectory()) {
-    const registry = new FileSystemRegistry(featuresDir);
-    try {
-      registry.load();
-    } catch {
-      // Ignore
-    }
-
-    const feature = registry.getFeature(pathOrId);
-    if (feature) {
-      const findFeaturePath = (dir: string): string | null => {
-        if (!fs.existsSync(dir)) return null;
-        if (fs.existsSync(path.join(dir, 'feature.yaml'))) {
-          try {
-            const content = fs.readFileSync(path.join(dir, 'feature.yaml'), 'utf8');
-            if (content.includes(`id: ${pathOrId}`) || content.includes(`id: "${pathOrId}"`)) {
-              return dir;
-            }
-          } catch {
-            // Ignore
-          }
-        }
-        const entries = fs.readdirSync(dir, { withFileTypes: true });
-        for (const entry of entries) {
-          if (entry.isDirectory() && entry.name !== 'node_modules' && !entry.name.startsWith('.')) {
-            const res = findFeaturePath(path.join(dir, entry.name));
-            if (res) return res;
-          }
-        }
-        return null;
-      };
-      const foundPath = findFeaturePath(featuresDir);
-      if (foundPath) {
-        featureDir = foundPath;
-      } else {
-        errors.push(`Feature with ID '${pathOrId}' directory could not be located.`);
-        return { success: false, errors, warnings };
-      }
-    } else {
-      errors.push(`Specified path or feature ID does not exist: '${pathOrId}'`);
-      return { success: false, errors, warnings };
-    }
-  }
-
-  const localSubGensDir = path.join(featureDir, 'sub-generators');
-  if (!fs.existsSync(localSubGensDir) || !fs.statSync(localSubGensDir).isDirectory()) {
-    warnings.push(`No 'sub-generators/' directory found in feature: '${featureDir}'.`);
-    return { success: true, errors, warnings };
-  }
-
-  const files = fs.readdirSync(localSubGensDir).filter((f) => f.endsWith('.ts'));
-  if (files.length === 0) {
-    warnings.push(`No sub-generator .ts files found in '${localSubGensDir}'.`);
-    return { success: true, errors, warnings };
-  }
-
-  // Global target directory
-  const globalGeneratorsDir = path.resolve(
-    process.cwd(),
-    'composition-engine/packages/sub-generators/src/generators'
+  errors.push(
+    'Register-subgenerators command is obsolete under v0.2. All sub-generators are now artifact-grouped directly inside the stack package.'
   );
-
-  if (!fs.existsSync(globalGeneratorsDir)) {
-    errors.push(`Global sub-generators generators directory not found at: ${globalGeneratorsDir}`);
-    return { success: false, errors, warnings };
-  }
-
-  // Copy files to global directory
-  for (const file of files) {
-    const srcPath = path.join(localSubGensDir, file);
-    const destPath = path.join(globalGeneratorsDir, file);
-    try {
-      fs.copyFileSync(srcPath, destPath);
-      console.log(colors.green(`Copied local sub-generator '${file}' to global folder.`));
-    } catch (err: any) {
-      errors.push(`Failed to copy '${file}': ${err.message || String(err)}`);
-      return { success: false, errors, warnings };
-    }
-  }
-
-  // Rewrite global registry and index files
-  try {
-    rewriteRegistryAndIndex(globalGeneratorsDir);
-    console.log(colors.green(`Successfully updated sub-generators registry and index files!`));
-  } catch (err: any) {
-    errors.push(`Failed to rewrite registry/index: ${err.message || String(err)}`);
-    return { success: false, errors, warnings };
-  }
-
-  return { success: true, errors, warnings };
+  return { success: false, errors, warnings };
 }
 
 function toPascalCase(str: string): string {

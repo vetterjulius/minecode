@@ -135,6 +135,16 @@ export interface StackAdapter {
 }
 ```
 
+Under v0.2, Stack Adapters delegate code generation to **Artifact-Grouped Sub-Generators** located directly within the stack package (such as `composition-engine/stacks/nextjs-supabase/src/generators/`):
+
+- **`database.ts`**: Relational tables, schemas, and static database types.
+- **`api.ts`**: API route definitions (generic templates and specialized feature templates like Auth or AI Chat).
+- **`ui.ts`**: Page structures, navigation screens, and custom components.
+- **`navigation.ts`**: Hierarchical navigation configs.
+- **`workspace.ts`**: Development environments and startup workspaces.
+- **`events.ts`**: Inter-feature events definitions.
+- **`extensions.ts`**: Security lists and extension point configurations.
+
 The generator passes a merged and deduplicated `CompositionPlan` to the adapter, containing aggregated abstract artifacts:
 
 - `plan.database` - Database entities and fields
