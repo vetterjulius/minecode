@@ -1,7 +1,19 @@
 import React, { useState, useEffect } from 'react';
 
+interface RbacPermission {
+  id: string;
+  name: string;
+}
+
+interface RbacRole {
+  id: string;
+  name: string;
+  description?: string;
+  permission?: RbacPermission[];
+}
+
 export default function RbacAdminPage() {
-  const [roles, setRoles] = useState<any[]>([]);
+  const [roles, setRoles] = useState<RbacRole[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchRoles = async () => {
@@ -11,7 +23,7 @@ export default function RbacAdminPage() {
       if (data.success) {
         setRoles(data.roles || []);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
     } finally {
       setLoading(false);
@@ -55,7 +67,7 @@ export default function RbacAdminPage() {
                       Granted Permissions:
                     </p>
                     <div className="flex flex-wrap gap-1.5">
-                      {role.permission.map((p: any) => (
+                      {role.permission.map((p) => (
                         <span
                           key={p.id}
                           className="px-2 py-0.5 text-xs font-mono font-bold rounded bg-foreground text-background shadow-sm"

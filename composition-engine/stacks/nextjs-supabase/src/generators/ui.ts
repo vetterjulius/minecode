@@ -38,7 +38,7 @@ export default function LoginPage() {
       } else {
         setStatus('Error: ' + data.error);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       setStatus('Failed: ' + message);
     }
@@ -87,7 +87,7 @@ export default function ResetPasswordPage() {
       } else {
         setStatus('Error: ' + data.error);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       setStatus('Failed: ' + message);
     }
@@ -134,7 +134,7 @@ export default function BillingSettingsPage() {
       } else {
         setStatus('Error: ' + data.error);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       setStatus('Failed: ' + message);
     }
@@ -166,11 +166,22 @@ export default function BillingSettingsPage() {
         }
         // 4. Orgs: Portal
         else if (normalizedRoute === 'organizations') {
-          files[`app/${normalizedRoute}/page.tsx`] =
-            `import React, { useState, useEffect } from 'react';
+          files[`app/${normalizedRoute}/page.tsx`] = `import React, { useState, useEffect } from 'react';
+
+interface OrganizationMembership {
+  id: string;
+  userid: string;
+  role: string;
+}
+
+interface Organization {
+  id: string;
+  name: string;
+  membership?: OrganizationMembership[];
+}
 
 export default function OrganizationsPage() {
-  const [organizations, setOrganizations] = useState<any[]>([]);
+  const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteOrgId, setInviteOrgId] = useState('');
   const [inviteRole, setInviteRole] = useState('member');
@@ -184,7 +195,7 @@ export default function OrganizationsPage() {
       if (data.success) {
         setOrganizations(data.organizations || []);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
     } finally {
       setLoading(false);
@@ -211,7 +222,7 @@ export default function OrganizationsPage() {
       } else {
         setInviteStatus('Error: ' + data.error);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       setInviteStatus('Failed: ' + message);
     }
@@ -266,7 +277,7 @@ export default function OrganizationsPage() {
                     <div className="p-3 bg-muted rounded-md space-y-1">
                       <p className="font-semibold text-xs text-muted-foreground">Active Team Members:</p>
                       <ul className="list-disc pl-5 text-xs text-muted-foreground space-y-1">
-                        {org.membership.map((m: any) => (
+                        {org.membership.map((m) => (
                           <li key={m.id}>User ID: {m.userid} ({m.role})</li>
                         ))}
                       </ul>
@@ -285,11 +296,22 @@ export default function OrganizationsPage() {
         }
         // 5. Rbac: Admin
         else if (normalizedRoute === 'rbac-admin') {
-          files[`app/${normalizedRoute}/page.tsx`] =
-            `import React, { useState, useEffect } from 'react';
+          files[`app/${normalizedRoute}/page.tsx`] = `import React, { useState, useEffect } from 'react';
+
+interface RbacPermission {
+  id: string;
+  name: string;
+}
+
+interface RbacRole {
+  id: string;
+  name: string;
+  description?: string;
+  permission?: RbacPermission[];
+}
 
 export default function RbacAdminPage() {
-  const [roles, setRoles] = useState<any[]>([]);
+  const [roles, setRoles] = useState<RbacRole[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchRoles = async () => {
@@ -299,7 +321,7 @@ export default function RbacAdminPage() {
       if (data.success) {
         setRoles(data.roles || []);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
     } finally {
       setLoading(false);
@@ -335,7 +357,7 @@ export default function RbacAdminPage() {
                   <div className="space-y-1">
                     <p className="font-semibold text-xs text-muted-foreground">Granted Permissions:</p>
                     <div className="flex flex-wrap gap-1.5">
-                      {role.permission.map((p: any) => (
+                      {role.permission.map((p) => (
                         <span key={p.id} className="px-2 py-0.5 text-xs font-mono font-bold rounded bg-foreground text-background shadow-sm">
                           {p.name}
                         </span>
@@ -355,11 +377,18 @@ export default function RbacAdminPage() {
         }
         // 6. Storage Dashboard
         else if (normalizedRoute === 'storage') {
-          files[`app/${normalizedRoute}/page.tsx`] =
-            `import React, { useState, useEffect } from 'react';
+          files[`app/${normalizedRoute}/page.tsx`] = `import React, { useState, useEffect } from 'react';
+
+interface StorageFile {
+  id: string;
+  name: string;
+  path: string;
+  size: number;
+  mimetype: string;
+}
 
 export default function StorageDashboardPage() {
-  const [files, setFiles] = useState<any[]>([]);
+  const [files, setFiles] = useState<StorageFile[]>([]);
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(true);
 
@@ -370,7 +399,7 @@ export default function StorageDashboardPage() {
       if (data.success) {
         setFiles(data.data || []);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
     } finally {
       setLoading(false);
@@ -397,7 +426,7 @@ export default function StorageDashboardPage() {
       } else {
         setStatus('Error: ' + data.error);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setStatus('Upload failed.');
     }
   };
@@ -416,7 +445,7 @@ export default function StorageDashboardPage() {
       } else {
         alert('Delete failed: ' + data.error);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       alert('Delete failed.');
     }
   };
@@ -479,11 +508,19 @@ export default function StorageDashboardPage() {
         }
         // 7. Notification Center
         else if (normalizedRoute === 'notifications') {
-          files[`app/${normalizedRoute}/page.tsx`] =
-            `import React, { useState, useEffect } from 'react';
+          files[`app/${normalizedRoute}/page.tsx`] = `import React, { useState, useEffect } from 'react';
+
+interface SystemNotification {
+  id: string;
+  title: string;
+  channel: string;
+  content: string;
+  userid: string;
+  status: string;
+}
 
 export default function NotificationCenterPage() {
-  const [notifications, setNotifications] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<SystemNotification[]>([]);
   const [userId, setUserId] = useState('');
   const [channel, setChannel] = useState('email');
   const [title, setTitle] = useState('');
@@ -498,7 +535,7 @@ export default function NotificationCenterPage() {
       if (data.success) {
         setNotifications(data.data || []);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
     } finally {
       setLoading(false);
@@ -527,7 +564,7 @@ export default function NotificationCenterPage() {
       } else {
         setStatus('Error: ' + data.error);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setStatus('Send failed.');
     }
   };
@@ -603,9 +640,16 @@ export default function NotificationCenterPage() {
         else if (normalizedRoute === 'search') {
           files[`app/${normalizedRoute}/page.tsx`] = `import React, { useState } from 'react';
 
+interface SearchResultItem {
+  id: string;
+  type: string;
+  title: string;
+  desc: string;
+}
+
 export default function SearchResultsPage() {
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState<any[]>([]);
+  const [results, setResults] = useState<SearchResultItem[]>([]);
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -623,7 +667,7 @@ export default function SearchResultsPage() {
       } else {
         setStatus('Search error: ' + data.error);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setStatus('Search failed.');
     } finally {
       setLoading(false);
@@ -674,11 +718,19 @@ export default function SearchResultsPage() {
         }
         // 9. Audit Dashboard
         else if (normalizedRoute === 'audit-logs') {
-          files[`app/${normalizedRoute}/page.tsx`] =
-            `import React, { useState, useEffect } from 'react';
+          files[`app/${normalizedRoute}/page.tsx`] = `import React, { useState, useEffect } from 'react';
+
+interface AuditLogEntry {
+  id: string;
+  action: string;
+  actorid?: string;
+  entityname?: string;
+  entityid?: string;
+  createdat: string;
+}
 
 export default function AuditLogDashboardPage() {
-  const [logs, setLogs] = useState<any[]>([]);
+  const [logs, setLogs] = useState<AuditLogEntry[]>([]);
   const [actionFilter, setActionFilter] = useState('');
   const [loading, setLoading] = useState(true);
 
@@ -693,7 +745,7 @@ export default function AuditLogDashboardPage() {
       if (data.success) {
         setLogs(data.data || []);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
     } finally {
       setLoading(false);
@@ -759,11 +811,17 @@ export default function AuditLogDashboardPage() {
         }
         // 10. AI Chat
         else if (normalizedRoute === 'ai/chat') {
-          files[`app/${normalizedRoute}/page.tsx`] =
-            `import React, { useState, useEffect, useRef } from 'react';
+          files[`app/${normalizedRoute}/page.tsx`] = `import React, { useState, useEffect, useRef } from 'react';
+
+interface ChatMessageEntry {
+  id: string;
+  sessionid: string;
+  role: string;
+  content: string;
+}
 
 export default function ChatInterfacePage() {
-  const [messages, setMessages] = useState<any[]>([]);
+  const [messages, setMessages] = useState<ChatMessageEntry[]>([]);
   const [sessionId] = useState(() => crypto.randomUUID());
   const [input, setContent] = useState('');
   const [status, setStatus] = useState('');
@@ -775,9 +833,9 @@ export default function ChatInterfacePage() {
       const res = await fetch('/api/ai/chat');
       const data = await res.json();
       if (data.success) {
-        setMessages((data.data || []).filter((m: any) => m.sessionid === sessionId));
+        setMessages((data.data || []).filter((m: ChatMessageEntry) => m.sessionid === sessionId));
       }
-    } catch (err) {
+    } catch (err: unknown) {
       console.error(err);
     }
   };
@@ -794,7 +852,7 @@ export default function ChatInterfacePage() {
     e.preventDefault();
     if (!input.trim() || loading) return;
 
-    const userMsg = { id: crypto.randomUUID(), role: 'user', content: input };
+    const userMsg: ChatMessageEntry = { id: crypto.randomUUID(), sessionid: sessionId, role: 'user', content: input };
     setMessages((prev) => [...prev, userMsg]);
     setContent('');
     setLoading(true);
@@ -813,7 +871,7 @@ export default function ChatInterfacePage() {
       } else {
         setStatus('Error: ' + data.error);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setStatus('Message failed to deliver.');
     } finally {
       setLoading(false);
@@ -865,11 +923,16 @@ export default function ChatInterfacePage() {
         }
         // 11. Whiteboard Canvas
         else if (normalizedRoute === 'whiteboard') {
-          files[`app/${normalizedRoute}/page.tsx`] =
-            `import React, { useState, useEffect } from 'react';
+          files[`app/${normalizedRoute}/page.tsx`] = `import React, { useState, useEffect } from 'react';
+
+interface WhiteboardSessionEntry {
+  id: string;
+  name: string;
+  organizationid: string;
+}
 
 export default function WhiteboardCanvasPage() {
-  const [sessions, setSessions] = useState<any[]>([]);
+  const [sessions, setSessions] = useState<WhiteboardSessionEntry[]>([]);
   const [name, setName] = useState('');
   const [orgId, setOrgId] = useState('');
   const [status, setStatus] = useState('');
@@ -882,7 +945,7 @@ export default function WhiteboardCanvasPage() {
       if (data.success) {
         setSessions(data.data || []);
       }
-    } catch (err) {
+    } catch (err: unknown) {
       console.error(err);
     } finally {
       setLoading(false);
@@ -910,7 +973,7 @@ export default function WhiteboardCanvasPage() {
       } else {
         setStatus('Error: ' + data.error);
       }
-    } catch (err) {
+    } catch (err: unknown) {
       setStatus('Creation failed.');
     }
   };
@@ -922,8 +985,8 @@ export default function WhiteboardCanvasPage() {
         <p className="text-muted-foreground">Collaborate with your organization teams on an infinite canvas whiteboard.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className="md:col-span-1 p-6 border rounded-xl bg-card space-y-4 shadow-sm h-fit text-sm">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-sm">
+        <div className="md:col-span-1 p-6 border rounded-xl bg-card space-y-4 shadow-sm h-fit">
           <h2 className="text-lg font-bold">New Canvas Session</h2>
           <form onSubmit={handleCreate} className="space-y-4">
             <div>
@@ -971,11 +1034,19 @@ export default function WhiteboardCanvasPage() {
         }
         // 12. Ticket Inbox
         else if (normalizedRoute === 'tickets') {
-          files[`app/${normalizedRoute}/page.tsx`] =
-            `import React, { useState, useEffect } from 'react';
+          files[`app/${normalizedRoute}/page.tsx`] = `import React, { useState, useEffect } from 'react';
+
+interface SupportTicket {
+  id: string;
+  title: string;
+  status: string;
+  priority: string;
+  assigneeid?: string;
+  organizationid: string;
+}
 
 export default function TicketInboxPage() {
-  const [tickets, setTickets] = useState<any[]>([]);
+  const [tickets, setTickets] = useState<SupportTicket[]>([]);
   const [title, setTitle] = useState('');
   const [priority, setPriority] = useState('medium');
   const [orgId, setOrgId] = useState('');
@@ -989,7 +1060,7 @@ export default function TicketInboxPage() {
       if (data.success) {
         setTickets(data.data || []);
       }
-    } catch (err) {
+    } catch (err: unknown) {
       console.error(err);
     } finally {
       setLoading(false);
@@ -1017,7 +1088,7 @@ export default function TicketInboxPage() {
       } else {
         setStatus('Error: ' + data.error);
       }
-    } catch (err) {
+    } catch (err: unknown) {
       setStatus('Submission failed.');
     }
   };
@@ -1092,11 +1163,18 @@ export default function TicketInboxPage() {
         }
         // 13. Customer Feedback
         else if (normalizedRoute === 'feedback') {
-          files[`app/${normalizedRoute}/page.tsx`] =
-            `import React, { useState, useEffect } from 'react';
+          files[`app/${normalizedRoute}/page.tsx`] = `import React, { useState, useEffect } from 'react';
+
+interface CustomerFeedbackRecord {
+  id: string;
+  rating: number;
+  comment?: string;
+  userid: string;
+  organizationid: string;
+}
 
 export default function FeedbackDashboardPage() {
-  const [feedbacks, setFeedbacks] = useState<any[]>([]);
+  const [feedbacks, setFeedbacks] = useState<CustomerFeedbackRecord[]>([]);
   const [rating, setRating] = useState('5');
   const [comment, setComment] = useState('');
   const [userId, setUserId] = useState('');
@@ -1111,7 +1189,7 @@ export default function FeedbackDashboardPage() {
       if (data.success) {
         setFeedbacks(data.data || []);
       }
-    } catch (err) {
+    } catch (err: unknown) {
       console.error(err);
     } finally {
       setLoading(false);
@@ -1139,7 +1217,7 @@ export default function FeedbackDashboardPage() {
       } else {
         setStatus('Error: ' + data.error);
       }
-    } catch (err) {
+    } catch (err: unknown) {
       setStatus('Submission failed.');
     }
   };
@@ -1223,11 +1301,18 @@ export default function FeedbackDashboardPage() {
         }
         // 14. Usage Analytics
         else if (normalizedRoute === 'analytics') {
-          files[`app/${normalizedRoute}/page.tsx`] =
-            `import React, { useState, useEffect } from 'react';
+          files[`app/${normalizedRoute}/page.tsx`] = `import React, { useState, useEffect } from 'react';
+
+interface MetricRecord {
+  id: string;
+  name: string;
+  value: number;
+  organizationid: string;
+  createdat: string;
+}
 
 export default function AnalyticsDashboardPage() {
-  const [metrics, setMetrics] = useState<any[]>([]);
+  const [metrics, setMetrics] = useState<MetricRecord[]>([]);
   const [orgId, setOrgId] = useState('');
   const [loading, setLoading] = useState(true);
 
@@ -1242,7 +1327,7 @@ export default function AnalyticsDashboardPage() {
       if (data.success) {
         setMetrics(data.data || []);
       }
-    } catch (err) {
+    } catch (err: unknown) {
       console.error(err);
     } finally {
       setLoading(false);
@@ -1325,14 +1410,21 @@ export default function AnalyticsDashboardPage() {
         }
         // 15. Help Center (KB)
         else if (normalizedRoute === 'kb') {
-          files[`app/${normalizedRoute}/page.tsx`] =
-            `import React, { useState, useEffect } from 'react';
+          files[`app/${normalizedRoute}/page.tsx`] = `import React, { useState, useEffect } from 'react';
+
+interface KnowledgeBaseArticle {
+  id: string;
+  title: string;
+  content: string;
+  category: string;
+  createdat: string;
+}
 
 export default function HelpCenterPage() {
-  const [articles, setArticles] = useState<any[]>([]);
+  const [articles, setArticles] = useState<KnowledgeBaseArticle[]>([]);
   const [categoryFilter, setCategoryFilter] = useState('');
   const [loading, setLoading] = useState(true);
-  const [selectedArticle, setSelectedArticle] = useState<any | null>(null);
+  const [selectedArticle, setSelectedArticle] = useState<KnowledgeBaseArticle | null>(null);
 
   const fetchArticles = async () => {
     setLoading(true);
@@ -1345,7 +1437,7 @@ export default function HelpCenterPage() {
       if (data.success) {
         setArticles(data.data || []);
       }
-    } catch (err) {
+    } catch (err: unknown) {
       console.error(err);
     } finally {
       setLoading(false);

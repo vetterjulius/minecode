@@ -1,7 +1,19 @@
 import React, { useState, useEffect } from 'react';
 
+interface OrganizationMembership {
+  id: string;
+  userid: string;
+  role: string;
+}
+
+interface Organization {
+  id: string;
+  name: string;
+  membership?: OrganizationMembership[];
+}
+
 export default function OrganizationsPage() {
-  const [organizations, setOrganizations] = useState<any[]>([]);
+  const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteOrgId, setInviteOrgId] = useState('');
   const [inviteRole, setInviteRole] = useState('member');
@@ -15,7 +27,7 @@ export default function OrganizationsPage() {
       if (data.success) {
         setOrganizations(data.organizations || []);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
     } finally {
       setLoading(false);
@@ -42,7 +54,7 @@ export default function OrganizationsPage() {
       } else {
         setInviteStatus('Error: ' + data.error);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       setInviteStatus('Failed: ' + message);
     }
@@ -124,7 +136,7 @@ export default function OrganizationsPage() {
                         Active Team Members:
                       </p>
                       <ul className="list-disc pl-5 text-xs text-muted-foreground space-y-1">
-                        {org.membership.map((m: any) => (
+                        {org.membership.map((m) => (
                           <li key={m.id}>
                             User ID: {m.userid} ({m.role})
                           </li>
