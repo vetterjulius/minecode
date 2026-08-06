@@ -1,0 +1,14 @@
+id: notifications
+version: 1.0.0
+type: business
+name: 'Notifications'
+description: 'Multi-channel notification routing supporting email, Slack webhooks, and SMS.'
+maintainer:
+  type: builtin
+stack:
+  - nextjs-supabase
+category: Communication
+modules:
+  - name: 'database/0006_notifications_schema.sql'
+    type: migration
+    description: 'Create notifications table.'

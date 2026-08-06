@@ -9,21 +9,24 @@ import { NextResponse } from 'next/server';
 export async function POST(request: Request) {
   const supabase = createRouteHandlerClient({ cookies });
   try {
-    const { organizationId, email, role } = await request.json();
-    const { data: invitation, error } = await supabase
+    const { email, organizationId, role } = await request.json();
+    const token = crypto.randomUUID();
+    const expiresAt = new Date(Date.now() + 259200 * 1000).toISOString();
+
+    const { data, error } = await supabase
       .from('invitation')
       .insert({
-        organizationId,
+        organizationid: organizationId,
         email,
-        role,
-        token: crypto.randomUUID(),
-        expiresAt: new Date(Date.now() + 259200 * 1000).toISOString(),
+        token,
+        role: role || 'member',
+        expiresat: expiresAt,
       })
       .select()
       .single();
 
     if (error) throw error;
-    return NextResponse.json({ success: true, data: invitation });
+    return NextResponse.json({ success: true, invitation: data });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     return NextResponse.json({ success: false, error: message }, { status: 400 });

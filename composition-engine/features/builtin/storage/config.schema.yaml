@@ -1,0 +1,13 @@
+type: object
+properties:
+  maxFileSizeMb:
+    type: integer
+    default: 10
+  allowedMimeTypes:
+    type: array
+    items:
+      type: string
+    default:
+      - 'image/png'
+      - 'image/jpeg'
+      - 'application/pdf'

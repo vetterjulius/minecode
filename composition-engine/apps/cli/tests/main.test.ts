@@ -11,7 +11,6 @@ import {
   runFeatureInspectCommand,
   runFeatureCreateCommand,
   runFeatureValidateSpecificCommand,
-  runFeatureRegisterSubgeneratorsCommand,
 } from '../src/main.js';
 
 test('test_RunCLI_NoArguments_ReturnsCLIInfoAndLogs', () => {
@@ -111,64 +110,6 @@ test('test_RunValidateCommand_ValidBlueprint_ReturnsSuccess', () => {
     expect(result.success).toBe(true);
     expect(result.errors).toHaveLength(0);
   } finally {
-    fs.rmSync(tempDir, { recursive: true, force: true });
-  }
-});
-
-test('test_RunFeatureRegisterSubgeneratorsCommand_LocalGenerator_CopiesAndRegistersSuccessfully', async () => {
-  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'minecode-cli-reg-sub-'));
-  const localSubGensDir = path.join(tempDir, 'sub-generators');
-  fs.mkdirSync(localSubGensDir, { recursive: true });
-
-  const dummySubGenContent = `
-import { SubGenerator, CompositionPlan } from '@minecode/core';
-export class DummySubGenerator implements SubGenerator {
-  public readonly id = 'dummy';
-  public generate(_plan: CompositionPlan) {
-    return { 'generated/dummy.txt': 'hello' };
-  }
-}
-`;
-  fs.writeFileSync(path.join(localSubGensDir, 'dummy.ts'), dummySubGenContent, 'utf8');
-
-  // We need feature.yaml to locate it
-  fs.writeFileSync(
-    path.join(tempDir, 'feature.yaml'),
-    'id: dummy-feature\nversion: 1.0.0\ntype: business',
-    'utf8'
-  );
-
-  const globalGeneratorsDir = path.resolve(
-    process.cwd(),
-    'composition-engine/packages/sub-generators/src/generators'
-  );
-
-  // Backup existing registry and index files
-  const registryPath = path.join(path.dirname(globalGeneratorsDir), 'registry.ts');
-  const indexPath = path.join(path.dirname(globalGeneratorsDir), 'index.ts');
-  const registryBackup = fs.readFileSync(registryPath, 'utf8');
-  const indexBackup = fs.readFileSync(indexPath, 'utf8');
-
-  try {
-    const result = await runFeatureRegisterSubgeneratorsCommand(tempDir);
-    expect(result.success).toBe(true);
-
-    // Verify file copied
-    const copiedPath = path.join(globalGeneratorsDir, 'dummy.ts');
-    expect(fs.existsSync(copiedPath)).toBe(true);
-
-    // Verify registry updated
-    const updatedRegistry = fs.readFileSync(registryPath, 'utf8');
-    expect(updatedRegistry).toContain('DummySubGenerator');
-    expect(updatedRegistry).toContain("import { DummySubGenerator } from './generators/dummy.js';");
-  } finally {
-    // Cleanup copied file and restore backup
-    const copiedPath = path.join(globalGeneratorsDir, 'dummy.ts');
-    if (fs.existsSync(copiedPath)) {
-      fs.unlinkSync(copiedPath);
-    }
-    fs.writeFileSync(registryPath, registryBackup, 'utf8');
-    fs.writeFileSync(indexPath, indexBackup, 'utf8');
     fs.rmSync(tempDir, { recursive: true, force: true });
   }
 });

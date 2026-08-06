@@ -1,0 +1,8 @@
+type: object
+properties:
+  allowPublicReading:
+    type: boolean
+    default: true
+  enableReactions:
+    type: boolean
+    default: true

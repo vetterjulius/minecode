@@ -1,0 +1,14 @@
+id: ticketing
+version: 1.0.0
+type: business
+name: 'Ticketing'
+description: 'SaaS support ticket and issue request workflows.'
+maintainer:
+  type: builtin
+stack:
+  - nextjs-supabase
+category: Support
+modules:
+  - name: 'database/0011_ticketing_schema.sql'
+    type: migration
+    description: 'Create support tickets table.'

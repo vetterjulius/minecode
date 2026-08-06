@@ -1,0 +1,14 @@
+id: knowledge-base
+version: 1.0.0
+type: business
+name: 'Knowledge Base'
+description: 'SaaS documentation, user guides, and FAQ help articles.'
+maintainer:
+  type: builtin
+stack:
+  - nextjs-supabase
+category: Support
+modules:
+  - name: 'database/0014_knowledge_base_schema.sql'
+    type: migration
+    description: 'Create help articles and categories table.'

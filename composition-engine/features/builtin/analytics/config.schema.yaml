@@ -1,0 +1,8 @@
+type: object
+properties:
+  aggregationInterval:
+    type: string
+    default: 'daily'
+  enablePublicDashboard:
+    type: boolean
+    default: false

@@ -1,0 +1,8 @@
+type: object
+properties:
+  enableSlaTracking:
+    type: boolean
+    default: true
+  autoAssignTickets:
+    type: boolean
+    default: false

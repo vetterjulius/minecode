@@ -1,0 +1,8 @@
+type: object
+properties:
+  aiModel:
+    type: string
+    default: 'gpt-4o'
+  temperature:
+    type: number
+    default: 0.7

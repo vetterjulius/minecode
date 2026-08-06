@@ -1,0 +1,14 @@
+id: customer-feedback
+version: 1.0.0
+type: business
+name: 'Customer Feedback'
+description: 'Customer rating, satisfaction surveys, and feedback collection.'
+maintainer:
+  type: builtin
+stack:
+  - nextjs-supabase
+category: Support
+modules:
+  - name: 'database/0012_customer_feedback_schema.sql'
+    type: migration
+    description: 'Create feedback storage tables.'

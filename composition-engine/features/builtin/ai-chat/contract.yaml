@@ -1,0 +1,43 @@
+provides:
+  capabilities:
+    - ai-chat
+  entities:
+    - name: ChatMessage
+      description: 'Chat message log'
+      fields:
+        - name: id
+          type: uuid
+          required: true
+          description: 'Primary key'
+        - name: sessionId
+          type: uuid
+          required: true
+          description: 'Reference to chat session'
+        - name: role
+          type: string
+          required: true
+          description: 'Role of the message sender (user, system, assistant)'
+        - name: content
+          type: string
+          required: true
+          description: 'Message body text'
+        - name: createdAt
+          type: timestamp
+          required: true
+          description: 'Message creation timestamp'
+  permissions:
+    - name: chat.access
+      description: 'Interact with AI assistant'
+  api:
+    - name: PostChatMessage
+      path: /api/ai/chat
+      method: POST
+      description: 'Send a message to the AI assistant.'
+  ui:
+    - name: ChatInterface
+      route: ai/chat
+      slot: main
+      description: 'Interactive AI Chat interface UI.'
+requires:
+  features:
+    - database

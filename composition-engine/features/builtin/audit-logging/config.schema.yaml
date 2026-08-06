@@ -1,0 +1,8 @@
+type: object
+properties:
+  retentionDays:
+    type: integer
+    default: 365
+  logPayloads:
+    type: boolean
+    default: true

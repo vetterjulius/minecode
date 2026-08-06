@@ -1,0 +1,14 @@
+id: analytics
+version: 1.0.0
+type: business
+name: 'Analytics'
+description: 'SaaS metrics, usage statistics, and analytical analytics tracking.'
+maintainer:
+  type: builtin
+stack:
+  - nextjs-supabase
+category: Business Intelligence
+modules:
+  - name: 'database/0013_analytics_schema.sql'
+    type: migration
+    description: 'Create usage statistics tables.'

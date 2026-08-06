@@ -1,0 +1,8 @@
+type: object
+properties:
+  enableSms:
+    type: boolean
+    default: false
+  defaultFromEmail:
+    type: string
+    default: 'no-reply@minecode.dev'

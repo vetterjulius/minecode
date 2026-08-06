@@ -1,0 +1,14 @@
+id: ai-chat
+version: 1.0.0
+type: business
+name: 'AI Chat'
+description: 'AI assistant chat and automated customer service routing.'
+maintainer:
+  type: builtin
+stack:
+  - nextjs-supabase
+category: Artificial Intelligence
+modules:
+  - name: 'database/0009_ai_chat_schema.sql'
+    type: migration
+    description: 'Create chat messages tracking table.'

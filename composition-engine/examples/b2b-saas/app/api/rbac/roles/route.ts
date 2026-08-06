@@ -9,10 +9,10 @@ import { NextResponse } from 'next/server';
 export async function GET(_request: Request) {
   const supabase = createRouteHandlerClient({ cookies });
   try {
-    const { data: roles, error } = await supabase.from('role').select('*');
+    const { data, error } = await supabase.from('role').select('*, permission(*)');
 
     if (error) throw error;
-    return NextResponse.json({ success: true, data: roles });
+    return NextResponse.json({ success: true, roles: data });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     return NextResponse.json({ success: false, error: message }, { status: 500 });

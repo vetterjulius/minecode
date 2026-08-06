@@ -1,0 +1,20 @@
+provides:
+  capabilities:
+    - search
+  entities: []
+  permissions:
+    - name: search.query
+      description: 'Perform advanced text queries'
+  api:
+    - name: SearchQuery
+      path: /api/search
+      method: GET
+      description: 'Run a full text search query across resources.'
+  ui:
+    - name: SearchResults
+      route: search
+      slot: main
+      description: 'Search results and filters UI.'
+requires:
+  features:
+    - database

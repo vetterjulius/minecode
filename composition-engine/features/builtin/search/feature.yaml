@@ -1,0 +1,14 @@
+id: search
+version: 1.0.0
+type: business
+name: 'Search'
+description: 'Full-text search indexing and relational text queries.'
+maintainer:
+  type: builtin
+stack:
+  - nextjs-supabase
+category: Data
+modules:
+  - name: 'database/0007_search_schema.sql'
+    type: migration
+    description: 'Setup full text search indices and extensions.'
