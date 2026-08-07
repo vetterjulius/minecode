@@ -1,0 +1,137 @@
+name: Deploy Preview
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy to Vercel
+    runs-on: ubuntu-latest
+    # Run only if we are in the main repo and the Vercel token is configured
+    if: ${{ github.event.pull_request.head.repo.full_name == github.repository && secrets.VERCEL_TOKEN != '' }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 10.3.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build packages, apps, and regenerate examples
+        run: pnpm build
+
+      - name: Pull Vercel Environment Information (B2B SaaS)
+        working-directory: composition-engine/examples/b2b-saas
+        run: npx vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_B2B_SAAS }}
+
+      - name: Build Project Artifacts (B2B SaaS)
+        working-directory: composition-engine/examples/b2b-saas
+        run: npx vercel build --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_B2B_SAAS }}
+
+      - name: Deploy Project Artifacts to Vercel (B2B SaaS)
+        id: deploy_b2b_saas
+        working-directory: composition-engine/examples/b2b-saas
+        run: |
+          npx vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} > deploy_output.txt
+          cat deploy_output.txt
+          DEPLOY_URL=$(grep -oE 'https://[a-zA-Z0-9.-]+\.vercel\.app' deploy_output.txt | head -n 1)
+          echo "url=$DEPLOY_URL" >> $GITHUB_OUTPUT
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_B2B_SAAS }}
+
+      - name: Pull Vercel Environment Information (AI Workspace)
+        working-directory: composition-engine/examples/ai-workspace
+        run: npx vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_AI_WORKSPACE }}
+
+      - name: Build Project Artifacts (AI Workspace)
+        working-directory: composition-engine/examples/ai-workspace
+        run: npx vercel build --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_AI_WORKSPACE }}
+
+      - name: Deploy Project Artifacts to Vercel (AI Workspace)
+        id: deploy_ai_workspace
+        working-directory: composition-engine/examples/ai-workspace
+        run: |
+          npx vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} > deploy_output.txt
+          cat deploy_output.txt
+          DEPLOY_URL=$(grep -oE 'https://[a-zA-Z0-9.-]+\.vercel\.app' deploy_output.txt | head -n 1)
+          echo "url=$DEPLOY_URL" >> $GITHUB_OUTPUT
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_AI_WORKSPACE }}
+
+      - name: Post or Update Deployment Links Comment on PR
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const b2bUrl = '${{ steps.deploy_b2b_saas.outputs.url }}';
+            const aiUrl = '${{ steps.deploy_ai_workspace.outputs.url }}';
+
+            if (!b2bUrl || !aiUrl) {
+              core.setFailed('Failed to extract Vercel deployment URLs.');
+              return;
+            }
+
+            const commentBody = `### 🚀 Vercel Preview Deployments
+
+            The example applications have been successfully generated and deployed to Vercel previews:
+
+            * **B2B SaaS Reference Application:** [${b2bUrl}](${b2bUrl})
+            * **AI Workspace Reference Application:** [${aiUrl}](${aiUrl})
+
+            *These applications were dynamically generated from your blueprints (\`app.yaml\`) and compiled automatically during the CI build process.*`;
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+            });
+
+            const botComment = comments.find(comment =>
+              comment.body.includes('### 🚀 Vercel Preview Deployments')
+            );
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: commentBody
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                body: commentBody
+              });
+            }
