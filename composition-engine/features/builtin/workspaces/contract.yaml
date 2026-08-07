@@ -1,0 +1,46 @@
+provides:
+  capabilities:
+    - workspaces
+  entities:
+    - name: Workspace
+      description: 'App workspace'
+      fields:
+        - name: id
+          type: uuid
+          required: true
+          description: 'Primary key'
+        - name: name
+          type: string
+          required: true
+          description: 'Name of the workspace'
+        - name: organizationid
+          type: uuid
+          required: true
+          description: 'Reference to Organization'
+        - name: createdat
+          type: timestamp
+          required: true
+          description: 'Workspace creation timestamp'
+  permissions:
+    - name: workspace.read
+      description: 'Read workspace details'
+    - name: workspace.write
+      description: 'Modify workspace details'
+  api:
+    - name: ListWorkspaces
+      path: /api/workspaces
+      method: GET
+      description: 'List workspaces for an organization.'
+    - name: CreateWorkspace
+      path: /api/workspaces
+      method: POST
+      description: 'Create a new workspace.'
+  ui:
+    - name: WorkspacesDashboard
+      route: workspaces
+      slot: main
+      description: 'Workspaces management dashboard.'
+requires:
+  features:
+    - database
+    - organizations

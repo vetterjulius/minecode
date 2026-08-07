@@ -1,0 +1,14 @@
+id: projects
+version: 1.0.0
+type: business
+name: 'Projects'
+description: 'Project tracking and management inside workspaces.'
+maintainer:
+  type: builtin
+stack:
+  - nextjs-supabase
+category: Collaboration
+modules:
+  - name: 'database/0016_projects_schema.sql'
+    type: migration
+    description: 'Create projects table.'

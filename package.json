@@ -5,7 +5,7 @@
   "description": "Minecode: Declarative AI-First Software Composition System",
   "scripts": {
     "build": "pnpm -r build && pnpm build:example",
-    "build:example": "node composition-engine/apps/cli/dist/main.js build composition-engine/examples/b2b-saas/app.yaml --out-dir composition-engine/examples/b2b-saas",
+    "build:example": "node composition-engine/apps/cli/dist/main.js build composition-engine/examples/b2b-saas/app.yaml --out-dir composition-engine/examples/b2b-saas && node composition-engine/apps/cli/dist/main.js build composition-engine/examples/ai-workspace/app.yaml --out-dir composition-engine/examples/ai-workspace",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",

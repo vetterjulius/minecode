@@ -1,0 +1,14 @@
+id: tasks
+version: 1.0.0
+type: business
+name: 'Tasks'
+description: 'Task tracking and kanban workflow management inside projects.'
+maintainer:
+  type: builtin
+stack:
+  - nextjs-supabase
+category: Collaboration
+modules:
+  - name: 'database/0017_tasks_schema.sql'
+    type: migration
+    description: 'Create tasks table.'

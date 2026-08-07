@@ -1526,6 +1526,519 @@ export default function HelpCenterPage() {
 }
 `;
         }
+        // 15.5 Workspaces
+        else if (normalizedRoute === 'workspaces') {
+          files[`app/${normalizedRoute}/page.tsx`] = `"use client";
+
+import React, { useState, useEffect } from 'react';
+
+interface WorkspaceRecord {
+  id: string;
+  name: string;
+  organizationid: string;
+}
+
+export default function WorkspacesPage() {
+  const [workspaces, setWorkspaces] = useState<WorkspaceRecord[]>([]);
+  const [name, setName] = useState('');
+  const [orgId, setOrgId] = useState('');
+  const [status, setStatus] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  const fetchWorkspaces = async () => {
+    try {
+      const res = await fetch('/api/workspaces');
+      const data = await res.json();
+      if (data.success) {
+        setWorkspaces(data.data || []);
+      }
+    } catch (err: unknown) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchWorkspaces();
+  }, []);
+
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus('Creating workspace...');
+    try {
+      const res = await fetch('/api/workspaces', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, organizationId: orgId }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setStatus('Created successfully!');
+        setName('');
+        fetchWorkspaces();
+      } else {
+        setStatus('Error: ' + data.error);
+      }
+    } catch (err: unknown) {
+      setStatus('Creation failed.');
+    }
+  };
+
+  return (
+    <div className="p-8 max-w-5xl mx-auto space-y-8 bg-background text-foreground min-h-screen">
+      <div className="space-y-2">
+        <h1 className="text-4xl font-extrabold tracking-tight">Workspaces Portal</h1>
+        <p className="text-muted-foreground">Manage isolated team workspace environments in your tenant.</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-sm">
+        <div className="md:col-span-1 p-6 border rounded-xl bg-card space-y-4 shadow-sm h-fit">
+          <h2 className="text-lg font-bold">New Workspace</h2>
+          <form onSubmit={handleCreate} className="space-y-4">
+            <div>
+              <label className="block font-medium mb-1">Workspace Name</label>
+              <input type="text" value={name} onChange={e => setName(e.target.value)} required className="w-full border rounded p-2" placeholder="e.g. Marketing" />
+            </div>
+            <div>
+              <label className="block font-medium mb-1">Organization ID</label>
+              <input type="text" value={orgId} onChange={e => setOrgId(e.target.value)} required className="w-full border rounded p-2" placeholder="uuid" />
+            </div>
+            <button type="submit" className="w-full bg-foreground text-background py-2 rounded font-bold hover:opacity-95">
+              Create Workspace
+            </button>
+            {status && <p className="text-xs text-center font-semibold mt-2">{status}</p>}
+          </form>
+        </div>
+
+        <div className="md:col-span-2 p-6 border rounded-xl bg-card space-y-4 shadow-sm">
+          <h2 className="text-lg font-bold">Active Workspaces</h2>
+          {loading ? (
+            <p className="text-sm text-muted-foreground">Loading workspaces...</p>
+          ) : workspaces.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No active workspaces found.</p>
+          ) : (
+            <div className="divide-y">
+              {workspaces.map((w) => (
+                <div key={w.id} className="py-4 flex justify-between items-center">
+                  <div>
+                    <p className="font-bold text-base">{w.name}</p>
+                    <p className="text-xs text-muted-foreground font-mono">Org ID: {w.organizationid}</p>
+                  </div>
+                  <span className="text-xs text-muted-foreground font-mono bg-muted p-1 rounded">
+                    ID: {w.id}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+`;
+        }
+        // 15.6 Projects
+        else if (normalizedRoute === 'projects') {
+          files[`app/${normalizedRoute}/page.tsx`] = `"use client";
+
+import React, { useState, useEffect } from 'react';
+
+interface ProjectRecord {
+  id: string;
+  name: string;
+  description?: string;
+  status: string;
+  organizationid: string;
+  workspaceid: string;
+}
+
+export default function ProjectsPage() {
+  const [projects, setProjects] = useState<ProjectRecord[]>([]);
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [orgId, setOrgId] = useState('');
+  const [workspaceId, setWorkspaceId] = useState('');
+  const [status, setStatus] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  const fetchProjects = async () => {
+    try {
+      const res = await fetch('/api/projects');
+      const data = await res.json();
+      if (data.success) {
+        setProjects(data.data || []);
+      }
+    } catch (err: unknown) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProjects();
+  }, []);
+
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus('Creating project...');
+    try {
+      const res = await fetch('/api/projects', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, description, organizationId: orgId, workspaceId }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setStatus('Created successfully!');
+        setName('');
+        setDescription('');
+        fetchProjects();
+      } else {
+        setStatus('Error: ' + data.error);
+      }
+    } catch (err: unknown) {
+      setStatus('Creation failed.');
+    }
+  };
+
+  return (
+    <div className="p-8 max-w-5xl mx-auto space-y-8 bg-background text-foreground min-h-screen">
+      <div className="space-y-2">
+        <h1 className="text-4xl font-extrabold tracking-tight">Projects Dashboard</h1>
+        <p className="text-muted-foreground">Manage and organize tasks and files inside workspaces.</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-sm">
+        <div className="md:col-span-1 p-6 border rounded-xl bg-card space-y-4 shadow-sm h-fit">
+          <h2 className="text-lg font-bold">New Project</h2>
+          <form onSubmit={handleCreate} className="space-y-4">
+            <div>
+              <label className="block font-medium mb-1">Project Name</label>
+              <input type="text" value={name} onChange={e => setName(e.target.value)} required className="w-full border rounded p-2" placeholder="e.g. Website Redesign" />
+            </div>
+            <div>
+              <label className="block font-medium mb-1">Description</label>
+              <textarea value={description} onChange={e => setDescription(e.target.value)} className="w-full border rounded p-2" placeholder="Describe the project..." />
+            </div>
+            <div>
+              <label className="block font-medium mb-1">Organization ID</label>
+              <input type="text" value={orgId} onChange={e => setOrgId(e.target.value)} required className="w-full border rounded p-2" placeholder="uuid" />
+            </div>
+            <div>
+              <label className="block font-medium mb-1">Workspace ID</label>
+              <input type="text" value={workspaceId} onChange={e => setWorkspaceId(e.target.value)} required className="w-full border rounded p-2" placeholder="uuid" />
+            </div>
+            <button type="submit" className="w-full bg-foreground text-background py-2 rounded font-bold hover:opacity-95">
+              Create Project
+            </button>
+            {status && <p className="text-xs text-center font-semibold mt-2">{status}</p>}
+          </form>
+        </div>
+
+        <div className="md:col-span-2 p-6 border rounded-xl bg-card space-y-4 shadow-sm">
+          <h2 className="text-lg font-bold">Active Projects</h2>
+          {loading ? (
+            <p className="text-sm text-muted-foreground">Loading projects...</p>
+          ) : projects.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No active projects found.</p>
+          ) : (
+            <div className="grid grid-cols-1 gap-4">
+              {projects.map((p) => (
+                <div key={p.id} className="p-4 border rounded-lg bg-muted space-y-2">
+                  <div className="flex justify-between items-center">
+                    <p className="font-bold text-lg">{p.name}</p>
+                    <span className="px-2 py-0.5 text-xs font-bold rounded bg-green-200 text-green-800">
+                      {p.status.toUpperCase()}
+                    </span>
+                  </div>
+                  {p.description && <p className="text-muted-foreground text-sm">{p.description}</p>}
+                  <p className="text-xs text-muted-foreground font-mono">Workspace: {p.workspaceid} • Org: {p.organizationid}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+`;
+        }
+        // 15.7 Tasks
+        else if (normalizedRoute === 'tasks') {
+          files[`app/${normalizedRoute}/page.tsx`] = `"use client";
+
+import React, { useState, useEffect } from 'react';
+
+interface TaskRecord {
+  id: string;
+  title: string;
+  description?: string;
+  status: string;
+  priority: string;
+  projectid: string;
+  assigneeid?: string;
+}
+
+export default function TasksPage() {
+  const [tasks, setTasks] = useState<TaskRecord[]>([]);
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [projectId, setProjectId] = useState('');
+  const [priority, setPriority] = useState('medium');
+  const [statusMsg, setStatus] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  const fetchTasks = async () => {
+    try {
+      const res = await fetch('/api/tasks');
+      const data = await res.json();
+      if (data.success) {
+        setTasks(data.data || []);
+      }
+    } catch (err: unknown) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTasks();
+  }, []);
+
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus('Creating task...');
+    try {
+      const res = await fetch('/api/tasks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, description, projectId, priority }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setStatus('Created successfully!');
+        setTitle('');
+        setDescription('');
+        fetchTasks();
+      } else {
+        setStatus('Error: ' + data.error);
+      }
+    } catch (err: unknown) {
+      setStatus('Creation failed.');
+    }
+  };
+
+  return (
+    <div className="p-8 max-w-5xl mx-auto space-y-8 bg-background text-foreground min-h-screen">
+      <div className="space-y-2">
+        <h1 className="text-4xl font-extrabold tracking-tight">Tasks Kanban</h1>
+        <p className="text-muted-foreground">Manage agile workflows and assignments.</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-sm">
+        <div className="md:col-span-1 p-6 border rounded-xl bg-card space-y-4 shadow-sm h-fit">
+          <h2 className="text-lg font-bold">New Task</h2>
+          <form onSubmit={handleCreate} className="space-y-4">
+            <div>
+              <label className="block font-medium mb-1">Task Title</label>
+              <input type="text" value={title} onChange={e => setTitle(e.target.value)} required className="w-full border rounded p-2" placeholder="e.g. Design Landing Page" />
+            </div>
+            <div>
+              <label className="block font-medium mb-1">Description</label>
+              <textarea value={description} onChange={e => setDescription(e.target.value)} className="w-full border rounded p-2" placeholder="Describe the task..." />
+            </div>
+            <div>
+              <label className="block font-medium mb-1">Project ID</label>
+              <input type="text" value={projectId} onChange={e => setProjectId(e.target.value)} required className="w-full border rounded p-2" placeholder="uuid" />
+            </div>
+            <div>
+              <label className="block font-medium mb-1">Priority</label>
+              <select value={priority} onChange={e => setPriority(e.target.value)} className="w-full border rounded p-2">
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+              </select>
+            </div>
+            <button type="submit" className="w-full bg-foreground text-background py-2 rounded font-bold hover:opacity-95">
+              Create Task
+            </button>
+            {statusMsg && <p className="text-xs text-center font-semibold mt-2">{statusMsg}</p>}
+          </form>
+        </div>
+
+        <div className="md:col-span-2 p-6 border rounded-xl bg-card space-y-4 shadow-sm">
+          <h2 className="text-lg font-bold">Your Tasks</h2>
+          {loading ? (
+            <p className="text-sm text-muted-foreground">Loading tasks...</p>
+          ) : tasks.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No tasks assigned yet.</p>
+          ) : (
+            <div className="space-y-3">
+              {tasks.map((t) => (
+                <div key={t.id} className="p-4 border rounded-lg bg-muted text-sm space-y-1">
+                  <div className="flex justify-between items-center">
+                    <span className="font-bold text-base">{t.title}</span>
+                    <div className="flex gap-1.5">
+                      <span className="px-2 py-0.5 text-xs font-bold rounded bg-orange-200 text-orange-800">
+                        {t.priority.toUpperCase()}
+                      </span>
+                      <span className="px-2 py-0.5 text-xs font-bold rounded bg-blue-200 text-blue-800">
+                        {t.status.toUpperCase()}
+                      </span>
+                    </div>
+                  </div>
+                  {t.description && <p className="text-muted-foreground">{t.description}</p>}
+                  <p className="text-xs text-muted-foreground/80 font-mono">Project ID: {t.projectid}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+`;
+        }
+        // 15.8 Documents
+        else if (normalizedRoute === 'documents') {
+          files[`app/${normalizedRoute}/page.tsx`] = `"use client";
+
+import React, { useState, useEffect } from 'react';
+
+interface DocumentRecord {
+  id: string;
+  title: string;
+  content?: string;
+  projectid: string;
+}
+
+export default function DocumentsPage() {
+  const [documents, setDocuments] = useState<DocumentRecord[]>([]);
+  const [title, setTitle] = useState('');
+  const [contentBody, setContentBody] = useState('');
+  const [projectId, setProjectId] = useState('');
+  const [status, setStatus] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [selectedDoc, setSelectedDoc] = useState<DocumentRecord | null>(null);
+
+  const fetchDocs = async () => {
+    try {
+      const res = await fetch('/api/documents');
+      const data = await res.json();
+      if (data.success) {
+        setDocuments(data.data || []);
+      }
+    } catch (err: unknown) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDocs();
+  }, []);
+
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus('Creating document...');
+    try {
+      const res = await fetch('/api/documents', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, content: contentBody, projectId }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setStatus('Created successfully!');
+        setTitle('');
+        setContentBody('');
+        fetchDocs();
+      } else {
+        setStatus('Error: ' + data.error);
+      }
+    } catch (err: unknown) {
+      setStatus('Creation failed.');
+    }
+  };
+
+  return (
+    <div className="p-8 max-w-5xl mx-auto space-y-8 bg-background text-foreground min-h-screen">
+      <div className="space-y-2">
+        <h1 className="text-4xl font-extrabold tracking-tight">Collaborative Documents</h1>
+        <p className="text-muted-foreground">Draft specs, guides, and internal wiki resources inside your projects.</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-sm">
+        <div className="md:col-span-1 p-6 border rounded-xl bg-card space-y-4 shadow-sm h-fit">
+          <h2 className="text-lg font-bold">New Document</h2>
+          <form onSubmit={handleCreate} className="space-y-4">
+            <div>
+              <label className="block font-medium mb-1">Document Title</label>
+              <input type="text" value={title} onChange={e => setTitle(e.target.value)} required className="w-full border rounded p-2" placeholder="e.g. Project Roadmap" />
+            </div>
+            <div>
+              <label className="block font-medium mb-1">Content Body</label>
+              <textarea value={contentBody} onChange={e => setContentBody(e.target.value)} rows={5} className="w-full border rounded p-2" placeholder="Write document content..." />
+            </div>
+            <div>
+              <label className="block font-medium mb-1">Project ID</label>
+              <input type="text" value={projectId} onChange={e => setProjectId(e.target.value)} required className="w-full border rounded p-2" placeholder="uuid" />
+            </div>
+            <button type="submit" className="w-full bg-foreground text-background py-2 rounded font-bold hover:opacity-95">
+              Create Document
+            </button>
+            {status && <p className="text-xs text-center font-semibold mt-2">{status}</p>}
+          </form>
+        </div>
+
+        <div className="md:col-span-1 p-6 border rounded-xl bg-card space-y-4 shadow-sm">
+          <h2 className="text-lg font-bold">Documents List</h2>
+          {loading ? (
+            <p className="text-sm text-muted-foreground">Loading documents...</p>
+          ) : documents.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No documents found.</p>
+          ) : (
+            <div className="space-y-3">
+              {documents.map((doc) => (
+                <div key={doc.id} onClick={() => setSelectedDoc(doc)} className="p-3 border rounded-lg bg-muted cursor-pointer hover:bg-muted/75 transition-colors">
+                  <p className="font-bold text-base">{doc.title}</p>
+                  <p className="text-xs text-muted-foreground font-mono">Project ID: {doc.projectid}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="md:col-span-1 p-6 border rounded-xl bg-card shadow-sm h-fit">
+          {selectedDoc ? (
+            <div className="space-y-4">
+              <h2 className="text-xl font-bold tracking-tight">{selectedDoc.title}</h2>
+              <div className="text-muted-foreground whitespace-pre-line leading-relaxed">
+                {selectedDoc.content || 'No content inside this document yet.'}
+              </div>
+              <hr />
+              <p className="text-xs text-muted-foreground font-mono">Document ID: {selectedDoc.id}</p>
+            </div>
+          ) : (
+            <div className="text-center py-20 text-muted-foreground">
+              <p className="font-semibold">No Document Selected</p>
+              <p className="text-xs mt-1">Select a document from the list on the left to read its full content.</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+`;
+        }
         // 16. Generic Route Fallback Pages
         else {
           files[`app/${normalizedRoute}/page.tsx`] = `import React from 'react';

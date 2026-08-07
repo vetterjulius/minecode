@@ -29,6 +29,7 @@ export default tseslint.config(
       '**/coverage/**',
       '**/node_modules/**',
       'pnpm-lock.yaml',
+      'composition-engine/examples/**',
     ],
   }
 );
