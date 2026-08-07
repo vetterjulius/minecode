@@ -1,0 +1,50 @@
+provides:
+  capabilities:
+    - documents
+  entities:
+    - name: Document
+      description: 'App document'
+      fields:
+        - name: id
+          type: uuid
+          required: true
+          description: 'Primary key'
+        - name: title
+          type: string
+          required: true
+          description: 'Title of the document'
+        - name: content
+          type: text
+          required: false
+          description: 'Document content body'
+        - name: projectid
+          type: uuid
+          required: true
+          description: 'Reference to Project'
+        - name: createdat
+          type: timestamp
+          required: true
+          description: 'Document creation timestamp'
+  permissions:
+    - name: document.read
+      description: 'Read document details'
+    - name: document.write
+      description: 'Modify document details'
+  api:
+    - name: ListDocuments
+      path: /api/documents
+      method: GET
+      description: 'List documents for a project.'
+    - name: CreateDocument
+      path: /api/documents
+      method: POST
+      description: 'Create a new document.'
+  ui:
+    - name: DocumentsDashboard
+      route: documents
+      slot: main
+      description: 'Documents management dashboard.'
+requires:
+  features:
+    - database
+    - projects

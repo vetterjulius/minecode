@@ -1,0 +1,62 @@
+provides:
+  capabilities:
+    - tasks
+  entities:
+    - name: Task
+      description: 'App task'
+      fields:
+        - name: id
+          type: uuid
+          required: true
+          description: 'Primary key'
+        - name: title
+          type: string
+          required: true
+          description: 'Title of the task'
+        - name: description
+          type: text
+          required: false
+          description: 'Optional description'
+        - name: status
+          type: string
+          required: true
+          description: 'Task status'
+        - name: priority
+          type: string
+          required: true
+          description: 'Task priority'
+        - name: projectid
+          type: uuid
+          required: true
+          description: 'Reference to Project'
+        - name: assigneeid
+          type: uuid
+          required: false
+          description: 'Reference to User'
+        - name: createdat
+          type: timestamp
+          required: true
+          description: 'Task creation timestamp'
+  permissions:
+    - name: task.read
+      description: 'Read task details'
+    - name: task.write
+      description: 'Modify task details'
+  api:
+    - name: ListTasks
+      path: /api/tasks
+      method: GET
+      description: 'List tasks for a project.'
+    - name: CreateTask
+      path: /api/tasks
+      method: POST
+      description: 'Create a new task.'
+  ui:
+    - name: TasksDashboard
+      route: tasks
+      slot: main
+      description: 'Tasks management dashboard.'
+requires:
+  features:
+    - database
+    - projects

@@ -1,0 +1,73 @@
+# Minecode Application Blueprint - AI Workspace Reference Application
+# This blueprint configures a collaborative, AI-powered productivity platform SaaS.
+
+application:
+  name: 'AI Workspace Reference Application'
+
+stack:
+  id: 'nextjs-supabase'
+
+features:
+  database:
+    version: '1.0.0'
+    config:
+      pooling: true
+  authentication:
+    version: '1.0.0'
+    config:
+      providers:
+        - 'email'
+        - 'google'
+      sessionTimeout: 86400
+  organizations:
+    version: '1.0.0'
+    config:
+      allowMultipleOrganizations: true
+      invitationExpirySeconds: 259200
+  workspaces:
+    version: '1.0.0'
+  projects:
+    version: '1.0.0'
+  tasks:
+    version: '1.0.0'
+  documents:
+    version: '1.0.0'
+  rbac:
+    version: '1.0.0'
+    config:
+      defaultRoles:
+        - 'owner'
+        - 'admin'
+        - 'member'
+        - 'guest'
+  billing:
+    version: '1.0.0'
+    config:
+      provider: 'stripe'
+      currency: 'USD'
+  storage:
+    version: '1.0.0'
+    config:
+      maxSizeMb: 50
+  notifications:
+    version: '1.0.0'
+    config:
+      channels:
+        - 'email'
+        - 'slack'
+  search:
+    version: '1.0.0'
+  audit-logging:
+    version: '1.0.0'
+  ai-chat:
+    version: '1.0.0'
+  whiteboard:
+    version: '1.0.0'
+  ticketing:
+    version: '1.0.0'
+  customer-feedback:
+    version: '1.0.0'
+  analytics:
+    version: '1.0.0'
+  knowledge-base:
+    version: '1.0.0'

@@ -673,6 +673,218 @@ export async function GET(_request: Request) {
 }
 `;
       }
+      // 19.1 Workspaces APIs
+      else if (fullRoutePath === 'api/workspaces') {
+        files[`app/${fullRoutePath}/route.ts`] =
+          `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
+import { NextResponse } from 'next/server';
+
+export async function GET(_request: Request) {
+  const supabase = createRouteHandlerClient({ cookies });
+  try {
+    const { data, error } = await supabase
+      .from('workspace')
+      .select('*')
+      .order('createdat', { ascending: false });
+
+    if (error) throw error;
+    return NextResponse.json({ success: true, data });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
+  }
+}
+
+export async function POST(request: Request) {
+  const supabase = createRouteHandlerClient({ cookies });
+  try {
+    const { name, organizationId } = await request.json();
+
+    if (!name || !organizationId) {
+      return NextResponse.json({ success: false, error: 'Missing name or organizationId' }, { status: 400 });
+    }
+
+    const { data, error } = await supabase
+      .from('workspace')
+      .insert({
+        id: crypto.randomUUID(),
+        name,
+        organizationid: organizationId,
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return NextResponse.json({ success: true, data });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ success: false, error: message }, { status: 400 });
+  }
+}
+`;
+      }
+      // 19.2 Projects APIs
+      else if (fullRoutePath === 'api/projects') {
+        files[`app/${fullRoutePath}/route.ts`] =
+          `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
+import { NextResponse } from 'next/server';
+
+export async function GET(_request: Request) {
+  const supabase = createRouteHandlerClient({ cookies });
+  try {
+    const { data, error } = await supabase
+      .from('project')
+      .select('*')
+      .order('createdat', { ascending: false });
+
+    if (error) throw error;
+    return NextResponse.json({ success: true, data });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
+  }
+}
+
+export async function POST(request: Request) {
+  const supabase = createRouteHandlerClient({ cookies });
+  try {
+    const { name, description, organizationId, workspaceId } = await request.json();
+
+    if (!name || !organizationId || !workspaceId) {
+      return NextResponse.json({ success: false, error: 'Missing name, organizationId, or workspaceId' }, { status: 400 });
+    }
+
+    const { data, error } = await supabase
+      .from('project')
+      .insert({
+        id: crypto.randomUUID(),
+        name,
+        description: description || null,
+        status: 'active',
+        organizationid: organizationId,
+        workspaceid: workspaceId,
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return NextResponse.json({ success: true, data });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ success: false, error: message }, { status: 400 });
+  }
+}
+`;
+      }
+      // 19.3 Tasks APIs
+      else if (fullRoutePath === 'api/tasks') {
+        files[`app/${fullRoutePath}/route.ts`] =
+          `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
+import { NextResponse } from 'next/server';
+
+export async function GET(_request: Request) {
+  const supabase = createRouteHandlerClient({ cookies });
+  try {
+    const { data, error } = await supabase
+      .from('task')
+      .select('*')
+      .order('createdat', { ascending: false });
+
+    if (error) throw error;
+    return NextResponse.json({ success: true, data });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
+  }
+}
+
+export async function POST(request: Request) {
+  const supabase = createRouteHandlerClient({ cookies });
+  try {
+    const { title, description, projectId, priority, assigneeId } = await request.json();
+
+    if (!title || !projectId) {
+      return NextResponse.json({ success: false, error: 'Missing title or projectId' }, { status: 400 });
+    }
+
+    const { data, error } = await supabase
+      .from('task')
+      .insert({
+        id: crypto.randomUUID(),
+        title,
+        description: description || null,
+        status: 'todo',
+        priority: priority || 'medium',
+        projectid: projectId,
+        assigneeid: assigneeId || null,
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return NextResponse.json({ success: true, data });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ success: false, error: message }, { status: 400 });
+  }
+}
+`;
+      }
+      // 19.4 Documents APIs
+      else if (fullRoutePath === 'api/documents') {
+        files[`app/${fullRoutePath}/route.ts`] =
+          `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
+import { NextResponse } from 'next/server';
+
+export async function GET(_request: Request) {
+  const supabase = createRouteHandlerClient({ cookies });
+  try {
+    const { data, error } = await supabase
+      .from('document')
+      .select('*')
+      .order('createdat', { ascending: false });
+
+    if (error) throw error;
+    return NextResponse.json({ success: true, data });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
+  }
+}
+
+export async function POST(request: Request) {
+  const supabase = createRouteHandlerClient({ cookies });
+  try {
+    const { title, content, projectId } = await request.json();
+
+    if (!title || !projectId) {
+      return NextResponse.json({ success: false, error: 'Missing title or projectId' }, { status: 400 });
+    }
+
+    const { data, error } = await supabase
+      .from('document')
+      .insert({
+        id: crypto.randomUUID(),
+        title,
+        content: content || null,
+        projectid: projectId,
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return NextResponse.json({ success: true, data });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ success: false, error: message }, { status: 400 });
+  }
+}
+`;
+      }
       // 20. Generic Fallback APIs
       else {
         files[`app/${fullRoutePath}/route.ts`] =

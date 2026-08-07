@@ -1,0 +1,58 @@
+provides:
+  capabilities:
+    - projects
+  entities:
+    - name: Project
+      description: 'App project'
+      fields:
+        - name: id
+          type: uuid
+          required: true
+          description: 'Primary key'
+        - name: name
+          type: string
+          required: true
+          description: 'Name of the project'
+        - name: description
+          type: text
+          required: false
+          description: 'Optional description'
+        - name: status
+          type: string
+          required: true
+          description: 'Project status (e.g. active, archived)'
+        - name: organizationid
+          type: uuid
+          required: true
+          description: 'Reference to Organization'
+        - name: workspaceid
+          type: uuid
+          required: true
+          description: 'Reference to Workspace'
+        - name: createdat
+          type: timestamp
+          required: true
+          description: 'Project creation timestamp'
+  permissions:
+    - name: project.read
+      description: 'Read project details'
+    - name: project.write
+      description: 'Modify project details'
+  api:
+    - name: ListProjects
+      path: /api/projects
+      method: GET
+      description: 'List projects for a workspace.'
+    - name: CreateProject
+      path: /api/projects
+      method: POST
+      description: 'Create a new project.'
+  ui:
+    - name: ProjectsDashboard
+      route: projects
+      slot: main
+      description: 'Projects management dashboard.'
+requires:
+  features:
+    - database
+    - workspaces

@@ -1,0 +1,14 @@
+id: workspaces
+version: 1.0.0
+type: business
+name: 'Workspaces'
+description: 'Multi-tenant collaboration workspaces inside organizations.'
+maintainer:
+  type: builtin
+stack:
+  - nextjs-supabase
+category: Collaboration
+modules:
+  - name: 'database/0015_workspaces_schema.sql'
+    type: migration
+    description: 'Create workspaces table.'
