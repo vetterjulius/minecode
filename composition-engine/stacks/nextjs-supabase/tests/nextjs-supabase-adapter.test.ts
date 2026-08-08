@@ -302,3 +302,60 @@ test('test_NextJsSupabaseAdapter_GenerateWithRunnableOption_CreatesWorkspaceConf
   expect(homePageCode).toContain('Overview');
   expect(homePageCode).toContain('Route: /dashboard');
 });
+
+test('test_UiSubGenerator_InteractivePages_HaveUseClientDirective', () => {
+  const adapter = new NextJsSupabaseAdapter();
+  const plan: CompositionPlan = {
+    applicationName: 'Test SaaS',
+    stackId: 'nextjs-supabase',
+    database: [],
+    api: [],
+    ui: [
+      { id: 'auth:login', featureId: 'auth', name: 'Login', route: '/auth/login' },
+      { id: 'auth:reset-password', featureId: 'auth', name: 'ResetPassword', route: '/auth/reset-password' },
+      { id: 'billing:settings', featureId: 'billing', name: 'Billing', route: '/billing' },
+      { id: 'orgs:portal', featureId: 'organizations', name: 'Organizations', route: '/organizations' },
+      { id: 'rbac:admin', featureId: 'rbac', name: 'RbacAdmin', route: '/rbac-admin' },
+      { id: 'storage:dashboard', featureId: 'storage', name: 'Storage', route: '/storage' },
+      { id: 'notifications:center', featureId: 'notifications', name: 'Notifications', route: '/notifications' },
+      { id: 'search:results', featureId: 'search', name: 'Search', route: '/search' },
+      { id: 'audit:logs', featureId: 'audit-logging', name: 'AuditLogs', route: '/audit-logs' },
+      { id: 'ai:chat', featureId: 'ai-chat', name: 'AiChat', route: '/ai/chat' },
+      { id: 'whiteboard:canvas', featureId: 'whiteboard', name: 'Whiteboard', route: '/whiteboard' },
+      { id: 'tickets:inbox', featureId: 'tickets', name: 'Tickets', route: '/tickets' },
+      { id: 'feedback:dash', featureId: 'customer-feedback', name: 'Feedback', route: '/feedback' },
+      { id: 'analytics:dash', featureId: 'analytics', name: 'Analytics', route: '/analytics' },
+      { id: 'kb:help', featureId: 'knowledge-base', name: 'Kb', route: '/kb' },
+    ],
+    navigation: [],
+    events: [],
+    permissions: [],
+    migrations: [],
+    extensionPoints: [],
+  };
+
+  const files = adapter.generate(plan);
+
+  const expectedPageRoutes = [
+    'app/auth/login/page.tsx',
+    'app/auth/reset-password/page.tsx',
+    'app/billing/page.tsx',
+    'app/organizations/page.tsx',
+    'app/rbac-admin/page.tsx',
+    'app/storage/page.tsx',
+    'app/notifications/page.tsx',
+    'app/search/page.tsx',
+    'app/audit-logs/page.tsx',
+    'app/ai/chat/page.tsx',
+    'app/whiteboard/page.tsx',
+    'app/tickets/page.tsx',
+    'app/feedback/page.tsx',
+    'app/analytics/page.tsx',
+    'app/kb/page.tsx',
+  ];
+
+  for (const pagePath of expectedPageRoutes) {
+    expect(files[pagePath]).toBeDefined();
+    expect(files[pagePath].startsWith('"use client";')).toBe(true);
+  }
+});
