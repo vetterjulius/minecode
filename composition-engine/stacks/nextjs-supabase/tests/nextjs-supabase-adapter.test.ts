@@ -302,3 +302,65 @@ test('test_NextJsSupabaseAdapter_GenerateWithRunnableOption_CreatesWorkspaceConf
   expect(homePageCode).toContain('Overview');
   expect(homePageCode).toContain('Route: /dashboard');
 });
+
+test('test_StorageUploadApi_Generate_ContainsFileSanitization', () => {
+  const adapter = new NextJsSupabaseAdapter();
+  const plan: CompositionPlan = {
+    applicationName: 'Test SaaS',
+    stackId: 'nextjs-supabase',
+    database: [],
+    api: [
+      {
+        id: 'storage:upload',
+        featureId: 'storage',
+        name: 'upload',
+        path: '/storage/upload',
+        method: 'POST',
+        description: 'Upload file',
+      },
+    ],
+    ui: [],
+    navigation: [],
+    events: [],
+    permissions: [],
+    migrations: [],
+    extensionPoints: [],
+  };
+
+  const files = adapter.generate(plan);
+  expect(files['app/api/storage/upload/route.ts']).toBeDefined();
+  const apiCode = files['app/api/storage/upload/route.ts'];
+  expect(apiCode).toContain('safeFileName');
+  expect(apiCode).toContain("replace(/[^a-zA-Z0-9._-]/g, '_')");
+});
+
+test('test_StorageDeleteApi_Generate_ContainsPathVerificationAndIdorProtection', () => {
+  const adapter = new NextJsSupabaseAdapter();
+  const plan: CompositionPlan = {
+    applicationName: 'Test SaaS',
+    stackId: 'nextjs-supabase',
+    database: [],
+    api: [
+      {
+        id: 'storage:delete',
+        featureId: 'storage',
+        name: 'delete',
+        path: '/storage/delete',
+        method: 'DELETE',
+        description: 'Delete file',
+      },
+    ],
+    ui: [],
+    navigation: [],
+    events: [],
+    permissions: [],
+    migrations: [],
+    extensionPoints: [],
+  };
+
+  const files = adapter.generate(plan);
+  expect(files['app/api/storage/delete/route.ts']).toBeDefined();
+  const apiCode = files['app/api/storage/delete/route.ts'];
+  expect(apiCode).toContain('fileRecord.path !== path');
+  expect(apiCode).toContain('Path mismatch or unauthorized');
+});

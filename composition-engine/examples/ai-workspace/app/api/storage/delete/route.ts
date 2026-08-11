@@ -11,7 +11,28 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ success: false, error: 'Missing ID or path' }, { status: 400 });
     }
 
-    const { error: storageError } = await supabase.storage.from('files').remove([path]);
+    // Secure verification: fetch the file record first to check if it exists and matches the provided path
+    const { data: fileRecord, error: fetchError } = await supabase
+      .from('file')
+      .select('path')
+      .eq('id', id)
+      .single();
+
+    if (fetchError || !fileRecord) {
+      return NextResponse.json(
+        { success: false, error: 'File not found or unauthorized' },
+        { status: 404 }
+      );
+    }
+
+    if (fileRecord.path !== path) {
+      return NextResponse.json(
+        { success: false, error: 'Path mismatch or unauthorized' },
+        { status: 403 }
+      );
+    }
+
+    const { error: storageError } = await supabase.storage.from('files').remove([fileRecord.path]);
 
     if (storageError) throw storageError;
 
