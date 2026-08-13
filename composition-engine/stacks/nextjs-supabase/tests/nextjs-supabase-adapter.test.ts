@@ -358,7 +358,7 @@ test('test_ApiSubGenerator_WithStorageUpload_SanitizesFilename', () => {
   const files = adapter.generate(plan);
   expect(files['app/api/storage/upload/route.ts']).toBeDefined();
   const code = files['app/api/storage/upload/route.ts'];
-  expect(code).toContain('file.name.replace(/[^a-zA-Z0-9._-]/g, \'_\')');
+  expect(code).toContain("file.name.replace(/[^a-zA-Z0-9._-]/g, '_')");
 });
 
 test('test_ApiSubGenerator_WithStorageDelete_VerifiesDatabaseRecordConsistency', () => {
@@ -390,5 +390,5 @@ test('test_ApiSubGenerator_WithStorageDelete_VerifiesDatabaseRecordConsistency',
   const code = files['app/api/storage/delete/route.ts'];
   expect(code).toContain("from('file')");
   expect(code).toContain("select('path')");
-  expect(code).toContain("fileRecord.path !== path");
+  expect(code).toContain('fileRecord.path !== path');
 });
