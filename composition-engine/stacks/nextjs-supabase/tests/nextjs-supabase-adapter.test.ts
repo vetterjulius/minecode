@@ -302,3 +302,93 @@ test('test_NextJsSupabaseAdapter_GenerateWithRunnableOption_CreatesWorkspaceConf
   expect(homePageCode).toContain('Overview');
   expect(homePageCode).toContain('Route: /dashboard');
 });
+
+test('test_UiSubGenerator_WithInteractiveRoutes_PrependsUseClient', () => {
+  const adapter = new NextJsSupabaseAdapter();
+  const plan: CompositionPlan = {
+    applicationName: 'Test SaaS',
+    stackId: 'nextjs-supabase',
+    database: [],
+    api: [],
+    ui: [
+      {
+        id: 'auth:login',
+        featureId: 'auth',
+        name: 'Login',
+        route: 'auth/login',
+        description: 'Login page',
+      },
+    ],
+    navigation: [],
+    events: [],
+    permissions: [],
+    migrations: [],
+    extensionPoints: [],
+  };
+
+  const files = adapter.generate(plan);
+  expect(files['app/auth/login/page.tsx']).toBeDefined();
+  expect(files['app/auth/login/page.tsx'].startsWith('"use client";')).toBe(true);
+});
+
+test('test_ApiSubGenerator_WithStorageUpload_SanitizesFilename', () => {
+  const adapter = new NextJsSupabaseAdapter();
+  const plan: CompositionPlan = {
+    applicationName: 'Test SaaS',
+    stackId: 'nextjs-supabase',
+    database: [],
+    api: [
+      {
+        id: 'storage:upload',
+        featureId: 'storage',
+        name: 'upload',
+        path: 'api/storage/upload',
+        method: 'POST',
+        description: 'Upload file',
+      },
+    ],
+    ui: [],
+    navigation: [],
+    events: [],
+    permissions: [],
+    migrations: [],
+    extensionPoints: [],
+  };
+
+  const files = adapter.generate(plan);
+  expect(files['app/api/storage/upload/route.ts']).toBeDefined();
+  const code = files['app/api/storage/upload/route.ts'];
+  expect(code).toContain('file.name.replace(/[^a-zA-Z0-9._-]/g, \'_\')');
+});
+
+test('test_ApiSubGenerator_WithStorageDelete_VerifiesDatabaseRecordConsistency', () => {
+  const adapter = new NextJsSupabaseAdapter();
+  const plan: CompositionPlan = {
+    applicationName: 'Test SaaS',
+    stackId: 'nextjs-supabase',
+    database: [],
+    api: [
+      {
+        id: 'storage:delete',
+        featureId: 'storage',
+        name: 'delete',
+        path: 'api/storage/delete',
+        method: 'DELETE',
+        description: 'Delete file',
+      },
+    ],
+    ui: [],
+    navigation: [],
+    events: [],
+    permissions: [],
+    migrations: [],
+    extensionPoints: [],
+  };
+
+  const files = adapter.generate(plan);
+  expect(files['app/api/storage/delete/route.ts']).toBeDefined();
+  const code = files['app/api/storage/delete/route.ts'];
+  expect(code).toContain("from('file')");
+  expect(code).toContain("select('path')");
+  expect(code).toContain("fileRecord.path !== path");
+});

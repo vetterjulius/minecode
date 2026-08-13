@@ -236,7 +236,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: 'No file provided' }, { status: 400 });
     }
 
-    const filePath = \`uploads/\${crypto.randomUUID()}_\${file.name}\`;
+    // Sanitize file name to prevent path traversal or illegal characters
+    const sanitizedName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+    const filePath = \`uploads/\${crypto.randomUUID()}_\${sanitizedName}\`;
     const { error: uploadError } = await supabase.storage
       .from('files')
       .upload(filePath, file);
@@ -279,6 +281,21 @@ export async function DELETE(request: Request) {
 
     if (!id || !path) {
       return NextResponse.json({ success: false, error: 'Missing ID or path' }, { status: 400 });
+    }
+
+    // Fetch the file record to verify path consistency and prevent IDOR attacks
+    const { data: fileRecord, error: fetchError } = await supabase
+      .from('file')
+      .select('path')
+      .eq('id', id)
+      .single();
+
+    if (fetchError || !fileRecord) {
+      return NextResponse.json({ success: false, error: 'File record not found or access denied' }, { status: 404 });
+    }
+
+    if (fileRecord.path !== path) {
+      return NextResponse.json({ success: false, error: 'Inconsistent file path' }, { status: 400 });
     }
 
     const { error: storageError } = await supabase.storage
