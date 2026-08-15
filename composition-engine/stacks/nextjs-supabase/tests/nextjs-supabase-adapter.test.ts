@@ -123,7 +123,7 @@ test('test_StorageApiRoutes_Generate_CreatesSecureStorageDeleteHandler', () => {
   expect(deleteHandlerCode).toContain("from('file')");
   expect(deleteHandlerCode).toContain(".select('path')");
   expect(deleteHandlerCode).toContain('.remove([fileRecord.path])');
-  expect(deleteHandlerCode).toContain("File record not found");
+  expect(deleteHandlerCode).toContain('File record not found');
 });
 
 test('test_UiArtifacts_Generate_CreatesPagesAndComponents', () => {
