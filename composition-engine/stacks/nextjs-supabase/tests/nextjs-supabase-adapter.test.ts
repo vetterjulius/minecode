@@ -91,6 +91,41 @@ test('test_ApiRoutes_Generate_CreatesNextJsAppRouterHandlers', () => {
   expect(apiCode).toContain('Authenticates a user');
 });
 
+test('test_StorageApiRoutes_Generate_CreatesSecureStorageDeleteHandler', () => {
+  const adapter = new NextJsSupabaseAdapter();
+  const plan: CompositionPlan = {
+    applicationName: 'Test SaaS',
+    stackId: 'nextjs-supabase',
+    database: [],
+    api: [
+      {
+        id: 'storage:delete',
+        featureId: 'storage',
+        name: 'delete',
+        path: '/storage/delete',
+        method: 'DELETE',
+        description: 'Deletes a file from storage',
+      },
+    ],
+    ui: [],
+    navigation: [],
+    events: [],
+    permissions: [],
+    migrations: [],
+    extensionPoints: [],
+  };
+
+  const files = adapter.generate(plan);
+
+  expect(files['app/api/storage/delete/route.ts']).toBeDefined();
+  const deleteHandlerCode = files['app/api/storage/delete/route.ts'];
+  expect(deleteHandlerCode).toContain('export async function DELETE(');
+  expect(deleteHandlerCode).toContain("from('file')");
+  expect(deleteHandlerCode).toContain(".select('path')");
+  expect(deleteHandlerCode).toContain('.remove([fileRecord.path])');
+  expect(deleteHandlerCode).toContain("File record not found");
+});
+
 test('test_UiArtifacts_Generate_CreatesPagesAndComponents', () => {
   const adapter = new NextJsSupabaseAdapter();
   const plan: CompositionPlan = {
