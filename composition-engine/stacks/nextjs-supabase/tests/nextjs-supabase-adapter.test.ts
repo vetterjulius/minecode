@@ -73,6 +73,14 @@ test('test_ApiRoutes_Generate_CreatesNextJsAppRouterHandlers', () => {
         method: 'POST',
         description: 'Authenticates a user',
       },
+      {
+        id: 'orgs:invite',
+        featureId: 'organizations',
+        name: 'InviteMember',
+        path: '/api/organizations/invite',
+        method: 'POST',
+        description: 'Invite a member',
+      },
     ],
     ui: [],
     navigation: [],
@@ -89,6 +97,44 @@ test('test_ApiRoutes_Generate_CreatesNextJsAppRouterHandlers', () => {
   expect(apiCode).toContain("import { NextResponse } from 'next/server';");
   expect(apiCode).toContain('export async function POST(');
   expect(apiCode).toContain('Authenticates a user');
+
+  expect(files['app/api/organizations/invite/route.ts']).toBeDefined();
+  const inviteCode = files['app/api/organizations/invite/route.ts'];
+  expect(inviteCode).toContain('organizationId,');
+  expect(inviteCode).toContain('expiresAt,');
+});
+
+test('test_ApiRoutes_Generate_CreatesStorageAndOtherSpecializedHandlers', () => {
+  const adapter = new NextJsSupabaseAdapter();
+  const plan: CompositionPlan = {
+    applicationName: 'Test SaaS',
+    stackId: 'nextjs-supabase',
+    database: [],
+    api: [
+      {
+        id: 'storage:list',
+        featureId: 'storage',
+        name: 'ListFiles',
+        path: '/api/storage/files',
+        method: 'GET',
+        description: 'List uploaded file metadata.',
+      },
+    ],
+    ui: [],
+    navigation: [],
+    events: [],
+    permissions: [],
+    migrations: [],
+    extensionPoints: [],
+  };
+
+  const files = adapter.generate(plan);
+
+  expect(files['app/api/storage/files/route.ts']).toBeDefined();
+  const apiCode = files['app/api/storage/files/route.ts'];
+  expect(apiCode).toContain("import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';");
+  expect(apiCode).toContain('export async function GET(');
+  expect(apiCode).toContain(".from('file')");
 });
 
 test('test_UiArtifacts_Generate_CreatesPagesAndComponents', () => {

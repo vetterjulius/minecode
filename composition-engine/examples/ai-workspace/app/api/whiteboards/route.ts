@@ -18,7 +18,7 @@ export async function POST(request: Request) {
       .from('whiteboardsession')
       .insert({
         name,
-        organizationid: organizationId,
+        organizationId,
       })
       .select()
       .single();

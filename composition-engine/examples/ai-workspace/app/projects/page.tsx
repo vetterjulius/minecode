@@ -7,8 +7,8 @@ interface ProjectRecord {
   name: string;
   description?: string;
   status: string;
-  organizationid: string;
-  workspaceid: string;
+  organizationId: string;
+  workspaceId: string;
 }
 
 export default function ProjectsPage() {
@@ -146,7 +146,7 @@ export default function ProjectsPage() {
                     <p className="text-muted-foreground text-sm">{p.description}</p>
                   )}
                   <p className="text-xs text-muted-foreground font-mono">
-                    Workspace: {p.workspaceid} • Org: {p.organizationid}
+                    Workspace: {p.workspaceId} • Org: {p.organizationId}
                   </p>
                 </div>
               ))}

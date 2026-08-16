@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 interface WorkspaceRecord {
   id: string;
   name: string;
-  organizationid: string;
+  organizationId: string;
 }
 
 export default function WorkspacesPage() {
@@ -113,7 +113,7 @@ export default function WorkspacesPage() {
                   <div>
                     <p className="font-bold text-base">{w.name}</p>
                     <p className="text-xs text-muted-foreground font-mono">
-                      Org ID: {w.organizationid}
+                      Org ID: {w.organizationId}
                     </p>
                   </div>
                   <span className="text-xs text-muted-foreground font-mono bg-muted p-1 rounded">

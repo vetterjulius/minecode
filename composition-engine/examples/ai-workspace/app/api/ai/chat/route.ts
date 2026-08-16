@@ -15,7 +15,7 @@ export async function POST(request: Request) {
     }
 
     const { error: userMsgError } = await supabase.from('chatmessage').insert({
-      sessionid: sessionId,
+      sessionId,
       role: 'user',
       content,
     });
@@ -34,7 +34,7 @@ export async function POST(request: Request) {
     const { data: assistantMsg, error: assistantMsgError } = await supabase
       .from('chatmessage')
       .insert({
-        sessionid: sessionId,
+        sessionId,
         role: 'assistant',
         content: mockReply,
       })

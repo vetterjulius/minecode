@@ -8,7 +8,7 @@ export async function GET(_request: Request) {
     const { data, error } = await supabase
       .from('document')
       .select('*')
-      .order('createdat', { ascending: false });
+      .order('createdAt', { ascending: false });
 
     if (error) throw error;
     return NextResponse.json({ success: true, data });
@@ -36,7 +36,7 @@ export async function POST(request: Request) {
         id: crypto.randomUUID(),
         title,
         content: content || null,
-        projectid: projectId,
+        projectId,
       })
       .select()
       .single();

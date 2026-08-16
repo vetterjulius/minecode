@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 
 interface ChatMessageEntry {
   id: string;
-  sessionid: string;
+  sessionId: string;
   role: string;
   content: string;
 }
@@ -20,7 +20,7 @@ export default function ChatInterfacePage() {
       const res = await fetch('/api/ai/chat');
       const data = await res.json();
       if (data.success) {
-        setMessages((data.data || []).filter((m: ChatMessageEntry) => m.sessionid === sessionId));
+        setMessages((data.data || []).filter((m: ChatMessageEntry) => m.sessionId === sessionId));
       }
     } catch (err: unknown) {
       console.error(err);
@@ -41,7 +41,7 @@ export default function ChatInterfacePage() {
 
     const userMsg: ChatMessageEntry = {
       id: crypto.randomUUID(),
-      sessionid: sessionId,
+      sessionId,
       role: 'user',
       content: input,
     };

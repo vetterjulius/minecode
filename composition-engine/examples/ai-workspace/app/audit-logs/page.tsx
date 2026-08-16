@@ -3,10 +3,10 @@ import React, { useState, useEffect } from 'react';
 interface AuditLogEntry {
   id: string;
   action: string;
-  actorid?: string;
-  entityname?: string;
-  entityid?: string;
-  createdat: string;
+  actorId?: string;
+  entityName?: string;
+  entityId?: string;
+  createdAt: string;
 }
 
 export default function AuditLogDashboardPage() {
@@ -80,11 +80,11 @@ export default function AuditLogDashboardPage() {
               {logs.map((log) => (
                 <tr key={log.id} className="hover:bg-muted/30">
                   <td className="p-3 font-semibold text-blue-600">{log.action}</td>
-                  <td className="p-3 font-mono text-xs">{log.actorid || 'anonymous'}</td>
-                  <td className="p-3">{log.entityname || '-'}</td>
-                  <td className="p-3 font-mono text-xs">{log.entityid || '-'}</td>
+                  <td className="p-3 font-mono text-xs">{log.actorId || 'anonymous'}</td>
+                  <td className="p-3">{log.entityName || '-'}</td>
+                  <td className="p-3 font-mono text-xs">{log.entityId || '-'}</td>
                   <td className="p-3 text-muted-foreground">
-                    {new Date(log.createdat).toLocaleString()}
+                    {new Date(log.createdAt).toLocaleString()}
                   </td>
                 </tr>
               ))}

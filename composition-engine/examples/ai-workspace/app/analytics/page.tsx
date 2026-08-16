@@ -4,8 +4,8 @@ interface MetricRecord {
   id: string;
   name: string;
   value: number;
-  organizationid: string;
-  createdat: string;
+  organizationId: string;
+  createdAt: string;
 }
 
 export default function AnalyticsDashboardPage() {
@@ -102,9 +102,9 @@ export default function AnalyticsDashboardPage() {
                 <tr key={m.id} className="hover:bg-muted/30">
                   <td className="p-3 font-semibold">{m.name}</td>
                   <td className="p-3 font-mono font-bold text-blue-600">{m.value}</td>
-                  <td className="p-3 font-mono">{m.organizationid}</td>
+                  <td className="p-3 font-mono">{m.organizationId}</td>
                   <td className="p-3 text-muted-foreground">
-                    {new Date(m.createdat).toLocaleString()}
+                    {new Date(m.createdAt).toLocaleString()}
                   </td>
                 </tr>
               ))}
