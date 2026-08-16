@@ -132,7 +132,9 @@ test('test_ApiRoutes_Generate_CreatesStorageAndOtherSpecializedHandlers', () => 
 
   expect(files['app/api/storage/files/route.ts']).toBeDefined();
   const apiCode = files['app/api/storage/files/route.ts'];
-  expect(apiCode).toContain("import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';");
+  expect(apiCode).toContain(
+    "import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';"
+  );
   expect(apiCode).toContain('export async function GET(');
   expect(apiCode).toContain(".from('file')");
 });
