@@ -11,6 +11,23 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ success: false, error: 'Missing ID or path' }, { status: 400 });
     }
 
+    const { data: fileRecord, error: fetchError } = await supabase
+      .from('file')
+      .select('id, path')
+      .eq('id', id)
+      .single();
+
+    if (fetchError || !fileRecord) {
+      return NextResponse.json({ success: false, error: 'File record not found' }, { status: 404 });
+    }
+
+    if (fileRecord.path !== path) {
+      return NextResponse.json(
+        { success: false, error: 'Provided path does not match database record' },
+        { status: 400 }
+      );
+    }
+
     const { error: storageError } = await supabase.storage.from('files').remove([path]);
 
     if (storageError) throw storageError;
