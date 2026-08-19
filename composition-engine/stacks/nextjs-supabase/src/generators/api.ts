@@ -236,7 +236,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: 'No file provided' }, { status: 400 });
     }
 
-    const filePath = \`uploads/\${crypto.randomUUID()}_\${file.name}\`;
+    const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9_.-]/g, '_');
+    const filePath = \`uploads/\${crypto.randomUUID()}_\${sanitizedFileName}\`;
     const { error: uploadError } = await supabase.storage
       .from('files')
       .upload(filePath, file);
@@ -279,6 +280,16 @@ export async function DELETE(request: Request) {
 
     if (!id || !path) {
       return NextResponse.json({ success: false, error: 'Missing ID or path' }, { status: 400 });
+    }
+
+    const { data: fileRecord, error: fetchError } = await supabase
+      .from('file')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (fetchError || !fileRecord || fileRecord.path !== path) {
+      return NextResponse.json({ success: false, error: 'File record not found or path mismatch' }, { status: 404 });
     }
 
     const { error: storageError } = await supabase.storage

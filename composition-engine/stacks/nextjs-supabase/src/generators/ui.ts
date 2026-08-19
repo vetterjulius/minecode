@@ -16,7 +16,9 @@ export class NextjsSupabaseUiSubGenerator implements SubGenerator {
 
         // 1. Auth: Login
         if (normalizedRoute === 'auth/login') {
-          files[`app/${normalizedRoute}/page.tsx`] = `import React, { useState } from 'react';
+          files[`app/${normalizedRoute}/page.tsx`] = `"use client";
+
+import React, { useState } from 'react';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -66,7 +68,9 @@ export default function LoginPage() {
         }
         // 2. Auth: Reset Password
         else if (normalizedRoute === 'auth/reset-password') {
-          files[`app/${normalizedRoute}/page.tsx`] = `import React, { useState } from 'react';
+          files[`app/${normalizedRoute}/page.tsx`] = `"use client";
+
+import React, { useState } from 'react';
 
 export default function ResetPasswordPage() {
   const [email, setEmail] = useState('');
@@ -112,7 +116,9 @@ export default function ResetPasswordPage() {
         }
         // 3. Billing: Settings
         else if (normalizedRoute === 'billing') {
-          files[`app/${normalizedRoute}/page.tsx`] = `import React, { useState } from 'react';
+          files[`app/${normalizedRoute}/page.tsx`] = `"use client";
+
+import React, { useState } from 'react';
 
 export default function BillingSettingsPage() {
   const [organizationId, setOrganizationId] = useState('');
@@ -166,8 +172,9 @@ export default function BillingSettingsPage() {
         }
         // 4. Orgs: Portal
         else if (normalizedRoute === 'organizations') {
-          files[`app/${normalizedRoute}/page.tsx`] =
-            `import React, { useState, useEffect } from 'react';
+          files[`app/${normalizedRoute}/page.tsx`] = `"use client";
+
+import React, { useState, useEffect } from 'react';
 
 interface OrganizationMembership {
   id: string;
@@ -297,8 +304,9 @@ export default function OrganizationsPage() {
         }
         // 5. Rbac: Admin
         else if (normalizedRoute === 'rbac-admin') {
-          files[`app/${normalizedRoute}/page.tsx`] =
-            `import React, { useState, useEffect } from 'react';
+          files[`app/${normalizedRoute}/page.tsx`] = `"use client";
+
+import React, { useState, useEffect } from 'react';
 
 interface RbacPermission {
   id: string;
@@ -379,8 +387,9 @@ export default function RbacAdminPage() {
         }
         // 6. Storage Dashboard
         else if (normalizedRoute === 'storage') {
-          files[`app/${normalizedRoute}/page.tsx`] =
-            `import React, { useState, useEffect } from 'react';
+          files[`app/${normalizedRoute}/page.tsx`] = `"use client";
+
+import React, { useState, useEffect } from 'react';
 
 interface StorageFile {
   id: string;
@@ -511,8 +520,9 @@ export default function StorageDashboardPage() {
         }
         // 7. Notification Center
         else if (normalizedRoute === 'notifications') {
-          files[`app/${normalizedRoute}/page.tsx`] =
-            `import React, { useState, useEffect } from 'react';
+          files[`app/${normalizedRoute}/page.tsx`] = `"use client";
+
+import React, { useState, useEffect } from 'react';
 
 interface SystemNotification {
   id: string;
@@ -642,7 +652,9 @@ export default function NotificationCenterPage() {
         }
         // 8. Search Results
         else if (normalizedRoute === 'search') {
-          files[`app/${normalizedRoute}/page.tsx`] = `import React, { useState } from 'react';
+          files[`app/${normalizedRoute}/page.tsx`] = `"use client";
+
+import React, { useState } from 'react';
 
 interface SearchResultItem {
   id: string;
@@ -722,8 +734,9 @@ export default function SearchResultsPage() {
         }
         // 9. Audit Dashboard
         else if (normalizedRoute === 'audit-logs') {
-          files[`app/${normalizedRoute}/page.tsx`] =
-            `import React, { useState, useEffect } from 'react';
+          files[`app/${normalizedRoute}/page.tsx`] = `"use client";
+
+import React, { useState, useEffect } from 'react';
 
 interface AuditLogEntry {
   id: string;
@@ -816,8 +829,9 @@ export default function AuditLogDashboardPage() {
         }
         // 10. AI Chat
         else if (normalizedRoute === 'ai/chat') {
-          files[`app/${normalizedRoute}/page.tsx`] =
-            `import React, { useState, useEffect, useRef } from 'react';
+          files[`app/${normalizedRoute}/page.tsx`] = `"use client";
+
+import React, { useState, useEffect, useRef } from 'react';
 
 interface ChatMessageEntry {
   id: string;
@@ -929,8 +943,9 @@ export default function ChatInterfacePage() {
         }
         // 11. Whiteboard Canvas
         else if (normalizedRoute === 'whiteboard') {
-          files[`app/${normalizedRoute}/page.tsx`] =
-            `import React, { useState, useEffect } from 'react';
+          files[`app/${normalizedRoute}/page.tsx`] = `"use client";
+
+import React, { useState, useEffect } from 'react';
 
 interface WhiteboardSessionEntry {
   id: string;
@@ -1041,8 +1056,9 @@ export default function WhiteboardCanvasPage() {
         }
         // 12. Ticket Inbox
         else if (normalizedRoute === 'tickets') {
-          files[`app/${normalizedRoute}/page.tsx`] =
-            `import React, { useState, useEffect } from 'react';
+          files[`app/${normalizedRoute}/page.tsx`] = `"use client";
+
+import React, { useState, useEffect } from 'react';
 
 interface SupportTicket {
   id: string;
@@ -1171,8 +1187,9 @@ export default function TicketInboxPage() {
         }
         // 13. Customer Feedback
         else if (normalizedRoute === 'feedback') {
-          files[`app/${normalizedRoute}/page.tsx`] =
-            `import React, { useState, useEffect } from 'react';
+          files[`app/${normalizedRoute}/page.tsx`] = `"use client";
+
+import React, { useState, useEffect } from 'react';
 
 interface CustomerFeedbackRecord {
   id: string;
@@ -1310,8 +1327,9 @@ export default function FeedbackDashboardPage() {
         }
         // 14. Usage Analytics
         else if (normalizedRoute === 'analytics') {
-          files[`app/${normalizedRoute}/page.tsx`] =
-            `import React, { useState, useEffect } from 'react';
+          files[`app/${normalizedRoute}/page.tsx`] = `"use client";
+
+import React, { useState, useEffect } from 'react';
 
 interface MetricRecord {
   id: string;
@@ -1420,8 +1438,9 @@ export default function AnalyticsDashboardPage() {
         }
         // 15. Help Center (KB)
         else if (normalizedRoute === 'kb') {
-          files[`app/${normalizedRoute}/page.tsx`] =
-            `import React, { useState, useEffect } from 'react';
+          files[`app/${normalizedRoute}/page.tsx`] = `"use client";
+
+import React, { useState, useEffect } from 'react';
 
 interface KnowledgeBaseArticle {
   id: string;

@@ -302,3 +302,72 @@ test('test_NextJsSupabaseAdapter_GenerateWithRunnableOption_CreatesWorkspaceConf
   expect(homePageCode).toContain('Overview');
   expect(homePageCode).toContain('Route: /dashboard');
 });
+
+test('test_InteractiveUiRoutes_Generate_PrependsUseClientDirective', () => {
+  const adapter = new NextJsSupabaseAdapter();
+  const plan: CompositionPlan = {
+    applicationName: 'Test SaaS',
+    stackId: 'nextjs-supabase',
+    database: [],
+    api: [],
+    ui: [
+      { id: 'auth:login', featureId: 'auth', name: 'LoginPage', route: 'auth/login' },
+      { id: 'storage:dashboard', featureId: 'storage', name: 'StorageDashboard', route: 'storage' },
+    ],
+    navigation: [],
+    events: [],
+    permissions: [],
+    migrations: [],
+    extensionPoints: [],
+  };
+
+  const files = adapter.generate(plan);
+
+  expect(files['app/auth/login/page.tsx']).toBeDefined();
+  expect(files['app/auth/login/page.tsx'].startsWith('"use client";')).toBe(true);
+
+  expect(files['app/storage/page.tsx']).toBeDefined();
+  expect(files['app/storage/page.tsx'].startsWith('"use client";')).toBe(true);
+});
+
+test('test_StorageApiRoutes_Generate_ContainsPathSanitizationAndIdorValidation', () => {
+  const adapter = new NextJsSupabaseAdapter();
+  const plan: CompositionPlan = {
+    applicationName: 'Test SaaS',
+    stackId: 'nextjs-supabase',
+    database: [],
+    api: [
+      {
+        id: 'storage:upload',
+        featureId: 'storage',
+        name: 'UploadFile',
+        path: '/api/storage/upload',
+        method: 'POST',
+      },
+      {
+        id: 'storage:delete',
+        featureId: 'storage',
+        name: 'DeleteFile',
+        path: '/api/storage/delete',
+        method: 'DELETE',
+      },
+    ],
+    ui: [],
+    navigation: [],
+    events: [],
+    permissions: [],
+    migrations: [],
+    extensionPoints: [],
+  };
+
+  const files = adapter.generate(plan);
+
+  const uploadRoute = files['app/api/storage/upload/route.ts'];
+  expect(uploadRoute).toBeDefined();
+  expect(uploadRoute).toContain('sanitizedFileName');
+  expect(uploadRoute).toContain('replace(/[^a-zA-Z0-9_.-]/g');
+
+  const deleteRoute = files['app/api/storage/delete/route.ts'];
+  expect(deleteRoute).toBeDefined();
+  expect(deleteRoute).toContain('fileRecord.path !== path');
+});
