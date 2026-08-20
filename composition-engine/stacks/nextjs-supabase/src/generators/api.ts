@@ -236,7 +236,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: 'No file provided' }, { status: 400 });
     }
 
-    const filePath = \`uploads/\${crypto.randomUUID()}_\${file.name}\`;
+    const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9_.-]/g, '_');
+    const filePath = \`uploads/\${crypto.randomUUID()}_\${sanitizedFileName}\`;
     const { error: uploadError } = await supabase.storage
       .from('files')
       .upload(filePath, file);
@@ -249,8 +250,8 @@ export async function POST(request: Request) {
         name: file.name,
         path: filePath,
         size: file.size,
-        mimetype: file.type,
-        organizationid: organizationId,
+        mimeType: file.type,
+        organizationId: organizationId,
       })
       .select()
       .single();
@@ -279,6 +280,20 @@ export async function DELETE(request: Request) {
 
     if (!id || !path) {
       return NextResponse.json({ success: false, error: 'Missing ID or path' }, { status: 400 });
+    }
+
+    const { data: fileRecord, error: fetchError } = await supabase
+      .from('file')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (fetchError || !fileRecord) {
+      return NextResponse.json({ success: false, error: 'File record not found' }, { status: 404 });
+    }
+
+    if (fileRecord.path !== path) {
+      return NextResponse.json({ success: false, error: 'Path mismatch for specified file' }, { status: 400 });
     }
 
     const { error: storageError } = await supabase.storage
@@ -686,7 +701,7 @@ export async function GET(_request: Request) {
     const { data, error } = await supabase
       .from('workspace')
       .select('*')
-      .order('createdat', { ascending: false });
+      .order('createdAt', { ascending: false });
 
     if (error) throw error;
     return NextResponse.json({ success: true, data });
@@ -710,7 +725,7 @@ export async function POST(request: Request) {
       .insert({
         id: crypto.randomUUID(),
         name,
-        organizationid: organizationId,
+        organizationId: organizationId,
       })
       .select()
       .single();
@@ -737,7 +752,7 @@ export async function GET(_request: Request) {
     const { data, error } = await supabase
       .from('project')
       .select('*')
-      .order('createdat', { ascending: false });
+      .order('createdAt', { ascending: false });
 
     if (error) throw error;
     return NextResponse.json({ success: true, data });
@@ -763,8 +778,8 @@ export async function POST(request: Request) {
         name,
         description: description || null,
         status: 'active',
-        organizationid: organizationId,
-        workspaceid: workspaceId,
+        organizationId: organizationId,
+        workspaceId: workspaceId,
       })
       .select()
       .single();
@@ -791,7 +806,7 @@ export async function GET(_request: Request) {
     const { data, error } = await supabase
       .from('task')
       .select('*')
-      .order('createdat', { ascending: false });
+      .order('createdAt', { ascending: false });
 
     if (error) throw error;
     return NextResponse.json({ success: true, data });
@@ -818,8 +833,8 @@ export async function POST(request: Request) {
         description: description || null,
         status: 'todo',
         priority: priority || 'medium',
-        projectid: projectId,
-        assigneeid: assigneeId || null,
+        projectId: projectId,
+        assigneeId: assigneeId || null,
       })
       .select()
       .single();
@@ -846,7 +861,7 @@ export async function GET(_request: Request) {
     const { data, error } = await supabase
       .from('document')
       .select('*')
-      .order('createdat', { ascending: false });
+      .order('createdAt', { ascending: false });
 
     if (error) throw error;
     return NextResponse.json({ success: true, data });
@@ -871,7 +886,7 @@ export async function POST(request: Request) {
         id: crypto.randomUUID(),
         title,
         content: content || null,
-        projectid: projectId,
+        projectId: projectId,
       })
       .select()
       .single();

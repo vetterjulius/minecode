@@ -1535,7 +1535,7 @@ import React, { useState, useEffect } from 'react';
 interface WorkspaceRecord {
   id: string;
   name: string;
-  organizationid: string;
+  organizationId: string;
 }
 
 export default function WorkspacesPage() {
@@ -1623,7 +1623,7 @@ export default function WorkspacesPage() {
                 <div key={w.id} className="py-4 flex justify-between items-center">
                   <div>
                     <p className="font-bold text-base">{w.name}</p>
-                    <p className="text-xs text-muted-foreground font-mono">Org ID: {w.organizationid}</p>
+                    <p className="text-xs text-muted-foreground font-mono">Org ID: {w.organizationId}</p>
                   </div>
                   <span className="text-xs text-muted-foreground font-mono bg-muted p-1 rounded">
                     ID: {w.id}
@@ -1650,8 +1650,8 @@ interface ProjectRecord {
   name: string;
   description?: string;
   status: string;
-  organizationid: string;
-  workspaceid: string;
+  organizationId: string;
+  workspaceId: string;
 }
 
 export default function ProjectsPage() {
@@ -1755,7 +1755,7 @@ export default function ProjectsPage() {
                     </span>
                   </div>
                   {p.description && <p className="text-muted-foreground text-sm">{p.description}</p>}
-                  <p className="text-xs text-muted-foreground font-mono">Workspace: {p.workspaceid} • Org: {p.organizationid}</p>
+                  <p className="text-xs text-muted-foreground font-mono">Workspace: {p.workspaceId} • Org: {p.organizationId}</p>
                 </div>
               ))}
             </div>
@@ -1779,8 +1779,8 @@ interface TaskRecord {
   description?: string;
   status: string;
   priority: string;
-  projectid: string;
-  assigneeid?: string;
+  projectId: string;
+  assigneeId?: string;
 }
 
 export default function TasksPage() {
@@ -1893,7 +1893,7 @@ export default function TasksPage() {
                     </div>
                   </div>
                   {t.description && <p className="text-muted-foreground">{t.description}</p>}
-                  <p className="text-xs text-muted-foreground/80 font-mono">Project ID: {t.projectid}</p>
+                  <p className="text-xs text-muted-foreground/80 font-mono">Project ID: {t.projectId}</p>
                 </div>
               ))}
             </div>
@@ -1915,7 +1915,7 @@ interface DocumentRecord {
   id: string;
   title: string;
   content?: string;
-  projectid: string;
+  projectId: string;
 }
 
 export default function DocumentsPage() {
@@ -2009,7 +2009,7 @@ export default function DocumentsPage() {
               {documents.map((doc) => (
                 <div key={doc.id} onClick={() => setSelectedDoc(doc)} className="p-3 border rounded-lg bg-muted cursor-pointer hover:bg-muted/75 transition-colors">
                   <p className="font-bold text-base">{doc.title}</p>
-                  <p className="text-xs text-muted-foreground font-mono">Project ID: {doc.projectid}</p>
+                  <p className="text-xs text-muted-foreground font-mono">Project ID: {doc.projectId}</p>
                 </div>
               ))}
             </div>

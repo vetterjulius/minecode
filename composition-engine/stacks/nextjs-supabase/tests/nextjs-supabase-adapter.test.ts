@@ -302,3 +302,98 @@ test('test_NextJsSupabaseAdapter_GenerateWithRunnableOption_CreatesWorkspaceConf
   expect(homePageCode).toContain('Overview');
   expect(homePageCode).toContain('Route: /dashboard');
 });
+
+test('test_StorageDeleteRoute_Generate_IncludesRecordVerificationAndPathMatching', () => {
+  const adapter = new NextJsSupabaseAdapter();
+  const plan: CompositionPlan = {
+    applicationName: 'Storage Test App',
+    stackId: 'nextjs-supabase',
+    database: [],
+    api: [
+      {
+        id: 'storage:delete',
+        featureId: 'storage',
+        name: 'DeleteFile',
+        path: '/api/storage/delete',
+        method: 'DELETE',
+        description: 'Delete an uploaded file',
+      },
+    ],
+    ui: [],
+    navigation: [],
+    events: [],
+    permissions: [],
+    migrations: [],
+    extensionPoints: [],
+  };
+
+  const files = adapter.generate(plan);
+
+  expect(files['app/api/storage/delete/route.ts']).toBeDefined();
+  const deleteCode = files['app/api/storage/delete/route.ts'];
+  expect(deleteCode).toContain("from('file')");
+  expect(deleteCode).toContain("select('*')");
+  expect(deleteCode).toContain('File record not found');
+  expect(deleteCode).toContain('Path mismatch for specified file');
+});
+
+test('test_StorageUploadRoute_Generate_SanitizesFileNameAndUsesCamelCase', () => {
+  const adapter = new NextJsSupabaseAdapter();
+  const plan: CompositionPlan = {
+    applicationName: 'Storage Test App',
+    stackId: 'nextjs-supabase',
+    database: [],
+    api: [
+      {
+        id: 'storage:upload',
+        featureId: 'storage',
+        name: 'UploadFile',
+        path: '/api/storage/upload',
+        method: 'POST',
+        description: 'Upload a file',
+      },
+    ],
+    ui: [],
+    navigation: [],
+    events: [],
+    permissions: [],
+    migrations: [],
+    extensionPoints: [],
+  };
+
+  const files = adapter.generate(plan);
+
+  expect(files['app/api/storage/upload/route.ts']).toBeDefined();
+  const uploadCode = files['app/api/storage/upload/route.ts'];
+  expect(uploadCode).toContain('replace(/[^a-zA-Z0-9_.-]/g');
+  expect(uploadCode).toContain('mimeType: file.type');
+  expect(uploadCode).toContain('organizationId: organizationId');
+});
+
+test('test_WorkspacesProjectsTasksDocumentsRoutes_Generate_UsesCamelCaseFields', () => {
+  const adapter = new NextJsSupabaseAdapter();
+  const plan: CompositionPlan = {
+    applicationName: 'SaaS App',
+    stackId: 'nextjs-supabase',
+    database: [],
+    api: [
+      { id: 'workspaces:list', featureId: 'workspaces', name: 'Workspaces', path: '/api/workspaces', method: 'GET' },
+      { id: 'projects:list', featureId: 'projects', name: 'Projects', path: '/api/projects', method: 'GET' },
+      { id: 'tasks:list', featureId: 'tasks', name: 'Tasks', path: '/api/tasks', method: 'GET' },
+      { id: 'documents:list', featureId: 'documents', name: 'Documents', path: '/api/documents', method: 'GET' },
+    ],
+    ui: [],
+    navigation: [],
+    events: [],
+    permissions: [],
+    migrations: [],
+    extensionPoints: [],
+  };
+
+  const files = adapter.generate(plan);
+
+  expect(files['app/api/workspaces/route.ts']).toContain("order('createdAt'");
+  expect(files['app/api/projects/route.ts']).toContain("order('createdAt'");
+  expect(files['app/api/tasks/route.ts']).toContain("order('createdAt'");
+  expect(files['app/api/documents/route.ts']).toContain("order('createdAt'");
+});

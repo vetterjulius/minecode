@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS "task" (
   "description" TEXT,
   "status" VARCHAR(255) NOT NULL,
   "priority" VARCHAR(255) NOT NULL,
-  "projectid" UUID NOT NULL,
-  "assigneeid" UUID,
-  "createdat" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
+  "projectId" UUID NOT NULL,
+  "assigneeId" UUID,
+  "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
 );

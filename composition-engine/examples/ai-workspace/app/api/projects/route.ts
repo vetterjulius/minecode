@@ -8,7 +8,7 @@ export async function GET(_request: Request) {
     const { data, error } = await supabase
       .from('project')
       .select('*')
-      .order('createdat', { ascending: false });
+      .order('createdAt', { ascending: false });
 
     if (error) throw error;
     return NextResponse.json({ success: true, data });
@@ -37,8 +37,8 @@ export async function POST(request: Request) {
         name,
         description: description || null,
         status: 'active',
-        organizationid: organizationId,
-        workspaceid: workspaceId,
+        organizationId: organizationId,
+        workspaceId: workspaceId,
       })
       .select()
       .single();

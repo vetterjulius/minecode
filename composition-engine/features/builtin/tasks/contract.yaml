@@ -25,15 +25,15 @@ provides:
           type: string
           required: true
           description: 'Task priority'
-        - name: projectid
+        - name: projectId
           type: uuid
           required: true
           description: 'Reference to Project'
-        - name: assigneeid
+        - name: assigneeId
           type: uuid
           required: false
           description: 'Reference to User'
-        - name: createdat
+        - name: createdAt
           type: timestamp
           required: true
           description: 'Task creation timestamp'
