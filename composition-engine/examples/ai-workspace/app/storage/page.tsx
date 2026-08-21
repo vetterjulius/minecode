@@ -5,7 +5,7 @@ interface StorageFile {
   name: string;
   path: string;
   size: number;
-  mimetype: string;
+  mimeType: string;
 }
 
 export default function StorageDashboardPage() {
@@ -123,7 +123,7 @@ export default function StorageDashboardPage() {
                   <div>
                     <p className="font-bold">{file.name}</p>
                     <p className="text-xs text-muted-foreground">
-                      {(file.size / 1024).toFixed(1)} KB • {file.mimetype}
+                      {(file.size / 1024).toFixed(1)} KB • {file.mimeType}
                     </p>
                   </div>
                   <button

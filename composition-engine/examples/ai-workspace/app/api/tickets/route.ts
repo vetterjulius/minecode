@@ -20,8 +20,8 @@ export async function POST(request: Request) {
         title,
         status: 'open',
         priority: priority || 'medium',
-        organizationid: organizationId,
-        assigneeid: assigneeId || null,
+        organizationId,
+        assigneeId: assigneeId || null,
       })
       .select()
       .single();

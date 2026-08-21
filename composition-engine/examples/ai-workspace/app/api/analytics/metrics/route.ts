@@ -8,10 +8,10 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const orgId = searchParams.get('organizationId') || null;
 
-    let query = supabase.from('metric').select('*').order('createdat', { ascending: false });
+    let query = supabase.from('metric').select('*').order('createdAt', { ascending: false });
 
     if (orgId) {
-      query = query.eq('organizationid', orgId);
+      query = query.eq('organizationId', orgId);
     }
 
     const { data, error } = await query;

@@ -8,8 +8,8 @@ interface TaskRecord {
   description?: string;
   status: string;
   priority: string;
-  projectid: string;
-  assigneeid?: string;
+  projectId: string;
+  assigneeId?: string;
 }
 
 export default function TasksPage() {
@@ -149,7 +149,7 @@ export default function TasksPage() {
                   </div>
                   {t.description && <p className="text-muted-foreground">{t.description}</p>}
                   <p className="text-xs text-muted-foreground/80 font-mono">
-                    Project ID: {t.projectid}
+                    Project ID: {t.projectId}
                   </p>
                 </div>
               ))}

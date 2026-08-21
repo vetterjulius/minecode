@@ -8,7 +8,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const category = searchParams.get('category') || null;
 
-    let query = supabase.from('article').select('*').order('createdat', { ascending: false });
+    let query = supabase.from('article').select('*').order('createdAt', { ascending: false });
 
     if (category) {
       query = query.eq('category', category);

@@ -13,11 +13,11 @@ provides:
           type: string
           required: true
           description: 'Name of the workspace'
-        - name: organizationid
+        - name: organizationId
           type: uuid
           required: true
           description: 'Reference to Organization'
-        - name: createdat
+        - name: createdAt
           type: timestamp
           required: true
           description: 'Workspace creation timestamp'

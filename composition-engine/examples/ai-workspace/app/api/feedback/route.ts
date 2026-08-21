@@ -19,8 +19,8 @@ export async function POST(request: Request) {
       .insert({
         rating: Number(rating),
         comment: comment || null,
-        userid: userId,
-        organizationid: organizationId,
+        userId,
+        organizationId,
       })
       .select()
       .single();

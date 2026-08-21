@@ -19,7 +19,7 @@ export async function POST(request: Request) {
     const { data, error } = await supabase
       .from('notification')
       .insert({
-        userid: userId,
+        userId,
         channel,
         title,
         content,

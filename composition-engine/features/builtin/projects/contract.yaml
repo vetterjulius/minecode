@@ -21,15 +21,15 @@ provides:
           type: string
           required: true
           description: 'Project status (e.g. active, archived)'
-        - name: organizationid
+        - name: organizationId
           type: uuid
           required: true
           description: 'Reference to Organization'
-        - name: workspaceid
+        - name: workspaceId
           type: uuid
           required: true
           description: 'Reference to Workspace'
-        - name: createdat
+        - name: createdAt
           type: timestamp
           required: true
           description: 'Project creation timestamp'

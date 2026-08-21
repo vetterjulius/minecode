@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS "ticket" (
   "title" VARCHAR(255) NOT NULL,
   "status" VARCHAR(50) NOT NULL DEFAULT 'open',
   "priority" VARCHAR(50) NOT NULL DEFAULT 'medium',
-  "assigneeid" UUID,
-  "organizationid" UUID NOT NULL,
-  "createdat" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+  "assigneeId" UUID,
+  "organizationId" UUID NOT NULL,
+  "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );

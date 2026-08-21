@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS "article" (
   "title" VARCHAR(255) NOT NULL,
   "content" TEXT NOT NULL,
   "category" VARCHAR(100) NOT NULL,
-  "authorid" UUID NOT NULL,
-  "organizationid" UUID NOT NULL,
-  "createdat" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+  "authorId" UUID NOT NULL,
+  "organizationId" UUID NOT NULL,
+  "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );

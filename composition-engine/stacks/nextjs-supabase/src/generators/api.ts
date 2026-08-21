@@ -173,11 +173,11 @@ export async function POST(request: Request) {
     const { data, error } = await supabase
       .from('invitation')
       .insert({
-        organizationid: organizationId,
+        organizationId,
         email,
         token,
         role: role || 'member',
-        expiresat: expiresAt,
+        expiresAt,
       })
       .select()
       .single();
@@ -249,8 +249,8 @@ export async function POST(request: Request) {
         name: file.name,
         path: filePath,
         size: file.size,
-        mimetype: file.type,
-        organizationid: organizationId,
+        mimeType: file.type,
+        organizationId,
       })
       .select()
       .single();
@@ -323,7 +323,7 @@ export async function POST(request: Request) {
     const { data, error } = await supabase
       .from('notification')
       .insert({
-        userid: userId,
+        userId,
         channel,
         title,
         content,
@@ -398,7 +398,7 @@ export async function GET(request: Request) {
     let query = supabase
       .from('auditlog')
       .select('*')
-      .order('createdat', { ascending: false });
+      .order('createdAt', { ascending: false });
 
     if (action) {
       query = query.eq('action', action);
@@ -434,7 +434,7 @@ export async function POST(request: Request) {
     const { error: userMsgError } = await supabase
       .from('chatmessage')
       .insert({
-        sessionid: sessionId,
+        sessionId,
         role: 'user',
         content,
       });
@@ -453,7 +453,7 @@ export async function POST(request: Request) {
     const { data: assistantMsg, error: assistantMsgError } = await supabase
       .from('chatmessage')
       .insert({
-        sessionid: sessionId,
+        sessionId,
         role: 'assistant',
         content: mockReply,
       })
@@ -490,7 +490,7 @@ export async function POST(request: Request) {
       .from('whiteboardsession')
       .insert({
         name,
-        organizationid: organizationId,
+        organizationId,
       })
       .select()
       .single();
@@ -527,8 +527,8 @@ export async function POST(request: Request) {
         title,
         status: 'open',
         priority: priority || 'medium',
-        organizationid: organizationId,
-        assigneeid: assigneeId || null,
+        organizationId,
+        assigneeId: assigneeId || null,
       })
       .select()
       .single();
@@ -564,8 +564,8 @@ export async function POST(request: Request) {
       .insert({
         rating: Number(rating),
         comment: comment || null,
-        userid: userId,
-        organizationid: organizationId,
+        userId,
+        organizationId,
       })
       .select()
       .single();
@@ -596,10 +596,10 @@ export async function GET(request: Request) {
     let query = supabase
       .from('metric')
       .select('*')
-      .order('createdat', { ascending: false });
+      .order('createdAt', { ascending: false });
 
     if (orgId) {
-      query = query.eq('organizationid', orgId);
+      query = query.eq('organizationId', orgId);
     }
 
     const { data, error } = await query;
@@ -629,7 +629,7 @@ export async function GET(request: Request) {
     let query = supabase
       .from('article')
       .select('*')
-      .order('createdat', { ascending: false });
+      .order('createdAt', { ascending: false });
 
     if (category) {
       query = query.eq('category', category);
@@ -686,7 +686,7 @@ export async function GET(_request: Request) {
     const { data, error } = await supabase
       .from('workspace')
       .select('*')
-      .order('createdat', { ascending: false });
+      .order('createdAt', { ascending: false });
 
     if (error) throw error;
     return NextResponse.json({ success: true, data });
@@ -710,7 +710,7 @@ export async function POST(request: Request) {
       .insert({
         id: crypto.randomUUID(),
         name,
-        organizationid: organizationId,
+        organizationId,
       })
       .select()
       .single();
@@ -737,7 +737,7 @@ export async function GET(_request: Request) {
     const { data, error } = await supabase
       .from('project')
       .select('*')
-      .order('createdat', { ascending: false });
+      .order('createdAt', { ascending: false });
 
     if (error) throw error;
     return NextResponse.json({ success: true, data });
@@ -763,8 +763,8 @@ export async function POST(request: Request) {
         name,
         description: description || null,
         status: 'active',
-        organizationid: organizationId,
-        workspaceid: workspaceId,
+        organizationId,
+        workspaceId,
       })
       .select()
       .single();
@@ -791,7 +791,7 @@ export async function GET(_request: Request) {
     const { data, error } = await supabase
       .from('task')
       .select('*')
-      .order('createdat', { ascending: false });
+      .order('createdAt', { ascending: false });
 
     if (error) throw error;
     return NextResponse.json({ success: true, data });
@@ -818,8 +818,8 @@ export async function POST(request: Request) {
         description: description || null,
         status: 'todo',
         priority: priority || 'medium',
-        projectid: projectId,
-        assigneeid: assigneeId || null,
+        projectId,
+        assigneeId: assigneeId || null,
       })
       .select()
       .single();
@@ -846,7 +846,7 @@ export async function GET(_request: Request) {
     const { data, error } = await supabase
       .from('document')
       .select('*')
-      .order('createdat', { ascending: false });
+      .order('createdAt', { ascending: false });
 
     if (error) throw error;
     return NextResponse.json({ success: true, data });
@@ -871,7 +871,7 @@ export async function POST(request: Request) {
         id: crypto.randomUUID(),
         title,
         content: content || null,
-        projectid: projectId,
+        projectId,
       })
       .select()
       .single();

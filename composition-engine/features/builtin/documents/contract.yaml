@@ -17,11 +17,11 @@ provides:
           type: text
           required: false
           description: 'Document content body'
-        - name: projectid
+        - name: projectId
           type: uuid
           required: true
           description: 'Reference to Project'
-        - name: createdat
+        - name: createdAt
           type: timestamp
           required: true
           description: 'Document creation timestamp'

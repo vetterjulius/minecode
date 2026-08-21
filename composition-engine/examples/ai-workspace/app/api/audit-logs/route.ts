@@ -8,7 +8,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const action = searchParams.get('action') || null;
 
-    let query = supabase.from('auditlog').select('*').order('createdat', { ascending: false });
+    let query = supabase.from('auditlog').select('*').order('createdAt', { ascending: false });
 
     if (action) {
       query = query.eq('action', action);

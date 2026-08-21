@@ -16,11 +16,11 @@ export async function POST(request: Request) {
     const { data, error } = await supabase
       .from('invitation')
       .insert({
-        organizationid: organizationId,
+        organizationId,
         email,
         token,
         role: role || 'member',
-        expiresat: expiresAt,
+        expiresAt,
       })
       .select()
       .single();

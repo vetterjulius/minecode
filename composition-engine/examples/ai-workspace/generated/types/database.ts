@@ -146,9 +146,9 @@ export interface Document {
   /** Document content body */
   content?: string;
   /** Reference to Project */
-  projectid: string;
+  projectId: string;
   /** Document creation timestamp */
-  createdat: string;
+  createdAt: string;
 }
 
 /**
@@ -256,11 +256,11 @@ export interface Project {
   /** Project status (e.g. active, archived) */
   status: string;
   /** Reference to Organization */
-  organizationid: string;
+  organizationId: string;
   /** Reference to Workspace */
-  workspaceid: string;
+  workspaceId: string;
   /** Project creation timestamp */
-  createdat: string;
+  createdAt: string;
 }
 
 /**
@@ -326,11 +326,11 @@ export interface Task {
   /** Task priority */
   priority: string;
   /** Reference to Project */
-  projectid: string;
+  projectId: string;
   /** Reference to User */
-  assigneeid?: string;
+  assigneeId?: string;
   /** Task creation timestamp */
-  createdat: string;
+  createdAt: string;
 }
 
 /**
@@ -379,7 +379,7 @@ export interface Workspace {
   /** Name of the workspace */
   name: string;
   /** Reference to Organization */
-  organizationid: string;
+  organizationId: string;
   /** Workspace creation timestamp */
-  createdat: string;
+  createdAt: string;
 }
