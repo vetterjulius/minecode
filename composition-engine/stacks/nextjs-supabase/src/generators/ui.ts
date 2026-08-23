@@ -172,8 +172,7 @@ export default function BillingSettingsPage() {
         }
         // 4. Orgs: Portal
         else if (normalizedRoute === 'organizations') {
-          files[`app/${normalizedRoute}/page.tsx`] =
-            `"use client";
+          files[`app/${normalizedRoute}/page.tsx`] = `"use client";
 
 import React, { useState, useEffect } from 'react';
 
@@ -305,8 +304,7 @@ export default function OrganizationsPage() {
         }
         // 5. Rbac: Admin
         else if (normalizedRoute === 'rbac-admin') {
-          files[`app/${normalizedRoute}/page.tsx`] =
-            `"use client";
+          files[`app/${normalizedRoute}/page.tsx`] = `"use client";
 
 import React, { useState, useEffect } from 'react';
 
@@ -389,8 +387,7 @@ export default function RbacAdminPage() {
         }
         // 6. Storage Dashboard
         else if (normalizedRoute === 'storage') {
-          files[`app/${normalizedRoute}/page.tsx`] =
-            `"use client";
+          files[`app/${normalizedRoute}/page.tsx`] = `"use client";
 
 import React, { useState, useEffect } from 'react';
 
@@ -523,8 +520,7 @@ export default function StorageDashboardPage() {
         }
         // 7. Notification Center
         else if (normalizedRoute === 'notifications') {
-          files[`app/${normalizedRoute}/page.tsx`] =
-            `"use client";
+          files[`app/${normalizedRoute}/page.tsx`] = `"use client";
 
 import React, { useState, useEffect } from 'react';
 
@@ -738,8 +734,7 @@ export default function SearchResultsPage() {
         }
         // 9. Audit Dashboard
         else if (normalizedRoute === 'audit-logs') {
-          files[`app/${normalizedRoute}/page.tsx`] =
-            `"use client";
+          files[`app/${normalizedRoute}/page.tsx`] = `"use client";
 
 import React, { useState, useEffect } from 'react';
 
@@ -834,8 +829,7 @@ export default function AuditLogDashboardPage() {
         }
         // 10. AI Chat
         else if (normalizedRoute === 'ai/chat') {
-          files[`app/${normalizedRoute}/page.tsx`] =
-            `"use client";
+          files[`app/${normalizedRoute}/page.tsx`] = `"use client";
 
 import React, { useState, useEffect, useRef } from 'react';
 
@@ -949,8 +943,7 @@ export default function ChatInterfacePage() {
         }
         // 11. Whiteboard Canvas
         else if (normalizedRoute === 'whiteboard') {
-          files[`app/${normalizedRoute}/page.tsx`] =
-            `"use client";
+          files[`app/${normalizedRoute}/page.tsx`] = `"use client";
 
 import React, { useState, useEffect } from 'react';
 
@@ -1063,8 +1056,7 @@ export default function WhiteboardCanvasPage() {
         }
         // 12. Ticket Inbox
         else if (normalizedRoute === 'tickets') {
-          files[`app/${normalizedRoute}/page.tsx`] =
-            `"use client";
+          files[`app/${normalizedRoute}/page.tsx`] = `"use client";
 
 import React, { useState, useEffect } from 'react';
 
@@ -1195,8 +1187,7 @@ export default function TicketInboxPage() {
         }
         // 13. Customer Feedback
         else if (normalizedRoute === 'feedback') {
-          files[`app/${normalizedRoute}/page.tsx`] =
-            `"use client";
+          files[`app/${normalizedRoute}/page.tsx`] = `"use client";
 
 import React, { useState, useEffect } from 'react';
 
@@ -1336,8 +1327,7 @@ export default function FeedbackDashboardPage() {
         }
         // 14. Usage Analytics
         else if (normalizedRoute === 'analytics') {
-          files[`app/${normalizedRoute}/page.tsx`] =
-            `"use client";
+          files[`app/${normalizedRoute}/page.tsx`] = `"use client";
 
 import React, { useState, useEffect } from 'react';
 
@@ -1448,8 +1438,7 @@ export default function AnalyticsDashboardPage() {
         }
         // 15. Help Center (KB)
         else if (normalizedRoute === 'kb') {
-          files[`app/${normalizedRoute}/page.tsx`] =
-            `"use client";
+          files[`app/${normalizedRoute}/page.tsx`] = `"use client";
 
 import React, { useState, useEffect } from 'react';
 
