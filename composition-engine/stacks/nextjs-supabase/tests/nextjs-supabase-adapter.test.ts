@@ -91,6 +91,162 @@ test('test_ApiRoutes_Generate_CreatesNextJsAppRouterHandlers', () => {
   expect(apiCode).toContain('Authenticates a user');
 });
 
+test('test_ApiRoutes_StorageUploadAndDelete_SanitizesFileNameAndVerifiesRecordBeforeDeletion', () => {
+  const adapter = new NextJsSupabaseAdapter();
+  const plan: CompositionPlan = {
+    applicationName: 'Test SaaS',
+    stackId: 'nextjs-supabase',
+    database: [],
+    api: [
+      {
+        id: 'storage:upload',
+        featureId: 'storage',
+        name: 'UploadFile',
+        path: '/api/storage/upload',
+        method: 'POST',
+        description: 'Upload a file',
+      },
+      {
+        id: 'storage:delete',
+        featureId: 'storage',
+        name: 'DeleteFile',
+        path: '/api/storage/delete',
+        method: 'DELETE',
+        description: 'Delete a file',
+      },
+    ],
+    ui: [],
+    navigation: [],
+    events: [],
+    permissions: [],
+    migrations: [],
+    extensionPoints: [],
+  };
+
+  const files = adapter.generate(plan);
+
+  const uploadRoute = files['app/api/storage/upload/route.ts'];
+  expect(uploadRoute).toBeDefined();
+  expect(uploadRoute).toContain('sanitizedName');
+
+  const deleteRoute = files['app/api/storage/delete/route.ts'];
+  expect(deleteRoute).toBeDefined();
+  expect(deleteRoute).toContain(".from('file')");
+  expect(deleteRoute).toContain('record.path !== path');
+});
+
+test('test_ApiRoutes_BillingWebhook_UsesCorrectStripeCustomerTableAndColumnNames', () => {
+  const adapter = new NextJsSupabaseAdapter();
+  const plan: CompositionPlan = {
+    applicationName: 'Test SaaS',
+    stackId: 'nextjs-supabase',
+    database: [],
+    api: [
+      {
+        id: 'billing:webhook',
+        featureId: 'billing',
+        name: 'Webhook',
+        path: '/api/billing/webhook',
+        method: 'POST',
+        description: 'Stripe webhook handler',
+      },
+    ],
+    ui: [],
+    navigation: [],
+    events: [],
+    permissions: [],
+    migrations: [],
+    extensionPoints: [],
+  };
+
+  const files = adapter.generate(plan);
+
+  const webhookRoute = files['app/api/billing/webhook/route.ts'];
+  expect(webhookRoute).toBeDefined();
+  expect(webhookRoute).toContain(".from('stripe_customer')");
+  expect(webhookRoute).toContain('organizationid: organizationId');
+  expect(webhookRoute).toContain('stripecustomerid: stripeCustomerId');
+});
+
+test('test_ApiRoutes_BuiltInFeatures_ProvidesGetHandlersForInteractiveUiRoutes', () => {
+  const adapter = new NextJsSupabaseAdapter();
+  const plan: CompositionPlan = {
+    applicationName: 'Test SaaS',
+    stackId: 'nextjs-supabase',
+    database: [],
+    api: [
+      { id: 'ai:chat', featureId: 'ai-chat', name: 'Chat', path: '/api/ai/chat', method: 'POST' },
+      {
+        id: 'whiteboard:boards',
+        featureId: 'whiteboard',
+        name: 'Whiteboards',
+        path: '/api/whiteboards',
+        method: 'GET',
+      },
+      {
+        id: 'ticketing:tickets',
+        featureId: 'ticketing',
+        name: 'Tickets',
+        path: '/api/tickets',
+        method: 'POST',
+      },
+      {
+        id: 'feedback:post',
+        featureId: 'customer-feedback',
+        name: 'Feedback',
+        path: '/api/feedback',
+        method: 'POST',
+      },
+      {
+        id: 'storage:files',
+        featureId: 'storage',
+        name: 'Files',
+        path: '/api/storage/files',
+        method: 'GET',
+      },
+      {
+        id: 'notifications:list',
+        featureId: 'notifications',
+        name: 'Notifications',
+        path: '/api/notifications',
+        method: 'GET',
+      },
+    ],
+    ui: [],
+    navigation: [],
+    events: [],
+    permissions: [],
+    migrations: [],
+    extensionPoints: [],
+  };
+
+  const files = adapter.generate(plan);
+
+  const chatRoute = files['app/api/ai/chat/route.ts'];
+  expect(chatRoute).toContain('export async function GET(');
+  expect(chatRoute).toContain(".from('chatmessage')");
+
+  const whiteboardRoute = files['app/api/whiteboards/route.ts'];
+  expect(whiteboardRoute).toContain('export async function GET(');
+  expect(whiteboardRoute).toContain(".from('whiteboardsession')");
+
+  const ticketsRoute = files['app/api/tickets/route.ts'];
+  expect(ticketsRoute).toContain('export async function GET(');
+  expect(ticketsRoute).toContain(".from('ticket')");
+
+  const feedbackRoute = files['app/api/feedback/route.ts'];
+  expect(feedbackRoute).toContain('export async function GET(');
+  expect(feedbackRoute).toContain(".from('feedback')");
+
+  const storageFilesRoute = files['app/api/storage/files/route.ts'];
+  expect(storageFilesRoute).toContain('export async function GET(');
+  expect(storageFilesRoute).toContain(".from('file')");
+
+  const notifRoute = files['app/api/notifications/route.ts'];
+  expect(notifRoute).toContain('export async function GET(');
+  expect(notifRoute).toContain(".from('notification')");
+});
+
 test('test_UiArtifacts_Generate_CreatesPagesAndComponents', () => {
   const adapter = new NextJsSupabaseAdapter();
   const plan: CompositionPlan = {
