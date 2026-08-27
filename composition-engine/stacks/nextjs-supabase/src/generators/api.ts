@@ -139,8 +139,8 @@ export async function POST(request: Request) {
       await supabase
         .from('stripecustomer')
         .insert({
-          organizationId,
-          stripeCustomerId
+          organizationid: organizationId,
+          stripecustomerid: stripeCustomerId,
         });
     }
 
