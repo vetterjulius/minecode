@@ -100,8 +100,8 @@ test('test_ApiRoutes_Generate_CreatesNextJsAppRouterHandlers', () => {
 
   expect(files['app/api/billing/webhook/route.ts']).toBeDefined();
   const billingWebhookCode = files['app/api/billing/webhook/route.ts'];
-  expect(billingWebhookCode).toContain("organizationid: organizationId");
-  expect(billingWebhookCode).toContain("stripecustomerid: stripeCustomerId");
+  expect(billingWebhookCode).toContain('organizationid: organizationId');
+  expect(billingWebhookCode).toContain('stripecustomerid: stripeCustomerId');
 });
 
 test('test_UiArtifacts_Generate_CreatesPagesAndComponents', () => {
