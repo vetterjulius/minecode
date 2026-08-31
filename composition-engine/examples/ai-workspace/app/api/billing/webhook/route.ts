@@ -17,9 +17,9 @@ export async function POST(request: Request) {
       const organizationId = session.metadata?.organizationId;
       const stripeCustomerId = session.customer;
 
-      await supabase.from('stripecustomer').insert({
-        organizationId,
-        stripeCustomerId,
+      await supabase.from('stripe_customer').insert({
+        organizationid: organizationId,
+        stripecustomerid: stripeCustomerId,
       });
     }
 
