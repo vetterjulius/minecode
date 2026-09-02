@@ -1,5 +1,5 @@
 -- Stripe Customer and Subscription schema migrations
-CREATE TABLE IF NOT EXISTS "stripe_customer" (
+CREATE TABLE IF NOT EXISTS "stripecustomer" (
   "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   "organizationid" UUID NOT NULL REFERENCES "organization"("id") ON DELETE CASCADE,
   "stripecustomerid" VARCHAR(255) NOT NULL UNIQUE

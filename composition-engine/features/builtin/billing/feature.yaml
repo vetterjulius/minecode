@@ -11,4 +11,4 @@ category: Commerce
 modules:
   - name: 'database/0004_billing_schema.sql'
     type: migration
-    description: 'Create stripe_customer and subscription tables.'
+    description: 'Create stripecustomer and subscription tables.'
