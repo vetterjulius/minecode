@@ -302,3 +302,80 @@ test('test_NextJsSupabaseAdapter_GenerateWithRunnableOption_CreatesWorkspaceConf
   expect(homePageCode).toContain('Overview');
   expect(homePageCode).toContain('Route: /dashboard');
 });
+
+test('test_BillingWebhookApiRoute_Generate_UsesCorrectLowercasedTableAndColumnNames', () => {
+  const adapter = new NextJsSupabaseAdapter();
+  const plan: CompositionPlan = {
+    applicationName: 'Test SaaS',
+    stackId: 'nextjs-supabase',
+    database: [],
+    api: [
+      {
+        id: 'billing:webhook',
+        featureId: 'billing',
+        name: 'webhook',
+        path: '/billing/webhook',
+        method: 'POST',
+        description: 'Stripe webhook handler',
+      },
+    ],
+    ui: [],
+    navigation: [],
+    events: [],
+    permissions: [],
+    migrations: [],
+    extensionPoints: [],
+  };
+
+  const files = adapter.generate(plan);
+
+  expect(files['app/api/billing/webhook/route.ts']).toBeDefined();
+  const webhookCode = files['app/api/billing/webhook/route.ts'];
+  expect(webhookCode).toContain(".from('stripe_customer')");
+  expect(webhookCode).toContain('organizationid: organizationId');
+  expect(webhookCode).toContain('stripecustomerid: stripeCustomerId');
+});
+
+test('test_StorageApiRoutes_Generate_IncludesPathSanitizationAndIdorVerification', () => {
+  const adapter = new NextJsSupabaseAdapter();
+  const plan: CompositionPlan = {
+    applicationName: 'Test SaaS',
+    stackId: 'nextjs-supabase',
+    database: [],
+    api: [
+      {
+        id: 'storage:upload',
+        featureId: 'storage',
+        name: 'upload',
+        path: '/storage/upload',
+        method: 'POST',
+        description: 'Upload file endpoint',
+      },
+      {
+        id: 'storage:delete',
+        featureId: 'storage',
+        name: 'delete',
+        path: '/storage/delete',
+        method: 'DELETE',
+        description: 'Delete file endpoint',
+      },
+    ],
+    ui: [],
+    navigation: [],
+    events: [],
+    permissions: [],
+    migrations: [],
+    extensionPoints: [],
+  };
+
+  const files = adapter.generate(plan);
+
+  expect(files['app/api/storage/upload/route.ts']).toBeDefined();
+  const uploadCode = files['app/api/storage/upload/route.ts'];
+  expect(uploadCode).toContain('sanitizedFileName');
+
+  expect(files['app/api/storage/delete/route.ts']).toBeDefined();
+  const deleteCode = files['app/api/storage/delete/route.ts'];
+  expect(deleteCode).toContain(".from('file')");
+  expect(deleteCode).toContain('fileRecord.path !== path');
+});

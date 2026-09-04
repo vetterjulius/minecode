@@ -13,7 +13,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: 'No file provided' }, { status: 400 });
     }
 
-    const filePath = `uploads/${crypto.randomUUID()}_${file.name}`;
+    const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+    const filePath = `uploads/${crypto.randomUUID()}_${sanitizedFileName}`;
     const { error: uploadError } = await supabase.storage.from('files').upload(filePath, file);
 
     if (uploadError) throw uploadError;
