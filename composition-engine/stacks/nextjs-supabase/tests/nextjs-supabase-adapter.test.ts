@@ -73,6 +73,14 @@ test('test_ApiRoutes_Generate_CreatesNextJsAppRouterHandlers', () => {
         method: 'POST',
         description: 'Authenticates a user',
       },
+      {
+        id: 'billing:webhook',
+        featureId: 'billing',
+        name: 'webhook',
+        path: '/billing/webhook',
+        method: 'POST',
+        description: 'Handles billing webhooks',
+      },
     ],
     ui: [],
     navigation: [],
@@ -89,6 +97,12 @@ test('test_ApiRoutes_Generate_CreatesNextJsAppRouterHandlers', () => {
   expect(apiCode).toContain("import { NextResponse } from 'next/server';");
   expect(apiCode).toContain('export async function POST(');
   expect(apiCode).toContain('Authenticates a user');
+
+  expect(files['app/api/billing/webhook/route.ts']).toBeDefined();
+  const webhookCode = files['app/api/billing/webhook/route.ts'];
+  expect(webhookCode).toContain(".from('stripe_customer')");
+  expect(webhookCode).toContain('organizationid: organizationId');
+  expect(webhookCode).toContain('stripecustomerid: stripeCustomerId');
 });
 
 test('test_UiArtifacts_Generate_CreatesPagesAndComponents', () => {
