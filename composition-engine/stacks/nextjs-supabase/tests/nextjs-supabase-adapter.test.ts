@@ -91,6 +91,39 @@ test('test_ApiRoutes_Generate_CreatesNextJsAppRouterHandlers', () => {
   expect(apiCode).toContain('Authenticates a user');
 });
 
+test('test_ApiRoutes_BillingWebhook_UsesCorrectStripeCustomerTableAndFields', () => {
+  const adapter = new NextJsSupabaseAdapter();
+  const plan: CompositionPlan = {
+    applicationName: 'Test SaaS',
+    stackId: 'nextjs-supabase',
+    database: [],
+    api: [
+      {
+        id: 'billing:webhook',
+        featureId: 'billing',
+        name: 'Webhook',
+        path: '/api/billing/webhook',
+        method: 'POST',
+        description: 'Stripe webhook endpoint',
+      },
+    ],
+    ui: [],
+    navigation: [],
+    events: [],
+    permissions: [],
+    migrations: [],
+    extensionPoints: [],
+  };
+
+  const files = adapter.generate(plan);
+
+  expect(files['app/api/billing/webhook/route.ts']).toBeDefined();
+  const webhookCode = files['app/api/billing/webhook/route.ts'];
+  expect(webhookCode).toContain(".from('stripe_customer')");
+  expect(webhookCode).toContain('organizationid: organizationId');
+  expect(webhookCode).toContain('stripecustomerid: stripeCustomerId');
+});
+
 test('test_UiArtifacts_Generate_CreatesPagesAndComponents', () => {
   const adapter = new NextJsSupabaseAdapter();
   const plan: CompositionPlan = {
