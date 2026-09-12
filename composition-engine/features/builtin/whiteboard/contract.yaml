@@ -31,6 +31,10 @@ provides:
       path: /api/whiteboards
       method: GET
       description: 'Fetch all whiteboard sessions for organization.'
+    - name: CreateWhiteboardSession
+      path: /api/whiteboards
+      method: POST
+      description: 'Create a new whiteboard session.'
   ui:
     - name: WhiteboardCanvas
       route: whiteboard

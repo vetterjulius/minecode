@@ -39,6 +39,10 @@ provides:
     - name: tickets.write
       description: 'Create and update tickets'
   api:
+    - name: GetTickets
+      path: /api/tickets
+      method: GET
+      description: 'Fetch list of support tickets.'
     - name: CreateTicket
       path: /api/tickets
       method: POST

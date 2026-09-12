@@ -39,6 +39,10 @@ provides:
     - name: notifications.write
       description: 'Send and manage notifications'
   api:
+    - name: GetNotifications
+      path: /api/notifications
+      method: GET
+      description: 'Fetch list of system notifications.'
     - name: SendNotification
       path: /api/notifications/send
       method: POST

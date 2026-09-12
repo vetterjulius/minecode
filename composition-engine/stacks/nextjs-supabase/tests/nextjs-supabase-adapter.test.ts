@@ -302,3 +302,121 @@ test('test_NextJsSupabaseAdapter_GenerateWithRunnableOption_CreatesWorkspaceConf
   expect(homePageCode).toContain('Overview');
   expect(homePageCode).toContain('Route: /dashboard');
 });
+
+test('test_ApiSubGenerator_BillingWebhookRoute_UsesLowercasedDbKeysAndStripecustomerTable', () => {
+  const adapter = new NextJsSupabaseAdapter();
+  const plan: CompositionPlan = {
+    applicationName: 'Test SaaS',
+    stackId: 'nextjs-supabase',
+    database: [],
+    api: [
+      {
+        id: 'billing:webhook',
+        featureId: 'billing',
+        name: 'Webhook',
+        path: '/api/billing/webhook',
+        method: 'POST',
+        description: 'Stripe webhook',
+      },
+    ],
+    ui: [],
+    navigation: [],
+    events: [],
+    permissions: [],
+    migrations: [],
+    extensionPoints: [],
+  };
+
+  const files = adapter.generate(plan);
+
+  expect(files['app/api/billing/webhook/route.ts']).toBeDefined();
+  const code = files['app/api/billing/webhook/route.ts'];
+  expect(code).toContain(".from('stripecustomer')");
+  expect(code).toContain('organizationid: organizationId');
+  expect(code).toContain('stripecustomerid: stripeCustomerId');
+});
+
+test('test_ApiSubGenerator_BuiltinApiRoutes_GeneratesGetAndPostHandlersCorrectly', () => {
+  const adapter = new NextJsSupabaseAdapter();
+  const plan: CompositionPlan = {
+    applicationName: 'Test SaaS',
+    stackId: 'nextjs-supabase',
+    database: [],
+    api: [
+      {
+        id: 'storage:files',
+        featureId: 'storage',
+        name: 'ListFiles',
+        path: '/api/storage/files',
+        method: 'GET',
+        description: 'List uploaded files',
+      },
+      {
+        id: 'notifications:list',
+        featureId: 'notifications',
+        name: 'GetNotifications',
+        path: '/api/notifications',
+        method: 'GET',
+        description: 'Get notifications list',
+      },
+      {
+        id: 'ai-chat:chat',
+        featureId: 'ai-chat',
+        name: 'GetChatMessages',
+        path: '/api/ai/chat',
+        method: 'GET',
+        description: 'Get chat messages',
+      },
+      {
+        id: 'whiteboard:sessions',
+        featureId: 'whiteboard',
+        name: 'GetWhiteboardSessions',
+        path: '/api/whiteboards',
+        method: 'GET',
+        description: 'Get whiteboard sessions',
+      },
+      {
+        id: 'ticketing:tickets',
+        featureId: 'ticketing',
+        name: 'GetTickets',
+        path: '/api/tickets',
+        method: 'GET',
+        description: 'Get tickets',
+      },
+      {
+        id: 'customer-feedback:feedbacks',
+        featureId: 'customer-feedback',
+        name: 'GetFeedbacks',
+        path: '/api/feedback',
+        method: 'GET',
+        description: 'Get feedback',
+      },
+    ],
+    ui: [],
+    navigation: [],
+    events: [],
+    permissions: [],
+    migrations: [],
+    extensionPoints: [],
+  };
+
+  const files = adapter.generate(plan);
+
+  expect(files['app/api/storage/files/route.ts']).toBeDefined();
+  expect(files['app/api/storage/files/route.ts']).toContain('export async function GET(');
+
+  expect(files['app/api/notifications/route.ts']).toBeDefined();
+  expect(files['app/api/notifications/route.ts']).toContain('export async function GET(');
+
+  expect(files['app/api/ai/chat/route.ts']).toBeDefined();
+  expect(files['app/api/ai/chat/route.ts']).toContain('export async function GET(');
+
+  expect(files['app/api/whiteboards/route.ts']).toBeDefined();
+  expect(files['app/api/whiteboards/route.ts']).toContain('export async function GET(');
+
+  expect(files['app/api/tickets/route.ts']).toBeDefined();
+  expect(files['app/api/tickets/route.ts']).toContain('export async function GET(');
+
+  expect(files['app/api/feedback/route.ts']).toBeDefined();
+  expect(files['app/api/feedback/route.ts']).toContain('export async function GET(');
+});

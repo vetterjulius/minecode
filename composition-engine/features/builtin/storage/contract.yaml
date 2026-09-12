@@ -39,6 +39,10 @@ provides:
     - name: storage.write
       description: 'Upload and delete files'
   api:
+    - name: ListFiles
+      path: /api/storage/files
+      method: GET
+      description: 'Fetch list of uploaded file metadata.'
     - name: UploadFile
       path: /api/storage/upload
       method: POST

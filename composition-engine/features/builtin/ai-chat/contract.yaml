@@ -29,6 +29,10 @@ provides:
     - name: chat.access
       description: 'Interact with AI assistant'
   api:
+    - name: GetChatMessages
+      path: /api/ai/chat
+      method: GET
+      description: 'Fetch session chat messages history.'
     - name: PostChatMessage
       path: /api/ai/chat
       method: POST

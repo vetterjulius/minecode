@@ -139,8 +139,8 @@ export async function POST(request: Request) {
       await supabase
         .from('stripecustomer')
         .insert({
-          organizationId,
-          stripeCustomerId
+          organizationid: organizationId,
+          stripecustomerid: stripeCustomerId,
         });
     }
 
@@ -265,6 +265,30 @@ export async function POST(request: Request) {
 }
 `;
       }
+      // 8.1 Storage: Files List
+      else if (fullRoutePath === 'api/storage/files') {
+        files[`app/${fullRoutePath}/route.ts`] =
+          `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
+import { NextResponse } from 'next/server';
+
+export async function GET(_request: Request) {
+  const supabase = createRouteHandlerClient({ cookies });
+  try {
+    const { data, error } = await supabase
+      .from('file')
+      .select('*')
+      .order('createdat', { ascending: false });
+
+    if (error) throw error;
+    return NextResponse.json({ success: true, data });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
+  }
+}
+`;
+      }
       // 9. Storage: Delete
       else if (fullRoutePath === 'api/storage/delete') {
         files[`app/${fullRoutePath}/route.ts`] =
@@ -342,6 +366,30 @@ export async function POST(request: Request) {
 }
 `;
       }
+      // 10.1 Notifications: List
+      else if (fullRoutePath === 'api/notifications') {
+        files[`app/${fullRoutePath}/route.ts`] =
+          `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
+import { NextResponse } from 'next/server';
+
+export async function GET(_request: Request) {
+  const supabase = createRouteHandlerClient({ cookies });
+  try {
+    const { data, error } = await supabase
+      .from('notification')
+      .select('*')
+      .order('createdat', { ascending: false });
+
+    if (error) throw error;
+    return NextResponse.json({ success: true, data });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
+  }
+}
+`;
+      }
       // 11. Search: Search
       else if (fullRoutePath === 'api/search') {
         files[`app/${fullRoutePath}/route.ts`] =
@@ -415,12 +463,28 @@ export async function GET(request: Request) {
 }
 `;
       }
-      // 13. AI Chat: Send
+      // 13. AI Chat: Send & Fetch
       else if (fullRoutePath === 'api/ai/chat') {
         files[`app/${fullRoutePath}/route.ts`] =
           `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
+
+export async function GET(_request: Request) {
+  const supabase = createRouteHandlerClient({ cookies });
+  try {
+    const { data, error } = await supabase
+      .from('chatmessage')
+      .select('*')
+      .order('createdat', { ascending: true });
+
+    if (error) throw error;
+    return NextResponse.json({ success: true, data });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
+  }
+}
 
 export async function POST(request: Request) {
   const supabase = createRouteHandlerClient({ cookies });
@@ -470,12 +534,28 @@ export async function POST(request: Request) {
 }
 `;
       }
-      // 14. Whiteboard: Create
+      // 14. Whiteboard: Fetch & Create
       else if (fullRoutePath === 'api/whiteboards') {
         files[`app/${fullRoutePath}/route.ts`] =
           `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
+
+export async function GET(_request: Request) {
+  const supabase = createRouteHandlerClient({ cookies });
+  try {
+    const { data, error } = await supabase
+      .from('whiteboardsession')
+      .select('*')
+      .order('createdat', { ascending: false });
+
+    if (error) throw error;
+    return NextResponse.json({ success: true, data });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
+  }
+}
 
 export async function POST(request: Request) {
   const supabase = createRouteHandlerClient({ cookies });
@@ -505,12 +585,28 @@ export async function POST(request: Request) {
 }
 `;
       }
-      // 15. Tickets: Create
+      // 15. Tickets: Fetch & Create
       else if (fullRoutePath === 'api/tickets') {
         files[`app/${fullRoutePath}/route.ts`] =
           `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
+
+export async function GET(_request: Request) {
+  const supabase = createRouteHandlerClient({ cookies });
+  try {
+    const { data, error } = await supabase
+      .from('ticket')
+      .select('*')
+      .order('createdat', { ascending: false });
+
+    if (error) throw error;
+    return NextResponse.json({ success: true, data });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
+  }
+}
 
 export async function POST(request: Request) {
   const supabase = createRouteHandlerClient({ cookies });
@@ -543,12 +639,28 @@ export async function POST(request: Request) {
 }
 `;
       }
-      // 16. Feedback: Create
+      // 16. Feedback: Fetch & Create
       else if (fullRoutePath === 'api/feedback') {
         files[`app/${fullRoutePath}/route.ts`] =
           `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
+
+export async function GET(_request: Request) {
+  const supabase = createRouteHandlerClient({ cookies });
+  try {
+    const { data, error } = await supabase
+      .from('feedback')
+      .select('*')
+      .order('createdat', { ascending: false });
+
+    if (error) throw error;
+    return NextResponse.json({ success: true, data });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
+  }
+}
 
 export async function POST(request: Request) {
   const supabase = createRouteHandlerClient({ cookies });
