@@ -262,6 +262,39 @@ test('test_PermissionsEventsAndExtensionPoints_Generate_CreatesConfigurationGlue
   expect(extCode).toContain('"billing:pricing_rules"');
 });
 
+test('test_BillingWebhookApi_Generate_UsesCorrectTableAndLowercasedKeys', () => {
+  const adapter = new NextJsSupabaseAdapter();
+  const plan: CompositionPlan = {
+    applicationName: 'Test SaaS',
+    stackId: 'nextjs-supabase',
+    database: [],
+    api: [
+      {
+        id: 'billing:webhook',
+        featureId: 'billing',
+        name: 'Webhook',
+        path: '/api/billing/webhook',
+        method: 'POST',
+        description: 'Stripe webhook listener',
+      },
+    ],
+    ui: [],
+    navigation: [],
+    events: [],
+    permissions: [],
+    migrations: [],
+    extensionPoints: [],
+  };
+
+  const files = adapter.generate(plan);
+
+  expect(files['app/api/billing/webhook/route.ts']).toBeDefined();
+  const apiCode = files['app/api/billing/webhook/route.ts'];
+  expect(apiCode).toContain(".from('stripe_customer')");
+  expect(apiCode).toContain('organizationid: organizationId');
+  expect(apiCode).toContain('stripecustomerid: stripeCustomerId');
+});
+
 test('test_NextJsSupabaseAdapter_GenerateWithRunnableOption_CreatesWorkspaceConfigsAndPages', () => {
   const adapter = new NextJsSupabaseAdapter();
   const plan: CompositionPlan = {
