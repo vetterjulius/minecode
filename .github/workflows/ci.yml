@@ -37,5 +37,11 @@ jobs:
       - name: Build packages and apps
         run: pnpm build
 
+      - name: Check generated examples are up to date
+        run: git diff --exit-code -- composition-engine/examples
+
       - name: Run tests with coverage
         run: pnpm test:coverage
+
+      - name: Verify generated apps typecheck and build
+        run: pnpm verify:examples
