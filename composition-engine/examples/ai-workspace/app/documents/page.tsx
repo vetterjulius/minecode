@@ -6,7 +6,7 @@ interface DocumentRecord {
   id: string;
   title: string;
   content?: string;
-  projectid: string;
+  project_id: string;
 }
 
 export default function DocumentsPage() {
@@ -130,7 +130,7 @@ export default function DocumentsPage() {
                 >
                   <p className="font-bold text-base">{doc.title}</p>
                   <p className="text-xs text-muted-foreground font-mono">
-                    Project ID: {doc.projectid}
+                    Project ID: {doc.project_id}
                   </p>
                 </div>
               ))}

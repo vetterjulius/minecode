@@ -46,6 +46,10 @@ provides:
     - name: feedback.write
       description: Submit feedback ratings
   api:
+    - name: ListFeedback
+      path: /api/feedback
+      method: GET
+      description: List customer feedback entries.
     - name: PostFeedback
       path: /api/feedback
       method: POST

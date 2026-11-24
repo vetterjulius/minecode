@@ -107,6 +107,9 @@ export default nextConfig;
 
       files['.env.local'] = `NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+# Server only. Never expose these to the browser.
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+STRIPE_WEBHOOK_SECRET=whsec_your-webhook-secret
 `;
 
       files['app/globals.css'] = `@tailwind base;

@@ -172,7 +172,7 @@ export default function BillingSettingsPage() {
 
 interface OrganizationMembership {
   id: string;
-  userid: string;
+  user_id: string;
   role: string;
 }
 
@@ -280,7 +280,7 @@ export default function OrganizationsPage() {
                       <p className="font-semibold text-xs text-muted-foreground">Active Team Members:</p>
                       <ul className="list-disc pl-5 text-xs text-muted-foreground space-y-1">
                         {org.membership.map((m) => (
-                          <li key={m.id}>User ID: {m.userid} ({m.role})</li>
+                          <li key={m.id}>User ID: {m.user_id} ({m.role})</li>
                         ))}
                       </ul>
                     </div>
@@ -388,7 +388,7 @@ interface StorageFile {
   name: string;
   path: string;
   size: number;
-  mimetype: string;
+  mime_type: string;
 }
 
 export default function StorageDashboardPage() {
@@ -493,7 +493,7 @@ export default function StorageDashboardPage() {
                   <div>
                     <p className="font-bold">{file.name}</p>
                     <p className="text-xs text-muted-foreground">
-                      {(file.size / 1024).toFixed(1)} KB • {file.mimetype}
+                      {(file.size / 1024).toFixed(1)} KB • {file.mime_type}
                     </p>
                   </div>
                   <button onClick={() => handleDelete(file.id, file.path)} className="text-destructive font-bold hover:underline text-xs">
@@ -520,7 +520,7 @@ interface SystemNotification {
   title: string;
   channel: string;
   content: string;
-  userid: string;
+  user_id: string;
   status: string;
 }
 
@@ -629,7 +629,7 @@ export default function NotificationCenterPage() {
                     </span>
                   </div>
                   <p className="text-muted-foreground">{notif.content}</p>
-                  <p className="text-xs text-muted-foreground/80 font-mono">To: {notif.userid} • Status: {notif.status}</p>
+                  <p className="text-xs text-muted-foreground/80 font-mono">To: {notif.user_id} • Status: {notif.status}</p>
                 </div>
               ))}
             </div>
@@ -729,10 +729,10 @@ export default function SearchResultsPage() {
 interface AuditLogEntry {
   id: string;
   action: string;
-  actorid?: string;
-  entityname?: string;
-  entityid?: string;
-  createdat: string;
+  actor_id?: string;
+  entity_name?: string;
+  entity_id?: string;
+  created_at: string;
 }
 
 export default function AuditLogDashboardPage() {
@@ -800,10 +800,10 @@ export default function AuditLogDashboardPage() {
               {logs.map((log) => (
                 <tr key={log.id} className="hover:bg-muted/30">
                   <td className="p-3 font-semibold text-blue-600">{log.action}</td>
-                  <td className="p-3 font-mono text-xs">{log.actorid || 'anonymous'}</td>
-                  <td className="p-3">{log.entityname || '-'}</td>
-                  <td className="p-3 font-mono text-xs">{log.entityid || '-'}</td>
-                  <td className="p-3 text-muted-foreground">{new Date(log.createdat).toLocaleString()}</td>
+                  <td className="p-3 font-mono text-xs">{log.actor_id || 'anonymous'}</td>
+                  <td className="p-3">{log.entity_name || '-'}</td>
+                  <td className="p-3 font-mono text-xs">{log.entity_id || '-'}</td>
+                  <td className="p-3 text-muted-foreground">{new Date(log.created_at).toLocaleString()}</td>
                 </tr>
               ))}
             </tbody>
@@ -822,7 +822,7 @@ export default function AuditLogDashboardPage() {
 
 interface ChatMessageEntry {
   id: string;
-  sessionid: string;
+  session_id: string;
   role: string;
   content: string;
 }
@@ -840,7 +840,7 @@ export default function ChatInterfacePage() {
       const res = await fetch('/api/ai/chat');
       const data = await res.json();
       if (data.success) {
-        setMessages((data.data || []).filter((m: ChatMessageEntry) => m.sessionid === sessionId));
+        setMessages((data.data || []).filter((m: ChatMessageEntry) => m.session_id === sessionId));
       }
     } catch (err: unknown) {
       console.error(err);
@@ -859,7 +859,7 @@ export default function ChatInterfacePage() {
     e.preventDefault();
     if (!input.trim() || loading) return;
 
-    const userMsg: ChatMessageEntry = { id: crypto.randomUUID(), sessionid: sessionId, role: 'user', content: input };
+    const userMsg: ChatMessageEntry = { id: crypto.randomUUID(), session_id: sessionId, role: 'user', content: input };
     setMessages((prev) => [...prev, userMsg]);
     setContent('');
     setLoading(true);
@@ -936,7 +936,7 @@ export default function ChatInterfacePage() {
 interface WhiteboardSessionEntry {
   id: string;
   name: string;
-  organizationid: string;
+  organization_id: string;
 }
 
 export default function WhiteboardCanvasPage() {
@@ -1024,7 +1024,7 @@ export default function WhiteboardCanvasPage() {
                 <div key={sess.id} className="p-4 border rounded-lg bg-muted text-sm space-y-3">
                   <div className="flex justify-between items-center">
                     <span className="font-bold text-base">{sess.name}</span>
-                    <span className="text-xs text-muted-foreground font-mono">Org: {sess.organizationid}</span>
+                    <span className="text-xs text-muted-foreground font-mono">Org: {sess.organization_id}</span>
                   </div>
                   <div className="w-full h-32 bg-card border rounded flex items-center justify-center text-xs text-muted-foreground font-mono">
                     [ Interactive Drawing Canvas Area - Click to Load shapes ]
@@ -1050,8 +1050,8 @@ interface SupportTicket {
   title: string;
   status: string;
   priority: string;
-  assigneeid?: string;
-  organizationid: string;
+  assignee_id?: string;
+  organization_id: string;
 }
 
 export default function TicketInboxPage() {
@@ -1149,7 +1149,7 @@ export default function TicketInboxPage() {
                 <div key={t.id} className="py-4 flex justify-between items-center">
                   <div className="space-y-1">
                     <p className="font-bold text-base">{t.title}</p>
-                    <p className="text-xs text-muted-foreground font-mono">Org: {t.organizationid} • Assignee: {t.assigneeid || 'unassigned'}</p>
+                    <p className="text-xs text-muted-foreground font-mono">Org: {t.organization_id} • Assignee: {t.assignee_id || 'unassigned'}</p>
                   </div>
                   <div className="flex gap-2">
                     <span className={\`px-2 py-0.5 text-xs font-bold rounded \${t.priority === 'urgent' ? 'bg-red-200 text-red-800' : t.priority === 'high' ? 'bg-orange-200 text-orange-800' : 'bg-blue-200 text-blue-800'}\`}>
@@ -1179,8 +1179,8 @@ interface CustomerFeedbackRecord {
   id: string;
   rating: number;
   comment?: string;
-  userid: string;
-  organizationid: string;
+  user_id: string;
+  organization_id: string;
 }
 
 export default function FeedbackDashboardPage() {
@@ -1296,7 +1296,7 @@ export default function FeedbackDashboardPage() {
                   <div className="text-2xl font-bold text-yellow-500">{'★'.repeat(f.rating)}</div>
                   <div className="flex-1 space-y-1">
                     <p className="text-muted-foreground italic">"{f.comment || 'No comment left'}"</p>
-                    <p className="text-xs text-muted-foreground/80 font-mono">By: {f.userid} • Org: {f.organizationid}</p>
+                    <p className="text-xs text-muted-foreground/80 font-mono">By: {f.user_id} • Org: {f.organization_id}</p>
                   </div>
                 </div>
               ))}
@@ -1318,8 +1318,8 @@ interface MetricRecord {
   id: string;
   name: string;
   value: number;
-  organizationid: string;
-  createdat: string;
+  organization_id: string;
+  created_at: string;
 }
 
 export default function AnalyticsDashboardPage() {
@@ -1406,8 +1406,8 @@ export default function AnalyticsDashboardPage() {
                 <tr key={m.id} className="hover:bg-muted/30">
                   <td className="p-3 font-semibold">{m.name}</td>
                   <td className="p-3 font-mono font-bold text-blue-600">{m.value}</td>
-                  <td className="p-3 font-mono">{m.organizationid}</td>
-                  <td className="p-3 text-muted-foreground">{new Date(m.createdat).toLocaleString()}</td>
+                  <td className="p-3 font-mono">{m.organization_id}</td>
+                  <td className="p-3 text-muted-foreground">{new Date(m.created_at).toLocaleString()}</td>
                 </tr>
               ))}
             </tbody>
@@ -1429,7 +1429,7 @@ interface KnowledgeBaseArticle {
   title: string;
   content: string;
   category: string;
-  createdat: string;
+  created_at: string;
 }
 
 export default function HelpCenterPage() {
@@ -1512,7 +1512,7 @@ export default function HelpCenterPage() {
                 {selectedArticle.content}
               </div>
               <hr className="my-4" />
-              <p className="text-xs text-muted-foreground/80 font-mono">Published: {new Date(selectedArticle.createdat).toLocaleDateString()}</p>
+              <p className="text-xs text-muted-foreground/80 font-mono">Published: {new Date(selectedArticle.created_at).toLocaleDateString()}</p>
             </div>
           ) : (
             <div className="text-center py-10 text-muted-foreground">
@@ -1536,7 +1536,7 @@ import React, { useState, useEffect } from 'react';
 interface WorkspaceRecord {
   id: string;
   name: string;
-  organizationid: string;
+  organization_id: string;
 }
 
 export default function WorkspacesPage() {
@@ -1624,7 +1624,7 @@ export default function WorkspacesPage() {
                 <div key={w.id} className="py-4 flex justify-between items-center">
                   <div>
                     <p className="font-bold text-base">{w.name}</p>
-                    <p className="text-xs text-muted-foreground font-mono">Org ID: {w.organizationid}</p>
+                    <p className="text-xs text-muted-foreground font-mono">Org ID: {w.organization_id}</p>
                   </div>
                   <span className="text-xs text-muted-foreground font-mono bg-muted p-1 rounded">
                     ID: {w.id}
@@ -1651,8 +1651,8 @@ interface ProjectRecord {
   name: string;
   description?: string;
   status: string;
-  organizationid: string;
-  workspaceid: string;
+  organization_id: string;
+  workspace_id: string;
 }
 
 export default function ProjectsPage() {
@@ -1756,7 +1756,7 @@ export default function ProjectsPage() {
                     </span>
                   </div>
                   {p.description && <p className="text-muted-foreground text-sm">{p.description}</p>}
-                  <p className="text-xs text-muted-foreground font-mono">Workspace: {p.workspaceid} • Org: {p.organizationid}</p>
+                  <p className="text-xs text-muted-foreground font-mono">Workspace: {p.workspace_id} • Org: {p.organization_id}</p>
                 </div>
               ))}
             </div>
@@ -1780,8 +1780,8 @@ interface TaskRecord {
   description?: string;
   status: string;
   priority: string;
-  projectid: string;
-  assigneeid?: string;
+  project_id: string;
+  assignee_id?: string;
 }
 
 export default function TasksPage() {
@@ -1894,7 +1894,7 @@ export default function TasksPage() {
                     </div>
                   </div>
                   {t.description && <p className="text-muted-foreground">{t.description}</p>}
-                  <p className="text-xs text-muted-foreground/80 font-mono">Project ID: {t.projectid}</p>
+                  <p className="text-xs text-muted-foreground/80 font-mono">Project ID: {t.project_id}</p>
                 </div>
               ))}
             </div>
@@ -1916,7 +1916,7 @@ interface DocumentRecord {
   id: string;
   title: string;
   content?: string;
-  projectid: string;
+  project_id: string;
 }
 
 export default function DocumentsPage() {
@@ -2010,7 +2010,7 @@ export default function DocumentsPage() {
               {documents.map((doc) => (
                 <div key={doc.id} onClick={() => setSelectedDoc(doc)} className="p-3 border rounded-lg bg-muted cursor-pointer hover:bg-muted/75 transition-colors">
                   <p className="font-bold text-base">{doc.title}</p>
-                  <p className="text-xs text-muted-foreground font-mono">Project ID: {doc.projectid}</p>
+                  <p className="text-xs text-muted-foreground font-mono">Project ID: {doc.project_id}</p>
                 </div>
               ))}
             </div>

@@ -7,7 +7,7 @@ interface KnowledgeBaseArticle {
   title: string;
   content: string;
   category: string;
-  createdat: string;
+  created_at: string;
 }
 
 export default function HelpCenterPage() {
@@ -101,7 +101,7 @@ export default function HelpCenterPage() {
               </div>
               <hr className="my-4" />
               <p className="text-xs text-muted-foreground/80 font-mono">
-                Published: {new Date(selectedArticle.createdat).toLocaleDateString()}
+                Published: {new Date(selectedArticle.created_at).toLocaleDateString()}
               </p>
             </div>
           ) : (

@@ -1,5 +1,6 @@
 import { test, expect } from 'vitest';
 import { CompositionPlan } from '@minecode/core';
+import { UnsupportedContractError } from '../src/generators/errors.js';
 import { NextJsSupabaseAdapter } from '../src/index.js';
 
 test('test_NextJsSupabaseAdapter_Instantiation_HasCorrectStackId', () => {
@@ -301,4 +302,32 @@ test('test_NextJsSupabaseAdapter_GenerateWithRunnableOption_CreatesWorkspaceConf
   expect(homePageCode).toContain('Test SaaS');
   expect(homePageCode).toContain('Overview');
   expect(homePageCode).toContain('Route: /dashboard');
+});
+
+test('test_Api_Generate_RouteWithoutGenerator_ThrowsNamingFeatureAndRoute', () => {
+  const adapter = new NextJsSupabaseAdapter();
+  const plan: CompositionPlan = {
+    applicationName: 'Test SaaS',
+    stackId: 'nextjs-supabase',
+    database: [],
+    api: [
+      {
+        id: 'mystery:GetThings',
+        featureId: 'mystery',
+        name: 'GetThings',
+        path: '/api/things',
+        method: 'GET',
+        description: 'Unknown route',
+      },
+    ],
+    ui: [],
+    navigation: [],
+    events: [],
+    permissions: [],
+    migrations: [],
+    extensionPoints: [],
+  };
+
+  expect(() => adapter.generate(plan)).toThrow(UnsupportedContractError);
+  expect(() => adapter.generate(plan)).toThrow(/GET \/api\/things.*feature 'mystery'/);
 });

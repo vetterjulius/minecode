@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 interface WhiteboardSessionEntry {
   id: string;
   name: string;
-  organizationid: string;
+  organization_id: string;
 }
 
 export default function WhiteboardCanvasPage() {
@@ -113,7 +113,7 @@ export default function WhiteboardCanvasPage() {
                   <div className="flex justify-between items-center">
                     <span className="font-bold text-base">{sess.name}</span>
                     <span className="text-xs text-muted-foreground font-mono">
-                      Org: {sess.organizationid}
+                      Org: {sess.organization_id}
                     </span>
                   </div>
                   <div className="w-full h-32 bg-card border rounded flex items-center justify-center text-xs text-muted-foreground font-mono">

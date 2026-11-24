@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 
 interface OrganizationMembership {
   id: string;
-  userid: string;
+  user_id: string;
   role: string;
 }
 
@@ -140,7 +140,7 @@ export default function OrganizationsPage() {
                       <ul className="list-disc pl-5 text-xs text-muted-foreground space-y-1">
                         {org.membership.map((m) => (
                           <li key={m.id}>
-                            User ID: {m.userid} ({m.role})
+                            User ID: {m.user_id} ({m.role})
                           </li>
                         ))}
                       </ul>

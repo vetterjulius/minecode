@@ -1,7 +1,11 @@
 import { SubGenerator, CompositionPlan } from '@minecode/core';
+import { buildListHandler, buildListRoute } from './crud-routes.js';
+import { UnsupportedContractError } from './errors.js';
 import {
   STRIPE_SIGNATURE_LIB,
   STRIPE_SIGNATURE_LIB_PATH,
+  SUPABASE_ADMIN_LIB,
+  SUPABASE_ADMIN_LIB_PATH,
   buildCheckoutRoute,
   buildWebhookRoute,
 } from './billing.js';
@@ -109,6 +113,7 @@ export async function POST(request: Request) {
       else if (fullRoutePath === 'api/billing/webhook') {
         files[`app/${fullRoutePath}/route.ts`] = buildWebhookRoute(desc, fullRoutePath);
         files[STRIPE_SIGNATURE_LIB_PATH] = STRIPE_SIGNATURE_LIB;
+        files[SUPABASE_ADMIN_LIB_PATH] = SUPABASE_ADMIN_LIB;
       }
       // 6. Orgs: Invite
       else if (fullRoutePath === 'api/organizations/invite') {
@@ -131,11 +136,11 @@ export async function POST(request: Request) {
     const { data, error } = await supabase
       .from('invitation')
       .insert({
-        organizationid: organizationId,
+        organization_id: organizationId,
         email,
         token,
         role: role || 'member',
-        expiresat: expiresAt,
+        expires_at: expiresAt,
       })
       .select()
       .single();
@@ -207,8 +212,8 @@ export async function POST(request: Request) {
         name: file.name,
         path: filePath,
         size: file.size,
-        mimetype: file.type,
-        organizationid: organizationId,
+        mime_type: file.type,
+        organization_id: organizationId,
       })
       .select()
       .single();
@@ -281,7 +286,7 @@ export async function POST(request: Request) {
     const { data, error } = await supabase
       .from('notification')
       .insert({
-        userid: userId,
+        user_id: userId,
         channel,
         title,
         content,
@@ -354,9 +359,9 @@ export async function GET(request: Request) {
     const action = searchParams.get('action') || null;
 
     let query = supabase
-      .from('auditlog')
+      .from('audit_log')
       .select('*')
-      .order('createdat', { ascending: false });
+      .order('created_at', { ascending: false });
 
     if (action) {
       query = query.eq('action', action);
@@ -380,6 +385,7 @@ export async function GET(request: Request) {
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
+${buildListHandler({ table: 'chat_message', ascending: true })}
 export async function POST(request: Request) {
   const supabase = createRouteHandlerClient({ cookies });
   try {
@@ -390,9 +396,9 @@ export async function POST(request: Request) {
     }
 
     const { error: userMsgError } = await supabase
-      .from('chatmessage')
+      .from('chat_message')
       .insert({
-        sessionid: sessionId,
+        session_id: sessionId,
         role: 'user',
         content,
       });
@@ -409,9 +415,9 @@ export async function POST(request: Request) {
     const mockReply = replies[Math.floor(Math.random() * replies.length)];
 
     const { data: assistantMsg, error: assistantMsgError } = await supabase
-      .from('chatmessage')
+      .from('chat_message')
       .insert({
-        sessionid: sessionId,
+        session_id: sessionId,
         role: 'assistant',
         content: mockReply,
       })
@@ -435,6 +441,7 @@ export async function POST(request: Request) {
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
+${buildListHandler({ table: 'whiteboard_session', organizationColumn: 'organization_id' })}
 export async function POST(request: Request) {
   const supabase = createRouteHandlerClient({ cookies });
   try {
@@ -445,10 +452,10 @@ export async function POST(request: Request) {
     }
 
     const { data, error } = await supabase
-      .from('whiteboardsession')
+      .from('whiteboard_session')
       .insert({
         name,
-        organizationid: organizationId,
+        organization_id: organizationId,
       })
       .select()
       .single();
@@ -470,6 +477,7 @@ export async function POST(request: Request) {
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
+${buildListHandler({ table: 'ticket', organizationColumn: 'organization_id' })}
 export async function POST(request: Request) {
   const supabase = createRouteHandlerClient({ cookies });
   try {
@@ -485,8 +493,8 @@ export async function POST(request: Request) {
         title,
         status: 'open',
         priority: priority || 'medium',
-        organizationid: organizationId,
-        assigneeid: assigneeId || null,
+        organization_id: organizationId,
+        assignee_id: assigneeId || null,
       })
       .select()
       .single();
@@ -508,6 +516,7 @@ export async function POST(request: Request) {
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
+${buildListHandler({ table: 'feedback', organizationColumn: 'organization_id' })}
 export async function POST(request: Request) {
   const supabase = createRouteHandlerClient({ cookies });
   try {
@@ -522,8 +531,8 @@ export async function POST(request: Request) {
       .insert({
         rating: Number(rating),
         comment: comment || null,
-        userid: userId,
-        organizationid: organizationId,
+        user_id: userId,
+        organization_id: organizationId,
       })
       .select()
       .single();
@@ -537,6 +546,19 @@ export async function POST(request: Request) {
   }
 }
 `;
+      }
+      // Notifications: List (own notifications, enforced by row level security)
+      else if (fullRoutePath === 'api/notifications') {
+        files[`app/${fullRoutePath}/route.ts`] = buildListRoute(desc, fullRoutePath, {
+          table: 'notification',
+        });
+      }
+      // Storage: List
+      else if (fullRoutePath === 'api/storage/files') {
+        files[`app/${fullRoutePath}/route.ts`] = buildListRoute(desc, fullRoutePath, {
+          table: 'file',
+          organizationColumn: 'organization_id',
+        });
       }
       // 17. Analytics: Fetch
       else if (fullRoutePath === 'api/analytics/metrics') {
@@ -554,10 +576,10 @@ export async function GET(request: Request) {
     let query = supabase
       .from('metric')
       .select('*')
-      .order('createdat', { ascending: false });
+      .order('created_at', { ascending: false });
 
     if (orgId) {
-      query = query.eq('organizationid', orgId);
+      query = query.eq('organization_id', orgId);
     }
 
     const { data, error } = await query;
@@ -587,7 +609,7 @@ export async function GET(request: Request) {
     let query = supabase
       .from('article')
       .select('*')
-      .order('createdat', { ascending: false });
+      .order('created_at', { ascending: false });
 
     if (category) {
       query = query.eq('category', category);
@@ -644,7 +666,7 @@ export async function GET(_request: Request) {
     const { data, error } = await supabase
       .from('workspace')
       .select('*')
-      .order('createdat', { ascending: false });
+      .order('created_at', { ascending: false });
 
     if (error) throw error;
     return NextResponse.json({ success: true, data });
@@ -668,7 +690,7 @@ export async function POST(request: Request) {
       .insert({
         id: crypto.randomUUID(),
         name,
-        organizationid: organizationId,
+        organization_id: organizationId,
       })
       .select()
       .single();
@@ -695,7 +717,7 @@ export async function GET(_request: Request) {
     const { data, error } = await supabase
       .from('project')
       .select('*')
-      .order('createdat', { ascending: false });
+      .order('created_at', { ascending: false });
 
     if (error) throw error;
     return NextResponse.json({ success: true, data });
@@ -721,8 +743,8 @@ export async function POST(request: Request) {
         name,
         description: description || null,
         status: 'active',
-        organizationid: organizationId,
-        workspaceid: workspaceId,
+        organization_id: organizationId,
+        workspace_id: workspaceId,
       })
       .select()
       .single();
@@ -749,7 +771,7 @@ export async function GET(_request: Request) {
     const { data, error } = await supabase
       .from('task')
       .select('*')
-      .order('createdat', { ascending: false });
+      .order('created_at', { ascending: false });
 
     if (error) throw error;
     return NextResponse.json({ success: true, data });
@@ -776,8 +798,8 @@ export async function POST(request: Request) {
         description: description || null,
         status: 'todo',
         priority: priority || 'medium',
-        projectid: projectId,
-        assigneeid: assigneeId || null,
+        project_id: projectId,
+        assignee_id: assigneeId || null,
       })
       .select()
       .single();
@@ -804,7 +826,7 @@ export async function GET(_request: Request) {
     const { data, error } = await supabase
       .from('document')
       .select('*')
-      .order('createdat', { ascending: false });
+      .order('created_at', { ascending: false });
 
     if (error) throw error;
     return NextResponse.json({ success: true, data });
@@ -829,7 +851,7 @@ export async function POST(request: Request) {
         id: crypto.randomUUID(),
         title,
         content: content || null,
-        projectid: projectId,
+        project_id: projectId,
       })
       .select()
       .single();
@@ -843,42 +865,11 @@ export async function POST(request: Request) {
 }
 `;
       }
-      // 20. Generic Fallback APIs
+      // No generator knows this route: fail instead of guessing a table from the path
       else {
-        files[`app/${fullRoutePath}/route.ts`] =
-          `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
-import { NextResponse } from 'next/server';
-
-/**
- * ${desc}
- * Path: /${fullRoutePath}
- */
-export async function ${method.toUpperCase()}(request: Request) {
-  const supabase = createRouteHandlerClient({ cookies });
-  try {
-    const tableName = '${fullRoutePath.split('/').pop() || 'data'}';
-    if ('${method.toUpperCase()}' === 'GET') {
-      const { data, error } = await supabase
-        .from(tableName)
-        .select('*');
-      if (error) throw error;
-      return NextResponse.json({ success: true, data });
-    } else {
-      const body = await request.json();
-      const { data, error } = await supabase
-        .from(tableName)
-        .insert(body)
-        .select();
-      if (error) throw error;
-      return NextResponse.json({ success: true, data });
-    }
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    return NextResponse.json({ success: false, error: message }, { status: 500 });
-  }
-}
-`;
+        throw new UnsupportedContractError(
+          `API '${method.toUpperCase()} /${fullRoutePath}' of feature '${apiDef.featureId}' has no generator in stack 'nextjs-supabase'`
+        );
       }
     }
 

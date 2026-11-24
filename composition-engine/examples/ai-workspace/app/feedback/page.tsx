@@ -6,8 +6,8 @@ interface CustomerFeedbackRecord {
   id: string;
   rating: number;
   comment?: string;
-  userid: string;
-  organizationid: string;
+  user_id: string;
+  organization_id: string;
 }
 
 export default function FeedbackDashboardPage() {
@@ -160,7 +160,7 @@ export default function FeedbackDashboardPage() {
                       "{f.comment || 'No comment left'}"
                     </p>
                     <p className="text-xs text-muted-foreground/80 font-mono">
-                      By: {f.userid} • Org: {f.organizationid}
+                      By: {f.user_id} • Org: {f.organization_id}
                     </p>
                   </div>
                 </div>

@@ -1,12 +1,12 @@
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
+import { createAdminClient } from '../../../../generated/lib/supabase/admin';
 import { verifyStripeSignature } from '../../../../generated/lib/billing/verify-stripe-signature';
 
 /**
  * Stripe secure webhook endpoint handler.
  * Path: /api/billing/webhook
- * Requires STRIPE_WEBHOOK_SECRET; requests without a valid Stripe signature are rejected.
+ * Requires STRIPE_WEBHOOK_SECRET and SUPABASE_SERVICE_ROLE_KEY. Requests without a valid
+ * Stripe signature are rejected before the body is parsed.
  */
 export async function POST(request: Request) {
   const secret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -22,21 +22,34 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: false, error: 'Invalid signature' }, { status: 400 });
   }
 
-  const supabase = createRouteHandlerClient({ cookies });
+  let payload;
   try {
-    const payload = JSON.parse(rawBody);
+    payload = JSON.parse(rawBody);
+  } catch {
+    return NextResponse.json({ success: false, error: 'Invalid JSON' }, { status: 400 });
+  }
 
-    if (payload.type === 'checkout.session.completed') {
-      const session = payload.data.object;
-      await supabase.from('stripecustomer').insert({
-        organizationId: session.metadata?.organizationId,
-        stripeCustomerId: session.customer,
-      });
-    }
+  if (payload.type !== 'checkout.session.completed') {
+    return NextResponse.json({ success: true, received: true, ignored: true });
+  }
 
+  const session = payload.data?.object;
+  const organizationId = session?.metadata?.organizationId;
+  if (!organizationId || !session?.customer) {
+    return NextResponse.json({ success: true, received: true, ignored: true });
+  }
+
+  try {
+    const { error } = await createAdminClient()
+      .from('stripe_customer')
+      .upsert(
+        { organization_id: organizationId, stripe_customer_id: session.customer },
+        { onConflict: 'stripe_customer_id' }
+      );
+    if (error) throw error;
     return NextResponse.json({ success: true, received: true });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    return NextResponse.json({ success: false, error: message }, { status: 400 });
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
   }
 }

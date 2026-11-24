@@ -2,6 +2,21 @@ import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
+export async function GET(_request: Request) {
+  const supabase = createRouteHandlerClient({ cookies });
+  try {
+    let query = supabase.from('chat_message').select('*').order('created_at', { ascending: true });
+
+    const { data, error } = await query;
+    if (error) throw error;
+
+    return NextResponse.json({ success: true, data });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ success: false, error: message }, { status: 400 });
+  }
+}
+
 export async function POST(request: Request) {
   const supabase = createRouteHandlerClient({ cookies });
   try {
@@ -14,8 +29,8 @@ export async function POST(request: Request) {
       );
     }
 
-    const { error: userMsgError } = await supabase.from('chatmessage').insert({
-      sessionid: sessionId,
+    const { error: userMsgError } = await supabase.from('chat_message').insert({
+      session_id: sessionId,
       role: 'user',
       content,
     });
@@ -32,9 +47,9 @@ export async function POST(request: Request) {
     const mockReply = replies[Math.floor(Math.random() * replies.length)];
 
     const { data: assistantMsg, error: assistantMsgError } = await supabase
-      .from('chatmessage')
+      .from('chat_message')
       .insert({
-        sessionid: sessionId,
+        session_id: sessionId,
         role: 'assistant',
         content: mockReply,
       })

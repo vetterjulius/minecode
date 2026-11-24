@@ -35,6 +35,10 @@ provides:
     - name: whiteboard.view
       description: View whiteboards
   api:
+    - name: CreateWhiteboardSession
+      path: /api/whiteboards
+      method: POST
+      description: Create a new whiteboard session.
     - name: GetWhiteboardSessions
       path: /api/whiteboards
       method: GET
