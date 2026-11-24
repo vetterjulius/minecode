@@ -1,6 +1,6 @@
-# Minecode v0.1 Known Limitations
+# Minecode Known Limitations
 
-This document outlines the known technical and architectural limitations of the Minecode composition system as of version 0.1.
+This document outlines the known technical and architectural limitations of the Minecode composition system during v0.2 development.
 
 ## 1. Single Stack Adapter Support
 
@@ -31,20 +31,25 @@ The generator uses a deterministic file registry and pre-defined templates to co
 
 ## 6. Database Migration Constraints
 
-Database migration generation is template-driven. It merges migrations in a static topological order and outputs them sequentially. The system does not support:
+Tables, constraints and RLS policies are generated from entities in dependency order. Generated migrations are create-only: they use `CREATE TABLE IF NOT EXISTS` and `DROP POLICY IF EXISTS` followed by `CREATE POLICY`. The system does not support:
 
+- Altering an existing database when an entity changes (adding a column or changing a type is not migrated).
 - Live database schema diffing.
 - Automatic database migration rollback script generation.
 - Schema synchronization from a running database back into the feature declarations.
 
-## 7. Limited First-Party Feature Library
+## 7. Feature Library
 
-The system currently provides five standard, pre-packaged built-in features:
+The system provides 19 built-in features (authentication, organizations, rbac, billing, projects, tasks, documents, ai-chat, and others under `composition-engine/features/builtin/`). Adding other capabilities requires developers to scaffold and develop custom features. A new feature currently also needs matching code in the stack's `api.ts`/`ui.ts`, because features declare contracts but do not yet ship their own generators.
 
-- `database`
-- `authentication`
-- `organizations`
-- `rbac`
-- `billing`
+## 8. Generated Application Gaps
 
-Adding other capabilities requires developers to scaffold and develop custom features from scratch.
+The generated apps build and their database and routes are consistent, but several behaviours are not production-ready:
+
+- **Permissions are not enforced in routes.** `config/permissions.ts` is generated but no route checks it, and no default roles are seeded. Tenant isolation is enforced by RLS; fine-grained permissions are not.
+- **Billing:** checkout returns `501 Not Implemented`. The Stripe webhook verifies signatures and stores the customer mapping, but no subscription lifecycle is handled.
+- **AI chat:** the assistant replies with canned text and is not connected to a model provider.
+- **Client-supplied identifiers:** some create routes still take `userId` or `organizationId` from the request body. RLS stops cross-tenant writes, but a member can set another user's id on tenant-scoped rows.
+- **Storage:** the `files` storage bucket is not created by any migration.
+- **Dependencies:** the generated apps use Next.js 14 and the deprecated `@supabase/auth-helpers-nextjs`.
+- **Ownership model:** `app/` is regenerated in full and overwritten; `extensions/` is not yet wired into the generated code, and there is no lockfile or upgrade path.

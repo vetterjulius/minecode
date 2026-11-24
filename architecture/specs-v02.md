@@ -39,7 +39,7 @@ The core `NextJsSupabaseAdapter` will act as a coordinator rather than an implem
 
 ### Generator Registry
 The main adapter will expose a registry to attach custom generators:
-- **`DatabaseGenerator`:** Compiles relational models, triggers indexes, and builds static TS types.
+- **`DatabaseGenerator`:** Compiles entities into tables, foreign keys, indexes, RLS policies and flat Supabase migrations, and builds static TS row types (see section 6).
 - **`AuthGenerator`:** Generates authentication page templates, reset-password flows, and session middleware.
 - **`BillingGenerator`:** Generates checkout checkout routers, webhook endpoints, and client-side subscription settings.
 - **`RbacGenerator`:** Compiles roles and permissions checks, embedding them directly into API handlers and frontend layouts.
@@ -71,3 +71,21 @@ Four new production-quality built-in features will be designed and added to the 
 Ensure developers can customize 100% of the generated application without losing custom logic upon subsequent code compositions.
 - **Extensions Boundaries:** Formalize directories (`/extensions`, `/config`) as protected custom namespaces.
 - **Contribution Points:** Enable developers to hook custom typescript classes or files into `extensionPoints` defined in feature contracts.
+
+---
+
+## 6. Schema and Access Model
+
+Entities in feature contracts are the single source of truth for the database; features do not ship hand-written table SQL.
+
+- **Entity model:** fields carry `references`, `generate`, `default`, `unique`, `primaryKey` and `indexed`. Each entity declares an `access` rule: `tenant` (members of an organization, optionally `via` a tenant-scoped parent), `owner`, `authenticated-read` or `private`, with `writes` of `members`, `insert-only` or `server-only`.
+- **Security by default:** every generated table has row level security enabled. An entity without an access rule is private (service role only). Tenant isolation is enforced by the database, not by route code.
+- **Identity:** the application user is a `Profile` linked to `auth.users` and created by a trigger. There are no separate user or session tables.
+- **Conventions:** `snake_case` tables and columns; flat timestamp-prefixed migrations in dependency order.
+- **Validation:** missing references, circular references, unknown field types, missing primary keys, duplicate entities and invalid access rules fail composition with an error naming the entity and feature.
+
+## 7. Generation Guarantees
+
+- **No silent fallbacks:** an API route or migration without a generator or content is an error, not a placeholder.
+- **Built output is verified:** CI regenerates the examples and requires them to be unchanged, runs the generated migrations on PostgreSQL, checks that tables, columns and fetch targets used by the generated app exist, and type-checks and builds the generated apps.
+- **Secrets stay on the server:** the service role key is only used by server-side helpers and is never referenced from client components.
