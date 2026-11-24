@@ -64,15 +64,65 @@ export const RawContractSchema = z.object({
               name: z.string().min(1, 'Entity name must be a non-empty string'),
               fields: z
                 .array(
-                  z.object({
-                    name: z.string().min(1),
-                    type: z.string().min(1),
-                    required: z.boolean().optional(),
-                    description: z.string().optional(),
-                  })
+                  z
+                    .object({
+                      name: z.string().min(1),
+                      type: z.string().min(1),
+                      required: z.boolean().optional(),
+                      description: z.string().optional(),
+                      references: z
+                        .object({
+                          entity: z.string().min(1).optional(),
+                          external: z.string().min(1).optional(),
+                          column: z.string().min(1).optional(),
+                          onDelete: z.enum(['cascade', 'restrict', 'set null']).optional(),
+                        })
+                        .strict()
+                        .refine((r) => Boolean(r.entity) !== Boolean(r.external), {
+                          message: 'references needs exactly one of "entity" or "external"',
+                        })
+                        .optional(),
+                      generate: z.enum(['uuid', 'now', 'auth-user']).optional(),
+                      default: z.union([z.string(), z.number(), z.boolean()]).optional(),
+                      unique: z.boolean().optional(),
+                      primaryKey: z.boolean().optional(),
+                      indexed: z.boolean().optional(),
+                    })
+                    .strict()
                 )
                 .optional(),
               description: z.string().optional(),
+              access: z
+                .object({
+                  scope: z.enum(['tenant', 'owner', 'authenticated-read', 'private']),
+                  field: z.string().min(1).optional(),
+                  via: z.string().min(1).optional(),
+                  writes: z.enum(['members', 'insert-only', 'server-only']).optional(),
+                })
+                .strict()
+                .superRefine((a, ctx) => {
+                  const needsField = a.scope === 'tenant' || a.scope === 'owner';
+                  if (needsField !== Boolean(a.field)) {
+                    ctx.addIssue({
+                      code: 'custom',
+                      message:
+                        'access.field is required for scope "tenant" or "owner" and forbidden otherwise',
+                    });
+                  }
+                  if (a.via && a.scope !== 'tenant') {
+                    ctx.addIssue({
+                      code: 'custom',
+                      message: 'access.via is only valid for scope "tenant"',
+                    });
+                  }
+                  if (a.writes && !needsField) {
+                    ctx.addIssue({
+                      code: 'custom',
+                      message: 'access.writes is only valid for scope "tenant" or "owner"',
+                    });
+                  }
+                })
+                .optional(),
             }),
           ])
         )
@@ -286,8 +336,15 @@ export function normalizeContract(raw: any): Contract {
               type: f.type,
               required: f.required ?? false,
               description: f.description ?? '',
+              ...(f.references && { references: f.references }),
+              ...(f.generate && { generate: f.generate }),
+              ...(f.default !== undefined && { default: f.default }),
+              ...(f.unique && { unique: true }),
+              ...(f.primaryKey && { primaryKey: true }),
+              ...(f.indexed && { indexed: true }),
             })) ?? [],
           description: ent.description ?? '',
+          ...(ent.access && { access: ent.access }),
         };
       });
     }

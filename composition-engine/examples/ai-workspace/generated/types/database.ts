@@ -1,161 +1,7 @@
-// Generated database type definitions for AI Workspace Reference Application
+// Row types of the database schema of AI Workspace Reference Application
 
-/**
- * Entity: ChatMessage
- * Chat message log
- */
-export interface ChatMessage {
-  /** Primary key */
-  id: string;
-  /** Reference to chat session */
-  sessionId: string;
-  /** Role of the message sender (user, system, assistant) */
-  role: string;
-  /** Message body text */
-  content: string;
-  /** Message creation timestamp */
-  createdAt: string;
-}
-
-/**
- * Entity: Metric
- * System metrics and resource usages
- */
-export interface Metric {
-  /** Primary key */
-  id: string;
-  /** Name of the logged metric */
-  name: string;
-  /** Value of the metric */
-  value: string;
-  /** Reference to Organization */
-  organizationId: string;
-  /** Timestamp of metric */
-  createdAt: string;
-}
-
-/**
- * Entity: AuditLog
- * Audit log entry tracking security events
- */
-export interface AuditLog {
-  /** Primary key */
-  id: string;
-  /** Type of event or action executed */
-  action: string;
-  /** User ID of the actor initiating the event */
-  actorId?: string;
-  /** Name of the altered database entity */
-  entityName?: string;
-  /** Identifier of the altered entity */
-  entityId?: string;
-  /** Event context metadata */
-  payload?: string;
-  /** Timestamp of the log entry */
-  createdAt: string;
-}
-
-/**
- * Entity: Session
- * Active session token
- */
-export interface Session {
-  /** Primary key */
-  id: string;
-  /** Reference to User */
-  userId: string;
-  /** Session token */
-  token: string;
-  /** Expiration timestamp */
-  expiresAt: string;
-}
-
-/**
- * Entity: User
- * App user account
- */
-export interface User {
-  /** Primary key */
-  id: string;
-  /** User's email address */
-  email: string;
-  /** Display name */
-  name?: string;
-  /** Account creation timestamp */
-  createdAt: string;
-}
-
-/**
- * Entity: StripeCustomer
- * Mapping of organization to Stripe customer
- */
-export interface StripeCustomer {
-  /** Primary key */
-  id: string;
-  /** Reference to Organization */
-  organizationId: string;
-  /** Stripe customer identifier */
-  stripeCustomerId: string;
-}
-
-/**
- * Entity: Subscription
- * Organization subscription details
- */
-export interface Subscription {
-  /** Primary key */
-  id: string;
-  /** Reference to Organization */
-  organizationId: string;
-  /** Subscription state */
-  status: string;
-  /** Stripe price identifier */
-  priceId: string;
-  /** Subscription start timestamp */
-  createdAt: string;
-}
-
-/**
- * Entity: Feedback
- * Customer satisfaction rating and text feedback
- */
-export interface Feedback {
-  /** Primary key */
-  id: string;
-  /** Satisfaction rating score (1-5) */
-  rating: number;
-  /** Customer comments text */
-  comment?: string;
-  /** Reference to User */
-  userId: string;
-  /** Reference to Organization */
-  organizationId: string;
-  /** Timestamp of feedback submission */
-  createdAt: string;
-}
-
-/**
- * Entity: Document
- * App document
- */
-export interface Document {
-  /** Primary key */
-  id: string;
-  /** Title of the document */
-  title: string;
-  /** Document content body */
-  content?: string;
-  /** Reference to Project */
-  projectid: string;
-  /** Document creation timestamp */
-  createdat: string;
-}
-
-/**
- * Entity: Article
- * Help center knowledge article
- */
-export interface Article {
+/** Help center knowledge article (table "article") */
+export interface ArticleRow {
   /** Primary key */
   id: string;
   /** Article heading title */
@@ -165,135 +11,79 @@ export interface Article {
   /** Article help topic category */
   category: string;
   /** User ID of the author */
-  authorId: string;
+  author_id?: string | null;
   /** Reference to Organization */
-  organizationId: string;
+  organization_id: string;
   /** Article publication timestamp */
-  createdAt: string;
+  created_at: string;
 }
 
-/**
- * Entity: Notification
- * Notification tracking and status
- */
-export interface Notification {
+/** Audit log entry tracking security events (table "audit_log") */
+export interface AuditLogRow {
   /** Primary key */
   id: string;
-  /** Reference to User */
-  userId: string;
-  /** Notification delivery channel (email, sms, slack) */
-  channel: string;
-  /** Notification title or header */
-  title: string;
-  /** Notification body text */
+  /** Type of event or action executed */
+  action: string;
+  /** User ID of the actor initiating the event */
+  actor_id?: string | null;
+  /** Name of the altered database entity */
+  entity_name?: string | null;
+  /** Identifier of the altered entity */
+  entity_id?: string | null;
+  /** Event context metadata */
+  payload?: string | null;
+  /** Timestamp of the log entry */
+  created_at: string;
+}
+
+/** Chat message log (table "chat_message") */
+export interface ChatMessageRow {
+  /** Primary key */
+  id: string;
+  /** Reference to chat session */
+  session_id: string;
+  /** Role of the message sender (user, system, assistant) */
+  role: string;
+  /** Message body text */
   content: string;
-  /** Delivery status (pending, sent, failed) */
-  status: string;
-  /** Timestamp of notification */
-  createdAt: string;
+  /** Message creation timestamp */
+  created_at: string;
+  /** Owner of the message */
+  user_id: string;
 }
 
-/**
- * Entity: Invitation
- * Organization join invitation
- */
-export interface Invitation {
+/** App document (table "document") */
+export interface DocumentRow {
   /** Primary key */
   id: string;
-  /** Reference to Organization */
-  organizationId: string;
-  /** Recipient email address */
-  email: string;
-  /** Target membership role */
-  role: string;
-  /** Secure invitation token */
-  token: string;
-  /** Expiration timestamp */
-  expiresAt: string;
+  /** Title of the document */
+  title: string;
+  /** Document content body */
+  content?: string | null;
+  /** Reference to Project */
+  project_id: string;
+  /** Document creation timestamp */
+  created_at: string;
 }
 
-/**
- * Entity: Membership
- * User membership inside an organization
- */
-export interface Membership {
+/** Customer satisfaction rating and text feedback (table "feedback") */
+export interface FeedbackRow {
   /** Primary key */
   id: string;
-  /** Reference to Organization */
-  organizationId: string;
+  /** Satisfaction rating score (1-5) */
+  rating: number;
+  /** Customer comments text */
+  comment?: string | null;
   /** Reference to User */
-  userId: string;
-  /** User role inside organization */
-  role: string;
-  /** Membership assignment timestamp */
-  createdAt: string;
-}
-
-/**
- * Entity: Organization
- * App organization (tenant)
- */
-export interface Organization {
-  /** Primary key */
-  id: string;
-  /** Name of the organization */
-  name: string;
-  /** Tenant creation timestamp */
-  createdAt: string;
-}
-
-/**
- * Entity: Project
- * App project
- */
-export interface Project {
-  /** Primary key */
-  id: string;
-  /** Name of the project */
-  name: string;
-  /** Optional description */
-  description?: string;
-  /** Project status (e.g. active, archived) */
-  status: string;
+  user_id: string;
   /** Reference to Organization */
-  organizationid: string;
-  /** Reference to Workspace */
-  workspaceid: string;
-  /** Project creation timestamp */
-  createdat: string;
+  organization_id: string;
+  /** Timestamp of feedback submission */
+  created_at: string;
 }
 
-/**
- * Entity: Permission
- * Specific action permission key
- */
-export interface Permission {
-  /** Primary key */
-  id: string;
-  /** Unique permission handle (e.g. user.create) */
-  name: string;
-  /** Purpose description */
-  description?: string;
-}
-
-/**
- * Entity: Role
- * User security group role
- */
-export interface Role {
-  /** Primary key */
-  id: string;
-  /** Unique identifier name of the role */
-  name: string;
-  /** Friendly description of the role */
-  description?: string;
-}
-
-/**
- * Entity: File
- * Uploaded file metadata tracking
- */
-export interface File {
+/** Uploaded file metadata tracking (table "file") */
+export interface FileRow {
   /** Primary key */
   id: string;
   /** Original name of the file */
@@ -303,41 +93,187 @@ export interface File {
   /** File size in bytes */
   size: number;
   /** MIME type of the file */
-  mimeType: string;
+  mime_type: string;
   /** Reference to Organization */
-  organizationId?: string;
+  organization_id?: string | null;
   /** Timestamp of file upload */
-  createdAt: string;
+  created_at: string;
 }
 
-/**
- * Entity: Task
- * App task
- */
-export interface Task {
+/** Organization join invitation (table "invitation") */
+export interface InvitationRow {
+  /** Primary key */
+  id: string;
+  /** Reference to Organization */
+  organization_id: string;
+  /** Recipient email address */
+  email: string;
+  /** Target membership role */
+  role: string;
+  /** Secure invitation token */
+  token: string;
+  /** Expiration timestamp */
+  expires_at: string;
+}
+
+/** User membership inside an organization (table "membership") */
+export interface MembershipRow {
+  /** Primary key */
+  id: string;
+  /** Reference to Organization */
+  organization_id: string;
+  /** Reference to User */
+  user_id: string;
+  /** User role inside organization */
+  role: string;
+  /** Membership assignment timestamp */
+  created_at: string;
+}
+
+/** System metrics and resource usages (table "metric") */
+export interface MetricRow {
+  /** Primary key */
+  id: string;
+  /** Name of the logged metric */
+  name: string;
+  /** Value of the metric */
+  value: number;
+  /** Reference to Organization */
+  organization_id: string;
+  /** Timestamp of metric */
+  created_at: string;
+}
+
+/** Notification tracking and status (table "notification") */
+export interface NotificationRow {
+  /** Primary key */
+  id: string;
+  /** Reference to User */
+  user_id: string;
+  /** Notification delivery channel (email, sms, slack) */
+  channel: string;
+  /** Notification title or header */
+  title: string;
+  /** Notification body text */
+  content: string;
+  /** Delivery status (pending, sent, failed) */
+  status: string;
+  /** Timestamp of notification */
+  created_at: string;
+}
+
+/** App organization (tenant) (table "organization") */
+export interface OrganizationRow {
+  /** Primary key */
+  id: string;
+  /** Name of the organization */
+  name: string;
+  /** Tenant creation timestamp */
+  created_at: string;
+}
+
+/** Specific action permission key (table "permission") */
+export interface PermissionRow {
+  /** Primary key */
+  id: string;
+  /** Unique permission handle (e.g. user.create) */
+  name: string;
+  /** Purpose description */
+  description?: string | null;
+}
+
+/** Application profile of an authenticated user (mirrors auth.users) (table "profile") */
+export interface ProfileRow {
+  /** Primary key, equals auth.users.id */
+  id: string;
+  /** User email address */
+  email: string;
+  /** Display name */
+  name?: string | null;
+  /** Creation timestamp */
+  created_at: string;
+}
+
+/** App project (table "project") */
+export interface ProjectRow {
+  /** Primary key */
+  id: string;
+  /** Name of the project */
+  name: string;
+  /** Optional description */
+  description?: string | null;
+  /** Project status (e.g. active, archived) */
+  status: string;
+  /** Reference to Organization */
+  organization_id: string;
+  /** Reference to Workspace */
+  workspace_id: string;
+  /** Project creation timestamp */
+  created_at: string;
+}
+
+/** User security group role (table "role") */
+export interface RoleRow {
+  /** Primary key */
+  id: string;
+  /** Unique identifier name of the role */
+  name: string;
+  /** Friendly description of the role */
+  description?: string | null;
+}
+
+/** Grants a permission to a role (table "role_permission") */
+export interface RolePermissionRow {
+  role_id: string;
+  permission_id: string;
+}
+
+/** Mapping of organization to Stripe customer (table "stripe_customer") */
+export interface StripeCustomerRow {
+  /** Primary key */
+  id: string;
+  /** Reference to Organization */
+  organization_id: string;
+  /** Stripe customer identifier */
+  stripe_customer_id: string;
+}
+
+/** Organization subscription details (table "subscription") */
+export interface SubscriptionRow {
+  /** Primary key */
+  id: string;
+  /** Reference to Organization */
+  organization_id: string;
+  /** Subscription state */
+  status: string;
+  /** Stripe price identifier */
+  price_id: string;
+  /** Subscription start timestamp */
+  created_at: string;
+}
+
+/** App task (table "task") */
+export interface TaskRow {
   /** Primary key */
   id: string;
   /** Title of the task */
   title: string;
   /** Optional description */
-  description?: string;
+  description?: string | null;
   /** Task status */
   status: string;
   /** Task priority */
   priority: string;
   /** Reference to Project */
-  projectid: string;
+  project_id: string;
   /** Reference to User */
-  assigneeid?: string;
+  assignee_id?: string | null;
   /** Task creation timestamp */
-  createdat: string;
+  created_at: string;
 }
 
-/**
- * Entity: Ticket
- * Customer support ticket tracking
- */
-export interface Ticket {
+/** Customer support ticket tracking (table "ticket") */
+export interface TicketRow {
   /** Primary key */
   id: string;
   /** Ticket short summary title */
@@ -347,39 +283,33 @@ export interface Ticket {
   /** Ticket urgency priority (low, medium, high, urgent) */
   priority: string;
   /** User ID of assigned staff support agent */
-  assigneeId?: string;
+  assignee_id?: string | null;
   /** Reference to Organization */
-  organizationId: string;
+  organization_id: string;
   /** Ticket creation timestamp */
-  createdAt: string;
+  created_at: string;
 }
 
-/**
- * Entity: WhiteboardSession
- * Collaborative whiteboard drawing session
- */
-export interface WhiteboardSession {
+/** Collaborative whiteboard drawing session (table "whiteboard_session") */
+export interface WhiteboardSessionRow {
   /** Primary key */
   id: string;
   /** Session display name */
   name: string;
   /** Reference to Organization */
-  organizationId: string;
+  organization_id: string;
   /** Timestamp of session creation */
-  createdAt: string;
+  created_at: string;
 }
 
-/**
- * Entity: Workspace
- * App workspace
- */
-export interface Workspace {
+/** App workspace (table "workspace") */
+export interface WorkspaceRow {
   /** Primary key */
   id: string;
   /** Name of the workspace */
   name: string;
   /** Reference to Organization */
-  organizationid: string;
+  organization_id: string;
   /** Workspace creation timestamp */
-  createdat: string;
+  created_at: string;
 }

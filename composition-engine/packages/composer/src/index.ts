@@ -82,6 +82,7 @@ export class Composer {
               entityName: ent.name,
               fields: ent.fields || [],
               description: ent.description,
+              access: ent.access,
             });
           }
         }

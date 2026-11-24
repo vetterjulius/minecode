@@ -572,10 +572,10 @@ features:
   const result = JSON.parse(response.content[0].text);
   expect(result.success).toBe(true);
   expect(result.outDir).toBe(tempOutDir);
-  expect(result.files).toContain('supabase/migrations/user_table.sql');
+  expect(result.files).toContain('supabase/migrations/20260101000000_create_user.sql');
 
   // Verify that a file was physically written
-  const userTableFile = path.join(tempOutDir, 'supabase/migrations/user_table.sql');
+  const userTableFile = path.join(tempOutDir, 'supabase/migrations/20260101000000_create_user.sql');
   expect(fs.existsSync(userTableFile)).toBe(true);
   const content = fs.readFileSync(userTableFile, 'utf8');
   expect(content).toContain('CREATE TABLE IF NOT EXISTS "user"');

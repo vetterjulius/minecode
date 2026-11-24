@@ -3,43 +3,51 @@ provides:
     - workspaces
   entities:
     - name: Workspace
-      description: 'App workspace'
+      description: App workspace
       fields:
         - name: id
           type: uuid
           required: true
-          description: 'Primary key'
+          description: Primary key
+          generate: uuid
         - name: name
           type: string
           required: true
-          description: 'Name of the workspace'
-        - name: organizationid
+          description: Name of the workspace
+        - name: organizationId
           type: uuid
           required: true
-          description: 'Reference to Organization'
-        - name: createdat
+          description: Reference to Organization
+          references:
+            entity: Organization
+            onDelete: cascade
+        - name: createdAt
           type: timestamp
           required: true
-          description: 'Workspace creation timestamp'
+          description: Workspace creation timestamp
+          generate: now
+      access:
+        scope: tenant
+        field: organizationId
   permissions:
     - name: workspace.read
-      description: 'Read workspace details'
+      description: Read workspace details
     - name: workspace.write
-      description: 'Modify workspace details'
+      description: Modify workspace details
   api:
     - name: ListWorkspaces
       path: /api/workspaces
       method: GET
-      description: 'List workspaces for an organization.'
+      description: List workspaces for an organization.
     - name: CreateWorkspace
       path: /api/workspaces
       method: POST
-      description: 'Create a new workspace.'
+      description: Create a new workspace.
   ui:
     - name: WorkspacesDashboard
       route: workspaces
       slot: main
-      description: 'Workspaces management dashboard.'
+      description: Workspaces management dashboard.
 requires:
   features:
     - database

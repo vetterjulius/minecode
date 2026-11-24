@@ -7,6 +7,9 @@ settings:
 importers:
   .:
     devDependencies:
+      '@electric-sql/pglite':
+        specifier: ^0.6.0
+        version: 0.6.0
       '@eslint/js':
         specifier: ^9.20.0
         version: 9.39.5
@@ -204,6 +207,12 @@ packages:
         integrity: sha512-6zABk/ECA/QYSCQ1NGiVwwbQerUCZ+TQbp64Q3AgmfNvurHH0j8TtXa1qbShXA6qqkpAj4V5W8pP6mLe1mcMqA==,
       }
     engines: { node: '>=18' }
+
+  '@electric-sql/pglite@0.6.0':
+    resolution:
+      {
+        integrity: sha512-g3tAPFjRLEdN1g5FvawTl4ETo9LtmVwBRUJYnH6Erl6mhlKFRGB2mYhPABffIuXMYxki64mX0Al8U4UFUhuYDQ==,
+      }
 
   '@esbuild/aix-ppc64@0.28.1':
     resolution:
@@ -2939,6 +2948,8 @@ snapshots:
       '@babel/helper-validator-identifier': 7.29.7
 
   '@bcoe/v8-coverage@1.0.2': {}
+
+  '@electric-sql/pglite@0.6.0': {}
 
   '@esbuild/aix-ppc64@0.28.1':
     optional: true

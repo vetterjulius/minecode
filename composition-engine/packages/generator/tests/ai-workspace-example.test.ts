@@ -36,7 +36,6 @@ test('test_AiWorkspaceExample_GeneratedFiles_ExistAndAreValid', () => {
     'config',
     'generated/types',
     'supabase/migrations',
-    'supabase/migrations/database',
   ];
 
   for (const dir of expectedDirs) {
@@ -47,15 +46,6 @@ test('test_AiWorkspaceExample_GeneratedFiles_ExistAndAreValid', () => {
   const expectedFiles = [
     'config/permissions.ts',
     'generated/types/database.ts',
-    'supabase/migrations/database/0000_init_schema.sql',
-    'supabase/migrations/database/0001_auth_schema.sql',
-    'supabase/migrations/database/0002_orgs_schema.sql',
-    'supabase/migrations/database/0003_rbac_schema.sql',
-    'supabase/migrations/database/0004_billing_schema.sql',
-    'supabase/migrations/database/0015_workspaces_schema.sql',
-    'supabase/migrations/database/0016_projects_schema.sql',
-    'supabase/migrations/database/0017_tasks_schema.sql',
-    'supabase/migrations/database/0018_documents_schema.sql',
     'package.json',
     'tsconfig.json',
     'postcss.config.js',
@@ -90,17 +80,17 @@ test('test_AiWorkspaceExample_GeneratedFiles_ExistAndAreValid', () => {
     path.join(exampleDir, 'generated/types/database.ts'),
     'utf8'
   );
-  expect(dbTypesContent).toContain('export interface User');
-  expect(dbTypesContent).toContain('export interface Session');
-  expect(dbTypesContent).toContain('export interface Organization');
-  expect(dbTypesContent).toContain('export interface Membership');
-  expect(dbTypesContent).toContain('export interface Invitation');
-  expect(dbTypesContent).toContain('export interface Role');
-  expect(dbTypesContent).toContain('export interface Permission');
-  expect(dbTypesContent).toContain('export interface StripeCustomer');
-  expect(dbTypesContent).toContain('export interface Subscription');
-  expect(dbTypesContent).toContain('export interface Workspace');
-  expect(dbTypesContent).toContain('export interface Project');
+  expect(dbTypesContent).toContain('export interface ProfileRow');
+  expect(dbTypesContent).toContain('export interface TaskRow');
+  expect(dbTypesContent).toContain('export interface OrganizationRow');
+  expect(dbTypesContent).toContain('export interface MembershipRow');
+  expect(dbTypesContent).toContain('export interface InvitationRow');
+  expect(dbTypesContent).toContain('export interface RoleRow');
+  expect(dbTypesContent).toContain('export interface PermissionRow');
+  expect(dbTypesContent).toContain('export interface StripeCustomerRow');
+  expect(dbTypesContent).toContain('export interface SubscriptionRow');
+  expect(dbTypesContent).toContain('export interface WorkspaceRow');
+  expect(dbTypesContent).toContain('export interface ProjectRow');
   expect(dbTypesContent).toContain('export interface Task');
-  expect(dbTypesContent).toContain('export interface Document');
+  expect(dbTypesContent).toContain('export interface DocumentRow');
 });

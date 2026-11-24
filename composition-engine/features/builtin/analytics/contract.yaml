@@ -3,41 +3,49 @@ provides:
     - analytics
   entities:
     - name: Metric
-      description: 'System metrics and resource usages'
+      description: System metrics and resource usages
       fields:
         - name: id
           type: uuid
           required: true
-          description: 'Primary key'
+          description: Primary key
+          generate: uuid
         - name: name
           type: string
           required: true
-          description: 'Name of the logged metric'
+          description: Name of the logged metric
         - name: value
           type: float
           required: true
-          description: 'Value of the metric'
+          description: Value of the metric
         - name: organizationId
           type: uuid
           required: true
-          description: 'Reference to Organization'
+          description: Reference to Organization
+          references:
+            entity: Organization
+            onDelete: cascade
         - name: createdAt
           type: timestamp
           required: true
-          description: 'Timestamp of metric'
+          description: Timestamp of metric
+          generate: now
+      access:
+        scope: tenant
+        field: organizationId
   permissions:
     - name: analytics.view
-      description: 'View metric analytics dashboards'
+      description: View metric analytics dashboards
   api:
     - name: GetMetrics
       path: /api/analytics/metrics
       method: GET
-      description: 'Fetch organization usage metric logs.'
+      description: Fetch organization usage metric logs.
   ui:
     - name: AnalyticsDashboard
       route: analytics
       slot: main
-      description: 'Usage analytics charts and KPI reports.'
+      description: Usage analytics charts and KPI reports.
 requires:
   features:
     - database
