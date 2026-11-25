@@ -48,6 +48,9 @@ provides:
       access:
         scope: tenant
         field: projectId
+        permissions:
+          read: task.read
+          write: task.write
         via: Project
   permissions:
     - name: task.read

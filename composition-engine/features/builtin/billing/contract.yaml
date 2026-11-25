@@ -26,6 +26,8 @@ provides:
         scope: tenant
         field: organizationId
         writes: server-only
+        permissions:
+          read: billing.read
     - name: Subscription
       description: Organization subscription details
       fields:
@@ -58,6 +60,8 @@ provides:
         scope: tenant
         field: organizationId
         writes: server-only
+        permissions:
+          read: billing.read
   permissions:
     - name: billing.read
       description: Read billing details and subscriptions

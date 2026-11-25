@@ -40,6 +40,9 @@ provides:
       access:
         scope: tenant
         field: organizationId
+        permissions:
+          read: feedback.read
+          write: feedback.write
   permissions:
     - name: feedback.read
       description: Read organization feedback ratings

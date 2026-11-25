@@ -98,9 +98,22 @@ export const RawContractSchema = z.object({
                   field: z.string().min(1).optional(),
                   via: z.string().min(1).optional(),
                   writes: z.enum(['members', 'insert-only', 'server-only']).optional(),
+                  permissions: z
+                    .object({
+                      read: z.string().min(1).optional(),
+                      write: z.string().min(1).optional(),
+                    })
+                    .strict()
+                    .optional(),
                 })
                 .strict()
                 .superRefine((a, ctx) => {
+                  if (a.permissions && a.scope !== 'tenant') {
+                    ctx.addIssue({
+                      code: 'custom',
+                      message: 'access.permissions is only valid for "tenant" scope',
+                    });
+                  }
                   const needsField = a.scope === 'tenant' || a.scope === 'owner';
                   if (needsField !== Boolean(a.field)) {
                     ctx.addIssue({

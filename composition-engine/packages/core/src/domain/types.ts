@@ -64,11 +64,22 @@ export type AccessScope = 'tenant' | 'owner' | 'authenticated-read' | 'private';
 
 export type WriteMode = 'members' | 'insert-only' | 'server-only';
 
+/** Permission names (declared by features) required to read or write rows of an entity. */
+export interface EntityPermissions {
+  read?: string;
+  write?: string;
+}
+
 export interface EntityAccess {
   scope: AccessScope;
   field?: string;
   via?: string;
   writes?: WriteMode;
+  /**
+   * Tenant scope only. Enforced in the database when the composition provides roles
+   * (the 'rbac' feature); otherwise organization membership alone grants access.
+   */
+  permissions?: EntityPermissions;
 }
 
 export interface EntityDefinition {
@@ -249,6 +260,8 @@ export interface CompositionPlan {
   permissions: PermissionArtifact[];
   migrations: MigrationArtifact[];
   extensionPoints: ExtensionPointArtifact[];
+  /** Blueprint configuration of the enabled features, keyed by feature id. */
+  featureConfig?: Record<string, Record<string, unknown>>;
 }
 
 export interface Feature {

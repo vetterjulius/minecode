@@ -1,5 +1,6 @@
 import { DatabaseArtifact, EntityAccess, WriteMode } from '@minecode/core';
 import { columnName, quote, tableName } from './naming.js';
+import { PERMISSION_FUNCTION } from './rbac.js';
 
 export const ORG_MEMBER_FUNCTION = 'is_org_member';
 
@@ -25,15 +26,34 @@ $$;
 `;
 }
 
-function condition(entity: DatabaseArtifact, access: EntityAccess): string {
+function withPermission(base: string, column: string, permission?: string): string {
+  if (!permission) return base;
+  return `${base} AND public.${PERMISSION_FUNCTION}(${column}, '${permission.replace(/'/g, "''")}')`;
+}
+
+/**
+ * Row condition for an entity. `permission` is checked against the organization the row
+ * belongs to; for child entities that organization is the parent's.
+ */
+function condition(
+  entity: DatabaseArtifact,
+  access: EntityAccess,
+  byName: Map<string, DatabaseArtifact>,
+  permission?: string
+): string {
   const table = quote(tableName(entity.entityName));
   const column = `${table}.${quote(columnName(access.field as string))}`;
   if (access.scope === 'owner') return `${column} = auth.uid()`;
   if (access.via) {
+    const parentEntity = byName.get(access.via) as DatabaseArtifact;
     const parent = quote(tableName(access.via));
-    return `EXISTS (SELECT 1 FROM ${parent} p WHERE p."id" = ${column})`;
+    const orgColumn = `p.${quote(columnName(parentEntity.access?.field as string))}`;
+    const check = permission
+      ? ` AND public.${PERMISSION_FUNCTION}(${orgColumn}, '${permission.replace(/'/g, "''")}')`
+      : '';
+    return `EXISTS (SELECT 1 FROM ${parent} p WHERE p."id" = ${column}${check})`;
   }
-  return `public.${ORG_MEMBER_FUNCTION}(${column})`;
+  return withPermission(`public.${ORG_MEMBER_FUNCTION}(${column})`, column, permission);
 }
 
 function policy(table: string, operation: string, clauses: string): string {
@@ -52,15 +72,21 @@ function writePolicies(table: string, cond: string, mode: WriteMode): string[] {
   ];
 }
 
-function policiesFor(entity: DatabaseArtifact): string[] {
+function policiesFor(
+  entity: DatabaseArtifact,
+  rbac: boolean,
+  byName: Map<string, DatabaseArtifact>
+): string[] {
   const access = entity.access;
   const table = quote(tableName(entity.entityName));
   if (!access || access.scope === 'private') return [];
   if (access.scope === 'authenticated-read') return [policy(table, 'SELECT', 'USING (true)')];
-  const cond = condition(entity, access);
+  const needs = rbac ? access.permissions : undefined;
+  const readCond = condition(entity, access, byName, needs?.read);
+  const writeCond = condition(entity, access, byName, needs?.write);
   return [
-    policy(table, 'SELECT', `USING (${cond})`),
-    ...writePolicies(table, cond, access.writes ?? 'members'),
+    policy(table, 'SELECT', `USING (${readCond})`),
+    ...writePolicies(table, writeCond, access.writes ?? 'members'),
   ];
 }
 
@@ -71,14 +97,15 @@ function dropExisting(table: string, statements: string[]): string[] {
   });
 }
 
-export function buildPolicies(entities: DatabaseArtifact[]): string {
+export function buildPolicies(entities: DatabaseArtifact[], rbac = false): string {
+  const byName = new Map(entities.map((e) => [e.entityName, e]));
   const blocks = entities.map((entity) => {
     const table = quote(tableName(entity.entityName));
     const lines = [
       `-- ${entity.entityName}: ${describeAccess(entity)}`,
       `ALTER TABLE ${table} ENABLE ROW LEVEL SECURITY;`,
     ];
-    return [...lines, ...dropExisting(table, policiesFor(entity))].join('\n');
+    return [...lines, ...dropExisting(table, policiesFor(entity, rbac, byName))].join('\n');
   });
   return blocks.join('\n\n') + '\n';
 }
@@ -89,5 +116,8 @@ function describeAccess(entity: DatabaseArtifact): string {
   const target = access.field ? ` on ${access.field}` : '';
   const via = access.via ? ` via ${access.via}` : '';
   const writes = access.writes ? `, writes: ${access.writes}` : '';
-  return `${access.scope}${target}${via}${writes}`;
+  const perms = access.permissions
+    ? `, permissions: read=${access.permissions.read ?? '-'} write=${access.permissions.write ?? '-'}`
+    : '';
+  return `${access.scope}${target}${via}${writes}${perms}`;
 }

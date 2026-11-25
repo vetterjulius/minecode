@@ -42,6 +42,33 @@ function validateApiReferences(
   }
 }
 
+function validatePermissionReferences(
+  database: DatabaseArtifact[],
+  permissions: PermissionArtifact[]
+): void {
+  const names = new Set(permissions.map((p) => p.name));
+  for (const entity of database) {
+    for (const name of [entity.access?.permissions?.read, entity.access?.permissions?.write]) {
+      if (name && !names.has(name)) {
+        throw new Error(`Entity "${entity.entityName}" requires unknown permission "${name}"`);
+      }
+    }
+  }
+}
+
+function collectFeatureConfig(
+  resolvedFeatures: Feature[],
+  blueprint: Blueprint
+): Record<string, Record<string, unknown>> {
+  const configured = Array.isArray(blueprint.features) ? {} : (blueprint.features ?? {});
+  const result: Record<string, Record<string, unknown>> = {};
+  for (const feature of resolvedFeatures) {
+    const config = configured[feature.id]?.config;
+    if (config) result[feature.id] = config;
+  }
+  return result;
+}
+
 export class Composer {
   /**
    * Generates a deterministic CompositionPlan from a resolved feature graph and blueprint.
@@ -332,6 +359,7 @@ export class Composer {
     migrations.sort(sortById);
 
     validateApiReferences(api, database, permissions);
+    validatePermissionReferences(database, permissions);
 
     const extensionPoints = Array.from(extensionPointsMap.values());
     extensionPoints.sort(sortById);
@@ -347,6 +375,7 @@ export class Composer {
       permissions,
       migrations,
       extensionPoints,
+      featureConfig: collectFeatureConfig(resolvedFeatures, blueprint),
     };
   }
 }

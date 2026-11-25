@@ -5,6 +5,7 @@ import { MigrationSequence } from './migration-files.js';
 import { slugify, tableName } from './naming.js';
 import { orderByReferences } from './ordering.js';
 import { buildProfileSync, findAuthProfile } from './profile-sync.js';
+import { buildPermissionFunction, buildRbacSeed, rbacActive } from './rbac.js';
 import { buildPolicies, buildRlsHelpers, usesTenantAccess } from './rls.js';
 import { buildRowTypes } from './row-types.js';
 import { validateSchemaPlan } from './validate.js';
@@ -29,11 +30,16 @@ export class SupabaseDatabaseSubGenerator implements SubGenerator {
     for (const entity of entities) {
       migrations.add(`create_${tableName(entity.entityName)}`, buildCreateTable(entity, byName));
     }
+    const rbac = rbacActive(entities);
     if (usesTenantAccess(entities)) {
       migrations.add('rls_helpers', buildRlsHelpers());
     }
+    if (rbac) {
+      migrations.add('rbac_helpers', buildPermissionFunction());
+      migrations.add('rbac_seed', buildRbacSeed(plan));
+    }
     if (entities.length > 0) {
-      migrations.add('rls_policies', buildPolicies(entities));
+      migrations.add('rls_policies', buildPolicies(entities, rbac));
     }
     const profile = findAuthProfile(entities);
     if (profile) {

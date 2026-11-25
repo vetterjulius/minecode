@@ -41,6 +41,9 @@ provides:
       access:
         scope: tenant
         field: organizationId
+        permissions:
+          read: storage.read
+          write: storage.write
   permissions:
     - name: storage.read
       description: Read storage and view files

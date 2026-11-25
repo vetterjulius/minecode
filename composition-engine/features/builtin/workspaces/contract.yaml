@@ -29,6 +29,9 @@ provides:
       access:
         scope: tenant
         field: organizationId
+        permissions:
+          read: workspace.read
+          write: workspace.write
   permissions:
     - name: workspace.read
       description: Read workspace details

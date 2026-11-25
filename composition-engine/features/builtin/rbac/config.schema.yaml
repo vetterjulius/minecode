@@ -4,6 +4,12 @@ properties:
     type: array
     items:
       type: string
-    default: [admin, member]
-    description: 'System roles populated by default'
+    default: [owner, admin, member]
+    description: 'Roles created by the seed migration'
+  roles:
+    type: object
+    description: >-
+      Permissions per role name. Entries are permission names, "prefix.*" or "*";
+      a leading "!" removes matches. Roles without an entry use the built-in defaults
+      (owner, admin, member) or read-only access.
 required: []

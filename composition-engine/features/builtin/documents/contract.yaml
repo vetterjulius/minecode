@@ -33,6 +33,9 @@ provides:
       access:
         scope: tenant
         field: projectId
+        permissions:
+          read: document.read
+          write: document.write
         via: Project
   permissions:
     - name: document.read

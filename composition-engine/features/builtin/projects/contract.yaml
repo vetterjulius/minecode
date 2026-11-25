@@ -44,6 +44,9 @@ provides:
       access:
         scope: tenant
         field: organizationId
+        permissions:
+          read: project.read
+          write: project.write
   permissions:
     - name: project.read
       description: Read project details

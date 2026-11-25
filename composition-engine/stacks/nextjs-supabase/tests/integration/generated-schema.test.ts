@@ -188,9 +188,17 @@ describe('generated migrations on PostgreSQL', () => {
   });
 
   test('test_AuthenticatedReadTable_ReadAsAnyUser_ReturnsRows', async () => {
-    await db.exec(`INSERT INTO role (name) VALUES ('admin')`);
-    const rows = await asUser(db, BOB, async () => (await db.query('SELECT name FROM role')).rows);
-    expect(rows).toEqual([{ name: 'admin' }]);
+    const rows = await asUser(
+      db,
+      BOB,
+      async () => (await db.query('SELECT name FROM role ORDER BY name')).rows
+    );
+    expect(rows).toEqual([
+      { name: 'admin' },
+      { name: 'guest' },
+      { name: 'member' },
+      { name: 'owner' },
+    ]);
   });
 
   test('test_AuthenticatedReadTable_InsertAsUser_IsDenied', async () => {
@@ -215,5 +223,118 @@ describe('generated migrations on PostgreSQL', () => {
        WHERE n.nspname = 'public' AND c.relkind = 'r' AND NOT c.relrowsecurity`
     );
     expect(rows).toEqual([]);
+  });
+
+  describe('role based permissions', () => {
+    const CAROL = '00000000-0000-0000-0000-00000000000c';
+    const DAVE = '00000000-0000-0000-0000-00000000000d';
+
+    beforeAll(async () => {
+      await db.exec(`
+        INSERT INTO auth.users (id, email, raw_user_meta_data) VALUES
+          ('${CAROL}', 'carol@example.com', '{}'), ('${DAVE}', 'dave@example.com', '{}');
+        INSERT INTO membership (organization_id, user_id, role) VALUES
+          ('${ORG_A}', '${CAROL}', 'guest'), ('${ORG_A}', '${DAVE}', 'member');
+      `);
+    });
+
+    test('test_Seed_Applied_GrantsEveryPermissionToOwner', async () => {
+      const { rows } = await db.query<{ missing: string }>(
+        `SELECT p.name AS missing FROM permission p
+         WHERE NOT EXISTS (SELECT 1 FROM role_permission rp WHERE rp.role = 'owner' AND rp.permission = p.name)`
+      );
+      expect(rows).toEqual([]);
+    });
+
+    test('test_Seed_Applied_KeepsBillingAndRbacWritesAwayFromMembers', async () => {
+      const { rows } = await db.query<{ permission: string }>(
+        `SELECT permission FROM role_permission
+         WHERE role = 'member' AND (permission LIKE 'billing.%' OR permission LIKE 'rbac.%')`
+      );
+      expect(rows).toEqual([]);
+    });
+
+    test('test_PermissionGatedTable_ReadAsRoleWithReadPermission_ReturnsRows', async () => {
+      const rows = await asUser(
+        db,
+        CAROL,
+        async () => (await db.query('SELECT name FROM workspace')).rows
+      );
+      expect(rows).toEqual([{ name: 'ws' }]);
+    });
+
+    test('test_PermissionGatedTable_InsertAsReadOnlyRole_IsDenied', async () => {
+      const denied = await asUser(db, CAROL, () =>
+        expectDenied(() =>
+          db.exec(`INSERT INTO workspace (organization_id, name) VALUES ('${ORG_A}', 'guest-ws')`)
+        )
+      );
+      expect(denied).toBe(true);
+    });
+
+    test('test_PermissionGatedTable_InsertAsRoleWithWritePermission_IsAllowed', async () => {
+      await asUser(db, DAVE, () =>
+        db.exec(`INSERT INTO workspace (organization_id, name) VALUES ('${ORG_A}', 'member-ws')`)
+      );
+      const { rows } = await db.query(`SELECT 1 FROM workspace WHERE name = 'member-ws'`);
+      expect(rows).toHaveLength(1);
+    });
+
+    test('test_PermissionGatedTable_UpdateAsReadOnlyRole_AffectsNoRows', async () => {
+      const result = await asUser(db, CAROL, () =>
+        db.query(`UPDATE workspace SET name = 'renamed' WHERE organization_id = '${ORG_A}'`)
+      );
+      expect(result.affectedRows).toBe(0);
+    });
+
+    test('test_ChildTableViaParent_InsertAsReadOnlyRole_IsDenied', async () => {
+      const denied = await asUser(db, CAROL, () =>
+        expectDenied(() =>
+          db.exec(
+            `INSERT INTO task (title, project_id, status, priority) VALUES ('x', '${PROJECT_A}', 'open', 'low')`
+          )
+        )
+      );
+      expect(denied).toBe(true);
+    });
+
+    test('test_ChildTableViaParent_InsertAsRoleWithWritePermission_IsAllowed', async () => {
+      await asUser(db, DAVE, () =>
+        db.exec(
+          `INSERT INTO task (title, project_id, status, priority) VALUES ('by-member', '${PROJECT_A}', 'open', 'low')`
+        )
+      );
+      const { rows } = await db.query(`SELECT 1 FROM task WHERE title = 'by-member'`);
+      expect(rows).toHaveLength(1);
+    });
+
+    test('test_PermissionGatedTable_RevokedGrant_StopsAccessImmediately', async () => {
+      await db.exec(
+        `DELETE FROM role_permission WHERE role = 'guest' AND permission = 'workspace.read'`
+      );
+      const rows = await asUser(
+        db,
+        CAROL,
+        async () => (await db.query('SELECT name FROM workspace')).rows
+      );
+      expect(rows).toEqual([]);
+      await db.exec(
+        `INSERT INTO role_permission (role, permission) VALUES ('guest', 'workspace.read')`
+      );
+    });
+
+    test('test_Seed_ReapplyAfterManualGrant_KeepsManualGrant', async () => {
+      await db.exec(
+        `INSERT INTO role_permission (role, permission) VALUES ('guest', 'workspace.write') ON CONFLICT DO NOTHING`
+      );
+      expect(await applyMigrations(db, MIGRATIONS)).toEqual([]);
+      const { rows } = await db.query(
+        `SELECT 1 FROM role_permission WHERE role = 'guest' AND permission = 'workspace.write'`
+      );
+      expect(rows).toHaveLength(1);
+      await db.exec(
+        `DELETE FROM role_permission WHERE role = 'guest' AND permission = 'workspace.write'`
+      );
+    });
   });
 });

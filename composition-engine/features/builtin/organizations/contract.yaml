@@ -23,6 +23,8 @@ provides:
         scope: tenant
         field: id
         writes: server-only
+        permissions:
+          read: org.read
     - name: Membership
       description: User membership inside an organization
       fields:
@@ -58,6 +60,8 @@ provides:
         scope: tenant
         field: organizationId
         writes: server-only
+        permissions:
+          read: org.read
     - name: Invitation
       description: Organization join invitation
       fields:
@@ -94,6 +98,8 @@ provides:
         scope: tenant
         field: organizationId
         writes: server-only
+        permissions:
+          read: org.invite
   permissions:
     - name: org.read
       description: Read organization details

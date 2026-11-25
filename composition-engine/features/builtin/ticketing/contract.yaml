@@ -46,6 +46,9 @@ provides:
       access:
         scope: tenant
         field: organizationId
+        permissions:
+          read: tickets.read
+          write: tickets.write
   permissions:
     - name: tickets.read
       description: View organization support tickets

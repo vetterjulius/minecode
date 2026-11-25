@@ -33,6 +33,9 @@ provides:
       access:
         scope: tenant
         field: organizationId
+        permissions:
+          read: analytics.view
+          write: analytics.view
   permissions:
     - name: analytics.view
       description: View metric analytics dashboards

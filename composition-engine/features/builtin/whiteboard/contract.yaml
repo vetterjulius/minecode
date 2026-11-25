@@ -29,6 +29,9 @@ provides:
       access:
         scope: tenant
         field: organizationId
+        permissions:
+          read: whiteboard.view
+          write: whiteboard.create
   permissions:
     - name: whiteboard.create
       description: Create new whiteboard sessions
