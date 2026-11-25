@@ -41,6 +41,10 @@ provides:
       path: /api/analytics/metrics
       method: GET
       description: Fetch organization usage metric logs.
+      crud:
+        entity: Metric
+        operation: list
+      permission: analytics.view
   ui:
     - name: AnalyticsDashboard
       route: analytics

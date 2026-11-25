@@ -52,10 +52,16 @@ provides:
       path: /api/notifications
       method: GET
       description: List notifications of the current user.
+      crud:
+        entity: Notification
+        operation: list
+      permission: notifications.read
     - name: SendNotification
       path: /api/notifications/send
       method: POST
       description: Send a new notification.
+      behavior: notifications.send
+      permission: notifications.write
   ui:
     - name: NotificationCenter
       route: notifications

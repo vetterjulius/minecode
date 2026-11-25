@@ -106,10 +106,16 @@ provides:
       path: /api/organizations
       method: GET
       description: List organizations for current user.
+      crud:
+        entity: Organization
+        operation: list
+      permission: org.read
     - name: InviteMember
       path: /api/organizations/invite
       method: POST
       description: Invite a new member via email.
+      behavior: organizations.invite
+      permission: org.invite
   ui:
     - name: OrganizationsDashboard
       route: organizations

@@ -46,10 +46,16 @@ provides:
       path: /api/ai/chat
       method: GET
       description: List the chat messages of the current user.
+      crud:
+        entity: ChatMessage
+        operation: list
+      permission: chat.access
     - name: PostChatMessage
       path: /api/ai/chat
       method: POST
       description: Send a message to the AI assistant.
+      behavior: ai.chat.post
+      permission: chat.access
   ui:
     - name: ChatInterface
       route: ai/chat

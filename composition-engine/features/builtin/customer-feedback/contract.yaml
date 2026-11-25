@@ -50,10 +50,18 @@ provides:
       path: /api/feedback
       method: GET
       description: List customer feedback entries.
+      crud:
+        entity: Feedback
+        operation: list
+      permission: feedback.read
     - name: PostFeedback
       path: /api/feedback
       method: POST
       description: Submit customer satisfaction feedback.
+      crud:
+        entity: Feedback
+        operation: create
+      permission: feedback.write
   ui:
     - name: FeedbackDashboard
       route: feedback

@@ -59,10 +59,18 @@ provides:
       path: /api/tasks
       method: GET
       description: List tasks for a project.
+      crud:
+        entity: Task
+        operation: list
+      permission: task.read
     - name: CreateTask
       path: /api/tasks
       method: POST
       description: Create a new task.
+      crud:
+        entity: Task
+        operation: create
+      permission: task.write
   ui:
     - name: TasksDashboard
       route: tasks

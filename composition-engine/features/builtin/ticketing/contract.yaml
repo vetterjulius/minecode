@@ -56,10 +56,18 @@ provides:
       path: /api/tickets
       method: GET
       description: List support tickets.
+      crud:
+        entity: Ticket
+        operation: list
+      permission: tickets.read
     - name: CreateTicket
       path: /api/tickets
       method: POST
       description: Submit a new support ticket.
+      crud:
+        entity: Ticket
+        operation: create
+      permission: tickets.write
   ui:
     - name: TicketInbox
       route: tickets

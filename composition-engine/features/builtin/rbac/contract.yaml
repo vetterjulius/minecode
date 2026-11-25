@@ -69,6 +69,10 @@ provides:
       path: /api/rbac/roles
       method: GET
       description: List available system roles.
+      crud:
+        entity: Role
+        operation: list
+      permission: rbac.read
   ui:
     - name: RbacAdminPage
       route: rbac-admin

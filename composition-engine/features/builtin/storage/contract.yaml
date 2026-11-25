@@ -51,14 +51,22 @@ provides:
       path: /api/storage/files
       method: GET
       description: List uploaded files of the organization.
+      crud:
+        entity: File
+        operation: list
+      permission: storage.read
     - name: UploadFile
       path: /api/storage/upload
       method: POST
       description: Upload a file to the storage system.
+      behavior: storage.upload
+      permission: storage.write
     - name: DeleteFile
       path: /api/storage/delete
       method: DELETE
       description: Delete an uploaded file.
+      behavior: storage.delete
+      permission: storage.write
   ui:
     - name: StorageDashboard
       route: storage

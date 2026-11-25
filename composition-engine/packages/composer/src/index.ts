@@ -19,6 +19,29 @@ export function getComposerInfo(): string {
   return `Minecode Composer relying on: ${getResolverInfo()}`;
 }
 
+/**
+ * Checks that every `crud.entity` and `permission` named by an API entry exists in the
+ * composition. Fails early so a stack never has to guess what an endpoint refers to.
+ */
+function validateApiReferences(
+  api: ApiArtifact[],
+  database: DatabaseArtifact[],
+  permissions: PermissionArtifact[]
+): void {
+  const entities = new Set(database.map((d) => d.entityName));
+  const permissionNames = new Set(permissions.map((p) => p.name));
+  for (const endpoint of api) {
+    if (endpoint.crud && !entities.has(endpoint.crud.entity)) {
+      throw new Error(
+        `API "${endpoint.id}" references unknown entity "${endpoint.crud.entity}" in its crud definition`
+      );
+    }
+    if (endpoint.permission && !permissionNames.has(endpoint.permission)) {
+      throw new Error(`API "${endpoint.id}" requires unknown permission "${endpoint.permission}"`);
+    }
+  }
+}
+
 export class Composer {
   /**
    * Generates a deterministic CompositionPlan from a resolved feature graph and blueprint.
@@ -101,6 +124,9 @@ export class Composer {
               path: apiDef.path,
               method: apiDef.method,
               description: apiDef.description,
+              ...(apiDef.crud ? { crud: apiDef.crud } : {}),
+              ...(apiDef.behavior ? { behavior: apiDef.behavior } : {}),
+              ...(apiDef.permission ? { permission: apiDef.permission } : {}),
             });
           }
         }
@@ -304,6 +330,8 @@ export class Composer {
     events.sort(sortById);
     permissions.sort(sortById);
     migrations.sort(sortById);
+
+    validateApiReferences(api, database, permissions);
 
     const extensionPoints = Array.from(extensionPointsMap.values());
     extensionPoints.sort(sortById);

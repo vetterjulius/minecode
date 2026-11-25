@@ -89,11 +89,25 @@ export interface PermissionDefinition {
   description?: string;
 }
 
+export type CrudOperation = 'list' | 'get' | 'create' | 'update' | 'delete';
+
+/** Generic endpoint derived from an entity; the stack decides how to implement it. */
+export interface ApiCrud {
+  entity: string;
+  operation: CrudOperation;
+}
+
 export interface ApiDefinition {
   name: string;
   path: string;
   method?: string;
   description?: string;
+  /** Generic entity endpoint. Exactly one of `crud` and `behavior` is set. */
+  crud?: ApiCrud;
+  /** Named, stack-agnostic behavior implemented by the stack's behavior registry. */
+  behavior?: string;
+  /** Permission (declared by the providing feature) required to call the endpoint. */
+  permission?: string;
 }
 
 export interface UiDefinition {
@@ -157,6 +171,9 @@ export interface ApiArtifact {
   path: string;
   method?: string;
   description?: string;
+  crud?: ApiCrud;
+  behavior?: string;
+  permission?: string;
 }
 
 export interface UiArtifact {

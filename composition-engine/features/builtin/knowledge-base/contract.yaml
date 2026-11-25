@@ -54,6 +54,10 @@ provides:
       path: /api/kb/articles
       method: GET
       description: Fetch knowledge base articles.
+      crud:
+        entity: Article
+        operation: list
+      permission: articles.read
   ui:
     - name: HelpCenter
       route: kb
