@@ -74,7 +74,7 @@ export interface FeedbackRow {
   rating: number;
   /** Customer comments text */
   comment?: string | null;
-  /** Reference to User */
+  /** Author of the feedback, taken from the session */
   user_id: string;
   /** Reference to Organization */
   organization_id: string;

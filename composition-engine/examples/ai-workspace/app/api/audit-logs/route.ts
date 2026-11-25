@@ -1,25 +1,43 @@
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+// Generated route: /api/audit-logs
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+
+export const dynamic = 'force-dynamic';
+
+function crudError(error: unknown) {
+  const code = (error as { code?: string } | null)?.code;
+  const message =
+    error instanceof Error
+      ? error.message
+      : ((error as { message?: string })?.message ?? String(error));
+  const status = code === '42501' ? 403 : 400;
+  return NextResponse.json({ success: false, error: message }, { status });
+}
 
 export async function GET(request: Request) {
   const supabase = createRouteHandlerClient({ cookies });
   try {
-    const { searchParams } = new URL(request.url);
-    const action = searchParams.get('action') || null;
-
+    const params = new URL(request.url).searchParams;
     let query = supabase.from('audit_log').select('*').order('created_at', { ascending: false });
 
-    if (action) {
-      query = query.eq('action', action);
+    for (const column of [
+      'id',
+      'action',
+      'actor_id',
+      'entity_name',
+      'entity_id',
+      'payload',
+      'created_at',
+    ]) {
+      const value = params.get(column);
+      if (value !== null) query = query.eq(column, value);
     }
 
     const { data, error } = await query;
     if (error) throw error;
-
     return NextResponse.json({ success: true, data });
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    return NextResponse.json({ success: false, error: message }, { status: 500 });
+    return crudError(error);
   }
 }

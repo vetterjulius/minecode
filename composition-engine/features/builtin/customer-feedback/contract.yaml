@@ -21,7 +21,8 @@ provides:
         - name: userId
           type: uuid
           required: true
-          description: Reference to User
+          description: Author of the feedback, taken from the session
+          generate: auth-user
           references:
             entity: Profile
             onDelete: cascade

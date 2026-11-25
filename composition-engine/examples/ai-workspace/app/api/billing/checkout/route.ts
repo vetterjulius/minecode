@@ -1,4 +1,7 @@
+// Generated route: /api/billing/checkout
 import { NextResponse } from 'next/server';
+
+export const dynamic = 'force-dynamic';
 
 /**
  * Create a new checkout session.

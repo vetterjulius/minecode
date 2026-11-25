@@ -49,7 +49,7 @@ The generated apps build and their database and routes are consistent, but sever
 - **Permissions are enforced in the database only.** Tenant tables check `has_permission` through RLS when the `rbac` feature is present, so unauthorized writes are rejected, but routes do not yet check the `permission` of an endpoint and the UI does not hide actions. Role assignment for new members (for example making the creator `owner`) is not generated yet.
 - **Billing:** checkout returns `501 Not Implemented`. The Stripe webhook verifies signatures and stores the customer mapping, but no subscription lifecycle is handled.
 - **AI chat:** the assistant replies with canned text and is not connected to a model provider.
-- **Client-supplied identifiers:** some create routes still take `userId` or `organizationId` from the request body. RLS stops cross-tenant writes, but a member can set another user's id on tenant-scoped rows.
+- **Client-supplied identifiers:** generic create routes reject generated columns, so ids and the acting user come from the database and session. Behavior routes (for example notifications send, storage upload, invite) still take some identifiers from the request and are checked by RLS only. The `crud` operations `get`, `update` and `delete` are not generated yet.
 - **Storage:** the `files` storage bucket is not created by any migration.
 - **Dependencies:** the generated apps use Next.js 14 and the deprecated `@supabase/auth-helpers-nextjs`.
 - **Ownership model:** `app/` is regenerated in full and overwritten; `extensions/` is not yet wired into the generated code, and there is no lockfile or upgrade path.

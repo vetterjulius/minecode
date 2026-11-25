@@ -22,6 +22,7 @@ provides:
           type: string
           required: true
           description: Project status (e.g. active, archived)
+          default: active
         - name: organizationId
           type: uuid
           required: true

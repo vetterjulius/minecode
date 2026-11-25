@@ -1,26 +1,43 @@
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+// Generated route: /api/storage/files
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 
-/**
- * List uploaded files of the organization.
- * Path: /api/storage/files
- */
+export const dynamic = 'force-dynamic';
+
+function crudError(error: unknown) {
+  const code = (error as { code?: string } | null)?.code;
+  const message =
+    error instanceof Error
+      ? error.message
+      : ((error as { message?: string })?.message ?? String(error));
+  const status = code === '42501' ? 403 : 400;
+  return NextResponse.json({ success: false, error: message }, { status });
+}
+
 export async function GET(request: Request) {
   const supabase = createRouteHandlerClient({ cookies });
   try {
+    const params = new URL(request.url).searchParams;
     let query = supabase.from('file').select('*').order('created_at', { ascending: false });
-    const organizationId = new URL(request.url).searchParams.get('organizationId');
-    if (organizationId) {
-      query = query.eq('organization_id', organizationId);
+
+    for (const column of [
+      'id',
+      'name',
+      'path',
+      'size',
+      'mime_type',
+      'organization_id',
+      'created_at',
+    ]) {
+      const value = params.get(column);
+      if (value !== null) query = query.eq(column, value);
     }
 
     const { data, error } = await query;
     if (error) throw error;
-
     return NextResponse.json({ success: true, data });
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    return NextResponse.json({ success: false, error: message }, { status: 400 });
+    return crudError(error);
   }
 }

@@ -1,13 +1,16 @@
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+// Generated route: /api/storage/upload
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+
+export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
   const supabase = createRouteHandlerClient({ cookies });
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File;
-    const organizationId = (formData.get('organizationId') as string) || null;
+    const organizationId = (formData.get('organization_id') as string) || null;
 
     if (!file) {
       return NextResponse.json({ success: false, error: 'No file provided' }, { status: 400 });

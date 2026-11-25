@@ -106,6 +106,8 @@ export type CrudOperation = 'list' | 'get' | 'create' | 'update' | 'delete';
 export interface ApiCrud {
   entity: string;
   operation: CrudOperation;
+  /** `list` only: entities with a foreign key to `entity` whose rows are embedded in each result. */
+  include?: string[];
 }
 
 export interface ApiDefinition {

@@ -46,7 +46,7 @@ export default function TasksPage() {
       const res = await fetch('/api/tasks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, description, projectId, priority }),
+        body: JSON.stringify({ title, description, project_id: projectId, priority }),
       });
       const data = await res.json();
       if (data.success) {

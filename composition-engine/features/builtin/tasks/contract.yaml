@@ -22,10 +22,12 @@ provides:
           type: string
           required: true
           description: Task status
+          default: todo
         - name: priority
           type: string
           required: true
           description: Task priority
+          default: medium
         - name: projectId
           type: uuid
           required: true

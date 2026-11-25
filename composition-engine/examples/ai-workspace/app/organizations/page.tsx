@@ -27,7 +27,7 @@ export default function OrganizationsPage() {
       const res = await fetch('/api/organizations');
       const data = await res.json();
       if (data.success) {
-        setOrganizations(data.organizations || []);
+        setOrganizations(data.data || []);
       }
     } catch (err: unknown) {
       console.error(err);
@@ -47,7 +47,11 @@ export default function OrganizationsPage() {
       const res = await fetch('/api/organizations/invite', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: inviteEmail, organizationId: inviteOrgId, role: inviteRole }),
+        body: JSON.stringify({
+          email: inviteEmail,
+          organization_id: inviteOrgId,
+          role: inviteRole,
+        }),
       });
       const data = await res.json();
       if (data.success) {

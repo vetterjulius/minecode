@@ -97,7 +97,7 @@ export default function StorageDashboardPage() {
               <label className="block text-sm font-medium mb-1">Organization ID (Optional)</label>
               <input
                 type="text"
-                name="organizationId"
+                name="organization_id"
                 className="w-full text-sm border rounded p-2"
                 placeholder="uuid"
               />

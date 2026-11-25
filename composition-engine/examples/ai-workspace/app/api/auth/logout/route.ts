@@ -1,6 +1,9 @@
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+// Generated route: /api/auth/logout
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+
+export const dynamic = 'force-dynamic';
 
 /**
  * Invalidate the active session.

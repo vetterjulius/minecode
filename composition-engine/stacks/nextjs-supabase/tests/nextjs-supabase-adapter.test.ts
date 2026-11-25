@@ -72,6 +72,7 @@ test('test_ApiRoutes_Generate_CreatesNextJsAppRouterHandlers', () => {
         path: '/auth/login',
         method: 'POST',
         description: 'Authenticates a user',
+        behavior: 'auth.login',
       },
     ],
     ui: [],
@@ -318,6 +319,7 @@ test('test_Api_Generate_RouteWithoutGenerator_ThrowsNamingFeatureAndRoute', () =
         path: '/api/things',
         method: 'GET',
         description: 'Unknown route',
+        behavior: 'mystery.things',
       },
     ],
     ui: [],
@@ -329,5 +331,5 @@ test('test_Api_Generate_RouteWithoutGenerator_ThrowsNamingFeatureAndRoute', () =
   };
 
   expect(() => adapter.generate(plan)).toThrow(UnsupportedContractError);
-  expect(() => adapter.generate(plan)).toThrow(/GET \/api\/things.*feature 'mystery'/);
+  expect(() => adapter.generate(plan)).toThrow(/behavior 'mystery.things'.*does not implement/);
 });

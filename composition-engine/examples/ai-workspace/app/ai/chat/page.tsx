@@ -56,7 +56,7 @@ export default function ChatInterfacePage() {
       const res = await fetch('/api/ai/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId, content: input }),
+        body: JSON.stringify({ session_id: sessionId, content: input }),
       });
       const data = await res.json();
       if (data.success && data.reply) {

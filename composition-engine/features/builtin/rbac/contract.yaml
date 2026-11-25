@@ -66,6 +66,7 @@ provides:
       crud:
         entity: Role
         operation: list
+        include: [RolePermission]
       permission: rbac.read
   ui:
     - name: RbacAdminPage

@@ -45,7 +45,7 @@ export default function NotificationCenterPage() {
       const res = await fetch('/api/notifications/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, channel, title, content }),
+        body: JSON.stringify({ user_id: userId, channel, title, content }),
       });
       const data = await res.json();
       if (data.success) {

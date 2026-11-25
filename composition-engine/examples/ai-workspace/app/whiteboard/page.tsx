@@ -40,7 +40,7 @@ export default function WhiteboardCanvasPage() {
       const res = await fetch('/api/whiteboards', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, organizationId: orgId }),
+        body: JSON.stringify({ name, organization_id: orgId }),
       });
       const data = await res.json();
       if (data.success) {

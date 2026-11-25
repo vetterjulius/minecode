@@ -1,26 +1,43 @@
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+// Generated route: /api/ai/chat
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 
-export async function GET(_request: Request) {
+export const dynamic = 'force-dynamic';
+
+function crudError(error: unknown) {
+  const code = (error as { code?: string } | null)?.code;
+  const message =
+    error instanceof Error
+      ? error.message
+      : ((error as { message?: string })?.message ?? String(error));
+  const status = code === '42501' ? 403 : 400;
+  return NextResponse.json({ success: false, error: message }, { status });
+}
+
+export async function GET(request: Request) {
   const supabase = createRouteHandlerClient({ cookies });
   try {
-    let query = supabase.from('chat_message').select('*').order('created_at', { ascending: true });
+    const params = new URL(request.url).searchParams;
+    let query = supabase.from('chat_message').select('*').order('created_at', { ascending: false });
+
+    for (const column of ['id', 'session_id', 'role', 'content', 'created_at', 'user_id']) {
+      const value = params.get(column);
+      if (value !== null) query = query.eq(column, value);
+    }
 
     const { data, error } = await query;
     if (error) throw error;
-
     return NextResponse.json({ success: true, data });
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    return NextResponse.json({ success: false, error: message }, { status: 400 });
+    return crudError(error);
   }
 }
 
 export async function POST(request: Request) {
   const supabase = createRouteHandlerClient({ cookies });
   try {
-    const { sessionId, content } = await request.json();
+    const { session_id: sessionId, content } = await request.json();
 
     if (!sessionId || !content) {
       return NextResponse.json(

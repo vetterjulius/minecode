@@ -1,20 +1,38 @@
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+// Generated route: /api/organizations
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 
-/**
- * List organizations for current user.
- * Path: /api/organizations
- */
-export async function GET(_request: Request) {
+export const dynamic = 'force-dynamic';
+
+function crudError(error: unknown) {
+  const code = (error as { code?: string } | null)?.code;
+  const message =
+    error instanceof Error
+      ? error.message
+      : ((error as { message?: string })?.message ?? String(error));
+  const status = code === '42501' ? 403 : 400;
+  return NextResponse.json({ success: false, error: message }, { status });
+}
+
+export async function GET(request: Request) {
   const supabase = createRouteHandlerClient({ cookies });
   try {
-    const { data, error } = await supabase.from('organization').select('*, membership(*)');
+    const params = new URL(request.url).searchParams;
+    let query = supabase
+      .from('organization')
+      .select('*, membership(*)')
+      .order('created_at', { ascending: false });
 
+    for (const column of ['id', 'name', 'created_at']) {
+      const value = params.get(column);
+      if (value !== null) query = query.eq(column, value);
+    }
+
+    const { data, error } = await query;
     if (error) throw error;
-    return NextResponse.json({ success: true, organizations: data });
+    return NextResponse.json({ success: true, data });
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    return NextResponse.json({ success: false, error: message }, { status: 500 });
+    return crudError(error);
   }
 }

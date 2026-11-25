@@ -115,6 +115,7 @@ provides:
       crud:
         entity: Organization
         operation: list
+        include: [Membership]
       permission: org.read
     - name: InviteMember
       path: /api/organizations/invite

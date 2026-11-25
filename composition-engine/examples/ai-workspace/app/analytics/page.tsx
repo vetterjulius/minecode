@@ -19,7 +19,7 @@ export default function AnalyticsDashboardPage() {
     setLoading(true);
     try {
       const url = orgId
-        ? `/api/analytics/metrics?organizationId=${encodeURIComponent(orgId)}`
+        ? `/api/analytics/metrics?organization_id=${encodeURIComponent(orgId)}`
         : '/api/analytics/metrics';
       const res = await fetch(url);
       const data = await res.json();

@@ -202,6 +202,7 @@ export const RawContractSchema = z.object({
                 .object({
                   entity: z.string().min(1),
                   operation: z.enum(['list', 'get', 'create', 'update', 'delete']),
+                  include: z.array(z.string().min(1)).optional(),
                 })
                 .strict()
                 .optional(),

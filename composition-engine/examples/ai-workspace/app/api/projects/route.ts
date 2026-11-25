@@ -1,52 +1,95 @@
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+// Generated route: /api/projects
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 
-export async function GET(_request: Request) {
+export const dynamic = 'force-dynamic';
+
+function crudError(error: unknown) {
+  const code = (error as { code?: string } | null)?.code;
+  const message =
+    error instanceof Error
+      ? error.message
+      : ((error as { message?: string })?.message ?? String(error));
+  const status = code === '42501' ? 403 : 400;
+  return NextResponse.json({ success: false, error: message }, { status });
+}
+
+type ColumnKind = 'string' | 'number' | 'boolean' | 'json';
+
+function checkBody(
+  body: unknown,
+  allowed: Record<string, ColumnKind>,
+  required: string[]
+): string | null {
+  if (typeof body !== 'object' || body === null || Array.isArray(body)) {
+    return 'Request body must be a JSON object';
+  }
+  const record = body as Record<string, unknown>;
+  for (const key of Object.keys(record)) {
+    if (!(key in allowed)) return `Unknown field: ${key}`;
+  }
+  for (const key of required) {
+    if (record[key] === undefined || record[key] === null) return `Missing field: ${key}`;
+  }
+  for (const [key, kind] of Object.entries(allowed)) {
+    const value = record[key];
+    if (value === undefined || value === null || kind === 'json') continue;
+    if (typeof value !== kind) return `Field ${key} must be a ${kind}`;
+  }
+  return null;
+}
+
+export async function GET(request: Request) {
   const supabase = createRouteHandlerClient({ cookies });
   try {
-    const { data, error } = await supabase
-      .from('project')
-      .select('*')
-      .order('created_at', { ascending: false });
+    const params = new URL(request.url).searchParams;
+    let query = supabase.from('project').select('*').order('created_at', { ascending: false });
 
+    for (const column of [
+      'id',
+      'name',
+      'description',
+      'status',
+      'organization_id',
+      'workspace_id',
+      'created_at',
+    ]) {
+      const value = params.get(column);
+      if (value !== null) query = query.eq(column, value);
+    }
+
+    const { data, error } = await query;
     if (error) throw error;
     return NextResponse.json({ success: true, data });
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    return NextResponse.json({ success: false, error: message }, { status: 500 });
+    return crudError(error);
   }
 }
 
 export async function POST(request: Request) {
   const supabase = createRouteHandlerClient({ cookies });
   try {
-    const { name, description, organizationId, workspaceId } = await request.json();
-
-    if (!name || !organizationId || !workspaceId) {
-      return NextResponse.json(
-        { success: false, error: 'Missing name, organizationId, or workspaceId' },
-        { status: 400 }
-      );
+    const body = await request.json();
+    const problem = checkBody(
+      body,
+      {
+        name: 'string',
+        description: 'string',
+        status: 'string',
+        organization_id: 'string',
+        workspace_id: 'string',
+      },
+      ['name', 'organization_id', 'workspace_id']
+    );
+    if (problem) {
+      return NextResponse.json({ success: false, error: problem }, { status: 400 });
     }
 
-    const { data, error } = await supabase
-      .from('project')
-      .insert({
-        id: crypto.randomUUID(),
-        name,
-        description: description || null,
-        status: 'active',
-        organization_id: organizationId,
-        workspace_id: workspaceId,
-      })
-      .select()
-      .single();
-
+    const { data, error } = await supabase.from('project').insert(body).select().single();
     if (error) throw error;
     return NextResponse.json({ success: true, data });
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    return NextResponse.json({ success: false, error: message }, { status: 400 });
+    return crudError(error);
   }
 }

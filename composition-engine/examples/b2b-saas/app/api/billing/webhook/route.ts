@@ -1,6 +1,9 @@
+// Generated route: /api/billing/webhook
 import { NextResponse } from 'next/server';
 import { createAdminClient } from '../../../../generated/lib/supabase/admin';
 import { verifyStripeSignature } from '../../../../generated/lib/billing/verify-stripe-signature';
+
+export const dynamic = 'force-dynamic';
 
 /**
  * Stripe secure webhook endpoint handler.

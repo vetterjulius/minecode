@@ -216,6 +216,8 @@ Each entity can declare one `access` rule. An entity without one is private: RLS
 
 `permissions: { read, write }` (tenant scope only) names permissions of your feature. When the composition contains the `rbac` feature, the database checks them through `has_permission(...)` using the member's role; without `rbac` membership alone suffices. Role grants are seeded from all composed permissions and can be changed with the rbac `roles` blueprint config (`roles: { viewer: ['*.read'] }`; `*`, `prefix.*` and a leading `!` to remove are supported).
 
+Write endpoints never take ids, timestamps or the current user from the client: fields with `generate` (`uuid`, `now`, `auth-user`) are filled by the database and rejected in request bodies. List endpoints accept any column of the entity as an equality filter (`?organization_id=...`).
+
 API entries in `provides.api` declare exactly one of `crud: { entity, operation }` (`list`, `get`, `create`, `update`, `delete`) or `behavior: <id>`, and optionally `permission: <name>`.
 
 Tenant rules need the `organizations` feature (entities `Organization` and `Membership`). The generator validates all of this and names the entity and feature that is wrong.

@@ -36,6 +36,15 @@ function validateApiReferences(
         `API "${endpoint.id}" references unknown entity "${endpoint.crud.entity}" in its crud definition`
       );
     }
+    for (const name of endpoint.crud?.include ?? []) {
+      const child = database.find((d) => d.entityName === name);
+      const refersBack = child?.fields.some((f) => f.references?.entity === endpoint.crud?.entity);
+      if (!child || !refersBack) {
+        throw new Error(
+          `API "${endpoint.id}" includes "${name}", which does not reference "${endpoint.crud?.entity}"`
+        );
+      }
+    }
     if (endpoint.permission && !permissionNames.has(endpoint.permission)) {
       throw new Error(`API "${endpoint.id}" requires unknown permission "${endpoint.permission}"`);
     }

@@ -40,7 +40,7 @@ export default function WorkspacesPage() {
       const res = await fetch('/api/workspaces', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, organizationId: orgId }),
+        body: JSON.stringify({ name, organization_id: orgId }),
       });
       const data = await res.json();
       if (data.success) {

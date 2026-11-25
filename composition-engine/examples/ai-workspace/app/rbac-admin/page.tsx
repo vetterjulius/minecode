@@ -2,16 +2,15 @@
 
 import React, { useState, useEffect } from 'react';
 
-interface RbacPermission {
-  id: string;
-  name: string;
+interface RbacGrant {
+  role: string;
+  permission: string;
 }
 
 interface RbacRole {
-  id: string;
   name: string;
   description?: string;
-  permission?: RbacPermission[];
+  role_permission?: RbacGrant[];
 }
 
 export default function RbacAdminPage() {
@@ -23,7 +22,7 @@ export default function RbacAdminPage() {
       const res = await fetch('/api/rbac/roles');
       const data = await res.json();
       if (data.success) {
-        setRoles(data.roles || []);
+        setRoles(data.data || []);
       }
     } catch (err: unknown) {
       console.error(err);
@@ -56,25 +55,25 @@ export default function RbacAdminPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
             {roles.map((role) => (
-              <div key={role.id} className="p-4 border rounded-xl bg-muted space-y-3 shadow-sm">
+              <div key={role.name} className="p-4 border rounded-xl bg-muted space-y-3 shadow-sm">
                 <div>
                   <h3 className="text-lg font-bold text-foreground">{role.name.toUpperCase()}</h3>
                   <p className="text-xs text-muted-foreground">
                     {role.description || 'No description provided.'}
                   </p>
                 </div>
-                {role.permission && role.permission.length > 0 && (
+                {role.role_permission && role.role_permission.length > 0 && (
                   <div className="space-y-1">
                     <p className="font-semibold text-xs text-muted-foreground">
                       Granted Permissions:
                     </p>
                     <div className="flex flex-wrap gap-1.5">
-                      {role.permission.map((p) => (
+                      {role.role_permission.map((p) => (
                         <span
-                          key={p.id}
+                          key={p.permission}
                           className="px-2 py-0.5 text-xs font-mono font-bold rounded bg-foreground text-background shadow-sm"
                         >
-                          {p.name}
+                          {p.permission}
                         </span>
                       ))}
                     </div>

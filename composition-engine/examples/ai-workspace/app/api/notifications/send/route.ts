@@ -1,11 +1,14 @@
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+// Generated route: /api/notifications/send
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+
+export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
   const supabase = createRouteHandlerClient({ cookies });
   try {
-    const { userId, channel, title, content } = await request.json();
+    const { user_id: userId, channel, title, content } = await request.json();
 
     if (!userId || !channel || !title || !content) {
       return NextResponse.json(
