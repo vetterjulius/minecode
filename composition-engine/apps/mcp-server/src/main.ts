@@ -2,9 +2,8 @@
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
-import { getGeneratorInfo, ApplicationGenerator, NextJsSupabaseAdapter } from '@minecode/generator';
+import { getGeneratorInfo, ApplicationGenerator } from '@minecode/generator';
 import { FileSystemRegistry } from '@minecode/registry';
-import * as path from 'path';
 import { parseBlueprintYaml } from '@minecode/schemas';
 import {
   BlueprintValidator,
