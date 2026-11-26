@@ -1,8 +1,24 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { execSync } from 'child_process';
-import { CompositionPlan } from '@minecode/core';
+import { CompositionPlan, SchemaLock, createSnapshot } from '@minecode/core';
 import { NextJsSupabaseAdapter } from '@minecode/nextjs-supabase';
+
+export const LOCK_FILE = 'app.lock.json';
+
+export function readLock(outDir: string): SchemaLock | undefined {
+  const file = path.join(outDir, LOCK_FILE);
+  if (!fs.existsSync(file)) return undefined;
+  const lock = JSON.parse(fs.readFileSync(file, 'utf8')) as SchemaLock;
+  if (lock.version !== 1) {
+    throw new Error(`Unsupported ${LOCK_FILE} version ${String(lock.version)}`);
+  }
+  return lock;
+}
+
+function countMigrations(files: Record<string, string>): number {
+  return Object.keys(files).filter((f) => f.startsWith('supabase/migrations/')).length;
+}
 
 export class ApplicationGenerator {
   public readonly outDir: string;
@@ -38,7 +54,26 @@ export class ApplicationGenerator {
     }
 
     const adapter = new NextJsSupabaseAdapter();
-    const virtualFiles = adapter.generate(plan, options);
+    const baseline = readLock(this.outDir);
+    const virtualFiles = adapter.generate(
+      baseline ? { ...plan, schemaBaseline: baseline } : plan,
+      options
+    );
+    const lock: SchemaLock = {
+      version: 1,
+      schema: createSnapshot(
+        plan.database,
+        plan.permissions,
+        plan.migrations.map((m) => m.name),
+        plan.featureConfig
+      ),
+      migrationCount: (baseline?.migrationCount ?? 0) + countMigrations(virtualFiles),
+    };
+    fs.writeFileSync(
+      path.join(this.outDir, LOCK_FILE),
+      JSON.stringify(lock, null, 2) + '\n',
+      'utf8'
+    );
 
     for (const [relPath, content] of Object.entries(virtualFiles)) {
       let targetPath: string;

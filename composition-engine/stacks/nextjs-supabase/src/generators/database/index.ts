@@ -1,5 +1,13 @@
-import { CompositionPlan, SubGenerator } from '@minecode/core';
-import { buildCreateTable } from './ddl.js';
+import {
+  CompositionPlan,
+  DatabaseArtifact,
+  SchemaChange,
+  SchemaChangeBlockedError,
+  SubGenerator,
+  createSnapshot,
+  diffSnapshots,
+} from '@minecode/core';
+import { buildAddColumns, buildCreateTable } from './ddl.js';
 import { SchemaGenerationError } from './errors.js';
 import { MigrationSequence } from './migration-files.js';
 import { slugify, tableName } from './naming.js';
@@ -10,6 +18,17 @@ import { buildPolicies, buildRlsHelpers, usesTenantAccess } from './rls.js';
 import { buildRowTypes } from './row-types.js';
 import { validateSchemaPlan } from './validate.js';
 
+const POLICY_TRIGGERS: SchemaChange['kind'][] = [
+  'add-entity',
+  'access-changed',
+  'permissions-changed',
+];
+const SEED_TRIGGERS: SchemaChange['kind'][] = [
+  'add-entity',
+  'permissions-changed',
+  'config-changed',
+];
+
 export class SupabaseDatabaseSubGenerator implements SubGenerator {
   public readonly id = 'supabase-database';
 
@@ -17,7 +36,8 @@ export class SupabaseDatabaseSubGenerator implements SubGenerator {
     validateSchemaPlan(plan.database);
     const entities = orderByReferences(plan.database);
     const byName = new Map(entities.map((e) => [e.entityName, e]));
-    const migrations = new MigrationSequence();
+    const baseline = plan.schemaBaseline;
+    const migrations = new MigrationSequence(baseline?.migrationCount ?? 0);
 
     for (const migration of plan.migrations) {
       if (!migration.content) {
@@ -25,24 +45,45 @@ export class SupabaseDatabaseSubGenerator implements SubGenerator {
           `Migration '${migration.name}' (feature '${migration.featureId}') has no SQL content`
         );
       }
+      if (baseline?.schema.rawMigrations.includes(migration.name)) continue;
       migrations.add(slugify(migration.name), migration.content);
     }
-    for (const entity of entities) {
+
+    const changes = baseline ? this.planChanges(plan) : null;
+    const isNew = (e: DatabaseArtifact) =>
+      !changes || changes.some((c) => c.kind === 'add-entity' && c.entity === e.entityName);
+    const triggered = (kinds: SchemaChange['kind'][]) =>
+      !changes || changes.some((c) => kinds.includes(c.kind));
+
+    for (const entity of entities.filter(isNew)) {
       migrations.add(`create_${tableName(entity.entityName)}`, buildCreateTable(entity, byName));
     }
+    for (const entity of entities) {
+      const added = (changes ?? [])
+        .filter((c) => c.kind === 'add-field' && c.entity === entity.entityName)
+        .map((c) => (c as { field: string }).field);
+      if (added.length > 0) {
+        migrations.add(
+          `add_columns_${tableName(entity.entityName)}`,
+          buildAddColumns(entity, added, byName)
+        );
+      }
+    }
+
     const rbac = rbacActive(entities);
-    if (usesTenantAccess(entities)) {
+    const policies = entities.length > 0 && triggered(POLICY_TRIGGERS);
+    if (usesTenantAccess(entities) && policies) {
       migrations.add('rls_helpers', buildRlsHelpers());
     }
-    if (rbac) {
+    if (rbac && triggered(SEED_TRIGGERS)) {
       migrations.add('rbac_helpers', buildPermissionFunction());
       migrations.add('rbac_seed', buildRbacSeed(plan));
     }
-    if (entities.length > 0) {
+    if (policies) {
       migrations.add('rls_policies', buildPolicies(entities, rbac));
     }
     const profile = findAuthProfile(entities);
-    if (profile) {
+    if (profile && isNew(profile)) {
       migrations.add('profile_sync', buildProfileSync(profile));
     }
 
@@ -51,5 +92,18 @@ export class SupabaseDatabaseSubGenerator implements SubGenerator {
       files['types/database.ts'] = buildRowTypes(plan.applicationName, entities);
     }
     return files;
+  }
+
+  private planChanges(plan: CompositionPlan): SchemaChange[] {
+    const baseline = plan.schemaBaseline as NonNullable<CompositionPlan['schemaBaseline']>;
+    const next = createSnapshot(
+      plan.database,
+      plan.permissions,
+      plan.migrations.map((m) => m.name),
+      plan.featureConfig
+    );
+    const diff = diffSnapshots(baseline.schema, next);
+    if (diff.blocked.length > 0) throw new SchemaChangeBlockedError(diff.blocked);
+    return diff.changes;
   }
 }

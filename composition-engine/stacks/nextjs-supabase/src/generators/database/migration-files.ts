@@ -5,8 +5,13 @@ export function migrationTimestamp(index: number): string {
 }
 
 export class MigrationSequence {
-  private index = 0;
+  private index: number;
   private readonly files: Record<string, string> = {};
+
+  /** `start` continues the numbering of migrations generated earlier. */
+  constructor(start = 0) {
+    this.index = start;
+  }
 
   public add(name: string, content: string): void {
     const file = `supabase/migrations/${migrationTimestamp(this.index)}_${name}.sql`;

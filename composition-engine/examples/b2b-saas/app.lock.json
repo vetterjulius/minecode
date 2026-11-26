@@ -1,0 +1,307 @@
+{
+  "version": 1,
+  "schema": {
+    "entities": {
+      "Profile": {
+        "fields": {
+          "id": {
+            "type": "uuid",
+            "required": true,
+            "references": {
+              "external": "auth.users",
+              "column": "id",
+              "onDelete": "cascade"
+            }
+          },
+          "email": {
+            "type": "string",
+            "required": true
+          },
+          "name": {
+            "type": "string",
+            "required": false
+          },
+          "createdAt": {
+            "type": "timestamp",
+            "required": true,
+            "generate": "now"
+          }
+        },
+        "access": {
+          "scope": "owner",
+          "field": "id"
+        }
+      },
+      "StripeCustomer": {
+        "fields": {
+          "id": {
+            "type": "uuid",
+            "required": true,
+            "generate": "uuid"
+          },
+          "organizationId": {
+            "type": "uuid",
+            "required": true,
+            "references": {
+              "entity": "Organization",
+              "onDelete": "cascade"
+            }
+          },
+          "stripeCustomerId": {
+            "type": "string",
+            "required": true,
+            "unique": true
+          }
+        },
+        "access": {
+          "scope": "tenant",
+          "field": "organizationId",
+          "writes": "server-only",
+          "permissions": {
+            "read": "billing.read"
+          }
+        }
+      },
+      "Subscription": {
+        "fields": {
+          "id": {
+            "type": "uuid",
+            "required": true,
+            "generate": "uuid"
+          },
+          "organizationId": {
+            "type": "uuid",
+            "required": true,
+            "references": {
+              "entity": "Organization",
+              "onDelete": "cascade"
+            }
+          },
+          "status": {
+            "type": "string",
+            "required": true
+          },
+          "priceId": {
+            "type": "string",
+            "required": true
+          },
+          "createdAt": {
+            "type": "timestamp",
+            "required": true,
+            "generate": "now"
+          }
+        },
+        "access": {
+          "scope": "tenant",
+          "field": "organizationId",
+          "writes": "server-only",
+          "permissions": {
+            "read": "billing.read"
+          }
+        }
+      },
+      "Invitation": {
+        "fields": {
+          "id": {
+            "type": "uuid",
+            "required": true,
+            "generate": "uuid"
+          },
+          "organizationId": {
+            "type": "uuid",
+            "required": true,
+            "references": {
+              "entity": "Organization",
+              "onDelete": "cascade"
+            }
+          },
+          "email": {
+            "type": "string",
+            "required": true
+          },
+          "role": {
+            "type": "string",
+            "required": true
+          },
+          "token": {
+            "type": "string",
+            "required": true,
+            "unique": true
+          },
+          "expiresAt": {
+            "type": "timestamp",
+            "required": true
+          }
+        },
+        "access": {
+          "scope": "tenant",
+          "field": "organizationId",
+          "writes": "server-only",
+          "permissions": {
+            "read": "org.invite"
+          }
+        }
+      },
+      "Membership": {
+        "fields": {
+          "id": {
+            "type": "uuid",
+            "required": true,
+            "generate": "uuid"
+          },
+          "organizationId": {
+            "type": "uuid",
+            "required": true,
+            "references": {
+              "entity": "Organization",
+              "onDelete": "cascade"
+            }
+          },
+          "userId": {
+            "type": "uuid",
+            "required": true,
+            "references": {
+              "entity": "Profile",
+              "onDelete": "cascade"
+            }
+          },
+          "role": {
+            "type": "string",
+            "required": true
+          },
+          "createdAt": {
+            "type": "timestamp",
+            "required": true,
+            "generate": "now"
+          }
+        },
+        "access": {
+          "scope": "tenant",
+          "field": "organizationId",
+          "writes": "server-only",
+          "permissions": {
+            "read": "org.read"
+          }
+        }
+      },
+      "Organization": {
+        "fields": {
+          "id": {
+            "type": "uuid",
+            "required": true,
+            "generate": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "required": true
+          },
+          "createdAt": {
+            "type": "timestamp",
+            "required": true,
+            "generate": "now"
+          }
+        },
+        "access": {
+          "scope": "tenant",
+          "field": "id",
+          "writes": "server-only",
+          "permissions": {
+            "read": "org.read"
+          }
+        }
+      },
+      "Permission": {
+        "fields": {
+          "name": {
+            "type": "string",
+            "required": true,
+            "primaryKey": true
+          },
+          "description": {
+            "type": "string",
+            "required": false
+          }
+        },
+        "access": {
+          "scope": "authenticated-read"
+        }
+      },
+      "Role": {
+        "fields": {
+          "name": {
+            "type": "string",
+            "required": true,
+            "primaryKey": true
+          },
+          "description": {
+            "type": "string",
+            "required": false
+          }
+        },
+        "access": {
+          "scope": "authenticated-read"
+        }
+      },
+      "RolePermission": {
+        "fields": {
+          "role": {
+            "type": "string",
+            "required": true,
+            "references": {
+              "entity": "Role",
+              "column": "name",
+              "onDelete": "cascade"
+            },
+            "primaryKey": true
+          },
+          "permission": {
+            "type": "string",
+            "required": true,
+            "references": {
+              "entity": "Permission",
+              "column": "name",
+              "onDelete": "cascade"
+            },
+            "primaryKey": true
+          }
+        },
+        "access": {
+          "scope": "authenticated-read"
+        }
+      }
+    },
+    "permissions": [
+      "auth.read",
+      "auth.write",
+      "billing.read",
+      "billing.write",
+      "org.invite",
+      "org.read",
+      "org.write",
+      "rbac.read",
+      "rbac.write"
+    ],
+    "rawMigrations": [],
+    "featureConfig": {
+      "database": {
+        "pooling": true
+      },
+      "authentication": {
+        "providers": ["email", "google"],
+        "sessionTimeout": 86400
+      },
+      "organizations": {
+        "allowMultipleOrganizations": true,
+        "invitationExpirySeconds": 259200
+      },
+      "billing": {
+        "provider": "stripe",
+        "currency": "EUR"
+      },
+      "rbac": {
+        "defaultRoles": ["admin", "member", "billing_admin"]
+      }
+    }
+  },
+  "migrationCount": 14
+}

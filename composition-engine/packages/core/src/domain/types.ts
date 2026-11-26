@@ -264,6 +264,8 @@ export interface CompositionPlan {
   extensionPoints: ExtensionPointArtifact[];
   /** Blueprint configuration of the enabled features, keyed by feature id. */
   featureConfig?: Record<string, Record<string, unknown>>;
+  /** Lock from an earlier generation. When present, only additive schema changes are generated. */
+  schemaBaseline?: SchemaLock;
 }
 
 export interface Feature {
@@ -314,4 +316,30 @@ export interface Application {
 export interface StackAdapter {
   readonly stackId: string;
   generate(plan: CompositionPlan, options?: { runnable?: boolean }): Record<string, string>;
+}
+
+/**
+ * Stack-agnostic record of what has already been generated for an application.
+ * It lets the engine turn a changed blueprint into additive migrations instead of
+ * regenerating (and thereby rewriting) the whole schema.
+ */
+export interface SchemaSnapshot {
+  entities: Record<string, SnapshotEntity>;
+  permissions: string[];
+  /** Feature-provided raw migrations already emitted, by name. */
+  rawMigrations: string[];
+  /** Blueprint configuration that influences generated data (for example role grants). */
+  featureConfig: Record<string, Record<string, unknown>>;
+}
+
+export interface SnapshotEntity {
+  fields: Record<string, Omit<EntityField, 'description' | 'name'>>;
+  access?: EntityAccess;
+}
+
+export interface SchemaLock {
+  version: 1;
+  schema: SchemaSnapshot;
+  /** Number of migration files generated so far; the next file continues the sequence. */
+  migrationCount: number;
 }

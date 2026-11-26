@@ -31,7 +31,7 @@ The generator uses a deterministic file registry and pre-defined templates to co
 
 ## 6. Database Migration Constraints
 
-Tables, constraints and RLS policies are generated from entities in dependency order. Generated migrations are create-only: they use `CREATE TABLE IF NOT EXISTS` and `DROP POLICY IF EXISTS` followed by `CREATE POLICY`. The system does not support:
+Tables, constraints and RLS policies are generated from entities in dependency order. Generated migrations are idempotent where possible: they use `CREATE TABLE IF NOT EXISTS` and `DROP POLICY IF EXISTS` followed by `CREATE POLICY`. Schema evolution is additive only: `app.lock.json` turns blueprint changes into incremental migrations, but removals, renames and column changes must be written by hand and the lock updated (a rename looks like a removal plus an addition and is blocked); seeded grants are never revoked. The system does not support:
 
 - Altering an existing database when an entity changes (adding a column or changing a type is not migrated).
 - Live database schema diffing.

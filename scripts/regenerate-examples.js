@@ -4,7 +4,7 @@ import path from 'node:path';
 
 const EXAMPLES_DIR = 'composition-engine/examples';
 const CLI = 'composition-engine/apps/cli/dist/main.js';
-const MANAGED_DIRS = ['app', 'generated', 'supabase', 'config', 'lib', 'types', 'components'];
+const MANAGED_DIRS = ['app.lock.json', 'app', 'generated', 'supabase', 'config', 'lib', 'types', 'components'];
 
 function exampleApps() {
   return fs
