@@ -20,6 +20,8 @@ export default function OrganizationsPage() {
   const [inviteOrgId, setInviteOrgId] = useState('');
   const [inviteRole, setInviteRole] = useState('member');
   const [inviteStatus, setInviteStatus] = useState('');
+  const [newOrgName, setNewOrgName] = useState('');
+  const [createStatus, setCreateStatus] = useState('');
   const [loading, setLoading] = useState(true);
 
   const fetchOrgs = async () => {
@@ -39,6 +41,29 @@ export default function OrganizationsPage() {
   useEffect(() => {
     fetchOrgs();
   }, []);
+
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setCreateStatus('Creating organization...');
+    try {
+      const res = await fetch('/api/organizations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newOrgName }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setCreateStatus('Organization created. You are its owner.');
+        setNewOrgName('');
+        fetchOrgs();
+      } else {
+        setCreateStatus('Error: ' + data.error);
+      }
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      setCreateStatus('Failed: ' + message);
+    }
+  };
 
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,48 +103,72 @@ export default function OrganizationsPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className="md:col-span-1 p-6 border rounded-xl bg-card space-y-4 shadow-sm h-fit">
-          <h2 className="text-xl font-bold">Invite Member</h2>
-          <form onSubmit={handleInvite} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Email Address</label>
-              <input
-                type="email"
-                value={inviteEmail}
-                onChange={(e) => setInviteEmail(e.target.value)}
-                required
-                className="w-full p-2 border rounded-md"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Organization ID</label>
-              <input
-                type="text"
-                value={inviteOrgId}
-                onChange={(e) => setInviteOrgId(e.target.value)}
-                required
-                className="w-full p-2 border rounded-md"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Role Type</label>
-              <select
-                value={inviteRole}
-                onChange={(e) => setInviteRole(e.target.value)}
-                className="w-full p-2 border rounded-md"
+        <div className="md:col-span-1 space-y-8">
+          <div className="p-6 border rounded-xl bg-card space-y-4 shadow-sm h-fit">
+            <h2 className="text-xl font-bold">Create Organization</h2>
+            <form onSubmit={handleCreate} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Name</label>
+                <input
+                  type="text"
+                  value={newOrgName}
+                  onChange={(e) => setNewOrgName(e.target.value)}
+                  required
+                  className="w-full p-2 border rounded-md"
+                />
+              </div>
+              <button
+                type="submit"
+                className="w-full p-2 bg-foreground text-background font-bold rounded-md hover:opacity-90"
               >
-                <option value="member">Member</option>
-                <option value="admin">Admin</option>
-              </select>
-            </div>
-            <button
-              type="submit"
-              className="w-full p-2 bg-foreground text-background font-bold rounded-md hover:opacity-90"
-            >
-              Invite User
-            </button>
-            {inviteStatus && <p className="text-center text-sm font-semibold">{inviteStatus}</p>}
-          </form>
+                Create
+              </button>
+              {createStatus && <p className="text-center text-sm font-semibold">{createStatus}</p>}
+            </form>
+          </div>
+          <div className="p-6 border rounded-xl bg-card space-y-4 shadow-sm h-fit">
+            <h2 className="text-xl font-bold">Invite Member</h2>
+            <form onSubmit={handleInvite} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Email Address</label>
+                <input
+                  type="email"
+                  value={inviteEmail}
+                  onChange={(e) => setInviteEmail(e.target.value)}
+                  required
+                  className="w-full p-2 border rounded-md"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Organization ID</label>
+                <input
+                  type="text"
+                  value={inviteOrgId}
+                  onChange={(e) => setInviteOrgId(e.target.value)}
+                  required
+                  className="w-full p-2 border rounded-md"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Role Type</label>
+                <select
+                  value={inviteRole}
+                  onChange={(e) => setInviteRole(e.target.value)}
+                  className="w-full p-2 border rounded-md"
+                >
+                  <option value="member">Member</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+              <button
+                type="submit"
+                className="w-full p-2 bg-foreground text-background font-bold rounded-md hover:opacity-90"
+              >
+                Invite User
+              </button>
+              {inviteStatus && <p className="text-center text-sm font-semibold">{inviteStatus}</p>}
+            </form>
+          </div>
         </div>
 
         <div className="md:col-span-2 p-6 border rounded-xl bg-card space-y-4 shadow-sm">

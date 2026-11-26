@@ -117,6 +117,11 @@ provides:
         operation: list
         include: [Membership]
       permission: org.read
+    - name: CreateOrganization
+      path: /api/organizations
+      method: POST
+      description: Create an organization; the caller becomes its owner.
+      behavior: organizations.create
     - name: InviteMember
       path: /api/organizations/invite
       method: POST

@@ -46,7 +46,7 @@ The system provides 19 built-in features (authentication, organizations, rbac, b
 
 The generated apps build and their database and routes are consistent, but several behaviours are not production-ready:
 
-- **Permissions are enforced in the database only.** Tenant tables check `has_permission` through RLS when the `rbac` feature is present, so unauthorized writes are rejected, but routes do not yet check the `permission` of an endpoint and the UI does not hide actions. Role assignment for new members (for example making the creator `owner`) is not generated yet.
+- **Permissions are enforced in the database only.** Tenant tables check `has_permission` through RLS when the `rbac` feature is present, so unauthorized writes are rejected, but routes do not yet check the `permission` of an endpoint and the UI does not hide actions. Creating an organization makes the caller `owner` (`create_organization`) and `change_member_role` requires `rbac.write` and keeps at least one owner; invitations are stored but accepting one (which would create the membership) is not generated yet.
 - **Billing:** checkout returns `501 Not Implemented`. The Stripe webhook verifies signatures and stores the customer mapping, but no subscription lifecycle is handled.
 - **AI chat:** the assistant replies with canned text and is not connected to a model provider.
 - **Client-supplied identifiers:** generic create routes reject generated columns, so ids and the acting user come from the database and session. Behavior routes (for example notifications send, storage upload, invite) still take some identifiers from the request and are checked by RLS only. The `crud` operations `get`, `update` and `delete` are not generated yet.

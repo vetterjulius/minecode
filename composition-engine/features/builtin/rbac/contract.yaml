@@ -68,6 +68,12 @@ provides:
         operation: list
         include: [RolePermission]
       permission: rbac.read
+    - name: ChangeMemberRole
+      path: /api/rbac/member-role
+      method: PUT
+      description: Change the role of an organization member.
+      behavior: rbac.change-member-role
+      permission: rbac.write
   ui:
     - name: RbacAdminPage
       route: rbac-admin

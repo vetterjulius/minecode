@@ -336,3 +336,64 @@ export async function POST(request: Request) {
 }
 `;
 }
+
+const RPC_ROUTE_HEAD = `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
+import { NextResponse } from 'next/server';
+`;
+
+const RPC_ERROR = `    if (error) {
+      // 42501 is raised by the database function when the caller is not allowed.
+      const status = error.code === '42501' ? 403 : 400;
+      return NextResponse.json({ success: false, error: error.message }, { status });
+    }
+    return NextResponse.json({ success: true, data });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ success: false, error: message }, { status: 400 });
+  }
+}
+`;
+
+/** Behavior 'organizations.create': calls create_organization(), which also makes the caller owner. */
+export function organizationsCreate(ctx: BehaviorContext): string {
+  return `${RPC_ROUTE_HEAD}
+/**
+ * ${ctx.description}
+ * Path: /${ctx.routePath}
+ */
+export async function POST(request: Request) {
+  const supabase = createRouteHandlerClient({ cookies });
+  try {
+    const { name } = await request.json();
+    if (typeof name !== 'string' || name.trim() === '') {
+      return NextResponse.json({ success: false, error: 'Missing field: name' }, { status: 400 });
+    }
+    const { data, error } = await supabase.rpc('create_organization', { org_name: name.trim() });
+${RPC_ERROR}`;
+}
+
+/** Behavior 'rbac.change-member-role': calls change_member_role(), which checks rbac.write. */
+export function rbacChangeMemberRole(ctx: BehaviorContext): string {
+  return `${RPC_ROUTE_HEAD}
+/**
+ * ${ctx.description}
+ * Path: /${ctx.routePath}
+ */
+export async function PUT(request: Request) {
+  const supabase = createRouteHandlerClient({ cookies });
+  try {
+    const { organization_id: organizationId, user_id: userId, role } = await request.json();
+    if (!organizationId || !userId || !role) {
+      return NextResponse.json(
+        { success: false, error: 'organization_id, user_id and role are required' },
+        { status: 400 }
+      );
+    }
+    const { data, error } = await supabase.rpc('change_member_role', {
+      org_id: organizationId,
+      member_user_id: userId,
+      new_role: role,
+    });
+${RPC_ERROR}`;
+}

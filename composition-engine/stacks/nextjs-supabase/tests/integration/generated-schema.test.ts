@@ -337,4 +337,88 @@ describe('generated migrations on PostgreSQL', () => {
       );
     });
   });
+
+  describe('organization functions', () => {
+    const EVE = '00000000-0000-0000-0000-00000000000e';
+    const FRANK = '00000000-0000-0000-0000-00000000000f';
+    let orgId: string;
+
+    beforeAll(async () => {
+      await db.exec(`
+        INSERT INTO auth.users (id, email, raw_user_meta_data) VALUES
+          ('${EVE}', 'eve@example.com', '{}'), ('${FRANK}', 'frank@example.com', '{}');
+      `);
+      orgId = await asUser(db, EVE, async () => {
+        const { rows } = await db.query<{ id: string }>(
+          `SELECT id FROM create_organization('Eve Inc')`
+        );
+        return rows[0].id;
+      });
+      await db.exec(
+        `INSERT INTO membership (organization_id, user_id, role) VALUES ('${orgId}', '${FRANK}', 'member')`
+      );
+    });
+
+    const roleOf = async (user: string) =>
+      (
+        await db.query<{ role: string }>(
+          `SELECT role FROM membership WHERE organization_id = '${orgId}' AND user_id = '${user}'`
+        )
+      ).rows[0].role;
+
+    test('test_CreateOrganization_AsAuthenticatedUser_MakesCallerOwner', async () => {
+      expect(await roleOf(EVE)).toBe('owner');
+      const visible = await asUser(
+        db,
+        EVE,
+        async () => (await db.query(`SELECT 1 FROM organization WHERE id = '${orgId}'`)).rows
+      );
+      expect(visible).toHaveLength(1);
+    });
+
+    test('test_CreateOrganization_WithoutAuthenticatedUser_IsDenied', async () => {
+      await expect(db.query(`SELECT create_organization('Ghost')`)).rejects.toThrow(
+        /Authentication required/
+      );
+    });
+
+    test('test_ChangeMemberRole_AsMemberWithoutRbacWrite_IsDenied', async () => {
+      await expect(
+        asUser(db, FRANK, () =>
+          db.query(`SELECT change_member_role('${orgId}', '${FRANK}', 'owner')`)
+        )
+      ).rejects.toThrow(/Not allowed to change roles/);
+      expect(await roleOf(FRANK)).toBe('member');
+    });
+
+    test('test_ChangeMemberRole_AsOwner_ChangesRole', async () => {
+      await asUser(db, EVE, () =>
+        db.query(`SELECT change_member_role('${orgId}', '${FRANK}', 'admin')`)
+      );
+      expect(await roleOf(FRANK)).toBe('admin');
+    });
+
+    test('test_ChangeMemberRole_UnknownRole_IsRejected', async () => {
+      await expect(
+        asUser(db, EVE, () =>
+          db.query(`SELECT change_member_role('${orgId}', '${FRANK}', 'wizard')`)
+        )
+      ).rejects.toThrow(/Unknown role/);
+    });
+
+    test('test_ChangeMemberRole_DemotingLastOwner_IsRejected', async () => {
+      await expect(
+        asUser(db, EVE, () => db.query(`SELECT change_member_role('${orgId}', '${EVE}', 'member')`))
+      ).rejects.toThrow(/at least one owner/);
+      expect(await roleOf(EVE)).toBe('owner');
+    });
+
+    test('test_ChangeMemberRole_OwnerOfOtherOrganization_CannotTouchThisOne', async () => {
+      await expect(
+        asUser(db, BOB, () =>
+          db.query(`SELECT change_member_role('${orgId}', '${FRANK}', 'owner')`)
+        )
+      ).rejects.toThrow(/Not allowed to change roles/);
+    });
+  });
 });
