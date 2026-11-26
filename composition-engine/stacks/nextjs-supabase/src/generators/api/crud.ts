@@ -5,9 +5,8 @@ import { columnName, tableName } from '../database/naming.js';
 import { primaryKeyFields } from '../database/primary-key.js';
 import { EntityIndex } from './types.js';
 
-export const CRUD_IMPORTS = [
-  "import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';",
-  "import { cookies } from 'next/headers';",
+export const crudImports = (serverClientImport: string) => [
+  `import { createSupabaseServerClient } from '${serverClientImport}';`,
   "import { NextResponse } from 'next/server';",
 ];
 
@@ -80,7 +79,7 @@ function buildList(api: ApiArtifact, entity: DatabaseArtifact, entities: EntityI
   const order = listOrder(entity);
   const filters = entity.fields.map((f) => `'${columnName(f.name)}'`).join(', ');
   return `export async function GET(request: Request) {
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = await createSupabaseServerClient();
   try {
     const params = new URL(request.url).searchParams;
     let query = supabase
@@ -115,7 +114,7 @@ function buildCreate(entity: DatabaseArtifact): string {
     .map((f) => `'${columnName(f.name)}'`)
     .join(', ');
   return `export async function POST(request: Request) {
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = await createSupabaseServerClient();
   try {
     const body = await request.json();
     const problem = checkBody(

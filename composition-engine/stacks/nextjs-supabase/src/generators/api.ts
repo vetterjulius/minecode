@@ -1,5 +1,6 @@
 import { ApiArtifact, CompositionPlan, DatabaseArtifact, SubGenerator } from '@minecode/core';
-import { buildCrudHandler, CRUD_IMPORTS } from './api/crud.js';
+import { buildCrudHandler, crudImports } from './api/crud.js';
+import { generatedLibImport, SUPABASE_SERVER_LIB, SUPABASE_SERVER_LIB_PATH } from './billing.js';
 import { behaviorFor } from './api/behaviors/index.js';
 import { EntityIndex } from './api/types.js';
 import { UnsupportedContractError } from './errors.js';
@@ -30,6 +31,8 @@ function pieceFor(
   extraFiles: Record<string, string>
 ): RoutePiece {
   const method = (api.method ?? 'GET').toUpperCase();
+  const serverClientImport = generatedLibImport(routePath, 'supabase/server');
+  extraFiles[SUPABASE_SERVER_LIB_PATH] = SUPABASE_SERVER_LIB;
   if (api.crud) {
     const handler = buildCrudHandler(api, entities);
     if (handler.method !== method) {
@@ -37,7 +40,12 @@ function pieceFor(
         `API '${api.id}': crud operation '${api.crud.operation}' needs method ${handler.method}, contract says ${method}`
       );
     }
-    return { method, imports: CRUD_IMPORTS, helpers: handler.helpers, code: handler.code };
+    return {
+      method,
+      imports: crudImports(serverClientImport),
+      helpers: handler.helpers,
+      code: handler.code,
+    };
   }
   if (!api.behavior) {
     throw new UnsupportedContractError(
@@ -45,7 +53,10 @@ function pieceFor(
     );
   }
   const description = api.description || `Handler for ${api.name} (${method})`;
-  const output = behaviorFor(api.behavior as string, api.id)({ description, routePath, api });
+  const output = behaviorFor(
+    api.behavior as string,
+    api.id
+  )({ description, routePath, api, serverClientImport });
   Object.assign(extraFiles, output.extraFiles);
   const { imports, code } = splitImports(output.source);
   return { method, imports, helpers: [], code };

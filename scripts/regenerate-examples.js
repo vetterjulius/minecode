@@ -17,7 +17,7 @@ function regenerate(appName) {
   for (const dir of MANAGED_DIRS) {
     fs.rmSync(path.join(appDir, dir), { recursive: true, force: true });
   }
-  execFileSync('node', [CLI, 'build', path.join(appDir, 'app.yaml'), '--out-dir', appDir], {
+  execFileSync('node', [CLI, 'build', path.join(appDir, 'app.yaml'), '--out-dir', appDir, '--force'], {
     stdio: 'inherit',
   });
 }

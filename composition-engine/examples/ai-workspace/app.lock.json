@@ -878,18 +878,13 @@
       "workspace.read",
       "workspace.write"
     ],
-    "rawMigrations": [
-      "database/0007_search_schema.sql"
-    ],
+    "rawMigrations": ["database/0007_search_schema.sql"],
     "featureConfig": {
       "database": {
         "pooling": true
       },
       "authentication": {
-        "providers": [
-          "email",
-          "google"
-        ],
+        "providers": ["email", "google"],
         "sessionTimeout": 86400
       },
       "organizations": {
@@ -901,18 +896,10 @@
         "currency": "USD"
       },
       "notifications": {
-        "channels": [
-          "email",
-          "slack"
-        ]
+        "channels": ["email", "slack"]
       },
       "rbac": {
-        "defaultRoles": [
-          "owner",
-          "admin",
-          "member",
-          "guest"
-        ]
+        "defaultRoles": ["owner", "admin", "member", "guest"]
       },
       "storage": {
         "maxSizeMb": 50
@@ -1041,6 +1028,10 @@
       "generated": "53a9207157642958e8810012174ec1b58dbe3b86f209da25f6ab93e5033d180a",
       "disk": "53a9207157642958e8810012174ec1b58dbe3b86f209da25f6ab93e5033d180a"
     },
+    "generated/lib/supabase/server.ts": {
+      "generated": "2c8b92ba25c434bc3eae1a5ab87189dbf15dbf98fd5d4224826c7b2347bdb1e1",
+      "disk": "2c8b92ba25c434bc3eae1a5ab87189dbf15dbf98fd5d4224826c7b2347bdb1e1"
+    },
     "generated/lib/billing/verify-stripe-signature.ts": {
       "generated": "8f3f5d2a39855e45a1d712112fe5b23be9bde48b0c22b7e11a9b09dae91217ce",
       "disk": "8f3f5d2a39855e45a1d712112fe5b23be9bde48b0c22b7e11a9b09dae91217ce"
@@ -1050,28 +1041,28 @@
       "disk": "5c725470dddd05da86f765947da8f0532515ae251f18b9a678b8f9b0271fd2c1"
     },
     "app/api/ai/chat/route.ts": {
-      "generated": "8ff5037025c0c6ac77a1e5dd335e4450c1ac792273a945e98dbd9c25f07cd402",
-      "disk": "c9bb64ea5f7b44c0ea31991e18a55d8caecb9b482cbbb6bc116c343216ae7b77"
+      "generated": "64556555cc39ede47905e044593120f7d990379dd87afb495ed713813497b0c2",
+      "disk": "fdf9021765036169192912d2476c217a7a1cc8bd41872aba3281008330587bcc"
     },
     "app/api/analytics/metrics/route.ts": {
-      "generated": "c4636eeedffa164ac40f5c09e10d3ff300ff3a47f8d02be80187d6b5712c80a4",
-      "disk": "01ab8007f62423d2599d81408795517a76bb044536cf07fbe0ba9aee4d8f8f28"
+      "generated": "08b950d7feb94b9aebd12997ad6ecf9ee3bec8ddceaa336b3c187cfd3bf9a2b2",
+      "disk": "b00dc836c99cc1d54cd496c610cd74da6ea0e34d2400578cc9e00af008124b16"
     },
     "app/api/audit-logs/route.ts": {
-      "generated": "e61b0721d891ddf73ef7debd9c5f2a8ef3d4f8ce1dcf21f28840eb44526dcd5f",
-      "disk": "b43eaa5ba81fc113c89bdb49cf8653c4350536cc9bf47f533cbcfd31722d9782"
+      "generated": "afe515a53f447c2510c1a9748a2d45e9e60c97a23c77efbbe1fa071ffab2c282",
+      "disk": "f7312d4a714366fc915a4d12df5b75d4ccbfbb70414b131d735f95472fb52828"
     },
     "app/api/auth/login/route.ts": {
-      "generated": "4333c8b27f4a54a6c7a34f12b6f7f390a4d7195cb37cada539e2df3629affb45",
-      "disk": "4333c8b27f4a54a6c7a34f12b6f7f390a4d7195cb37cada539e2df3629affb45"
+      "generated": "4144385bc563273fce02a437a056e30ee49af6241fbecd31b3b415202b460a69",
+      "disk": "4144385bc563273fce02a437a056e30ee49af6241fbecd31b3b415202b460a69"
     },
     "app/api/auth/logout/route.ts": {
-      "generated": "b1da06101e061bde4b1e5d88968c6db4d8daed68596efe9450b1aaa8bfae302f",
-      "disk": "b1da06101e061bde4b1e5d88968c6db4d8daed68596efe9450b1aaa8bfae302f"
+      "generated": "d7d022c5cb54b41345a98a2c3e8c63ee6f8dbf948e2e7a873a9ebd11cba9a209",
+      "disk": "d7d022c5cb54b41345a98a2c3e8c63ee6f8dbf948e2e7a873a9ebd11cba9a209"
     },
     "app/api/auth/reset-password/route.ts": {
-      "generated": "1ff38c409ab47c3457dafb121fa94c4911caef4f8718de73c7c322158b7aa205",
-      "disk": "1ff38c409ab47c3457dafb121fa94c4911caef4f8718de73c7c322158b7aa205"
+      "generated": "ea058211de6a9810ef1debeded5ea159b621a72742a8d60b869887839db4a84e",
+      "disk": "ea058211de6a9810ef1debeded5ea159b621a72742a8d60b869887839db4a84e"
     },
     "app/api/billing/checkout/route.ts": {
       "generated": "26a8a7599cba21baa9e7af8725256bd980f2352857c3a1e645ebe4b9c3625ccb",
@@ -1082,76 +1073,76 @@
       "disk": "6b77d18cf37e95eca4679e691fe0694e4a0a091f987390528e64b309a4836895"
     },
     "app/api/feedback/route.ts": {
-      "generated": "2fddbdea112b58b9596ab7d8f10db1d23b0c8aa0bcf259d12b3d18663febbc55",
-      "disk": "42d58ac543946b190b5297b5b71fcfb13d22f7ce3db9da5562ecca06bb11f5b4"
+      "generated": "7b1a8c18c9361b76d71f5c372913f1a155105622d1fd78ed8306ad104ee811d1",
+      "disk": "788e37cdb4f2ea711a88cf0674255497828a303f9549cdf6802bdec6edb88314"
     },
     "app/api/documents/route.ts": {
-      "generated": "4c3e883469cc10fc28d7adef02c3d0946ec79dcf0e8e649a2a893984bfa45de3",
-      "disk": "8dbdd736871e6cbfd33c21110cdc06040ddff8f55d0da5d5494d200c6d90f4e6"
+      "generated": "15a776544523e49f4df05bbe608bea63547fefa502c439ee29f36a9411760264",
+      "disk": "b0515e8f95d22a97b7c55df60aa24f71608985e33aed61b7b86b527226779ef2"
     },
     "app/api/kb/articles/route.ts": {
-      "generated": "56d80e802abc99f5f5741c6c2e57ce15cf25a2ea56d551a1d4d2d1e8554e12d2",
-      "disk": "1e9549097f7750fb99fde457126518ec538f3e93c65e5a233410d132e1a9a770"
+      "generated": "7a2005758ff064ffbbab65a0ad20adfcb7407b8ec7bac6b6c14a1ab1d641478b",
+      "disk": "7212c67c100a4b3a10a1bfcb4f57f88785be60acd5dfb3eb1d9b774539dc751b"
     },
     "app/api/notifications/route.ts": {
-      "generated": "273be29d77883d3924bd13274cca001caac5ea67b7c0a5f4b8d62eb59b839c27",
-      "disk": "c6292ba0ab7db1dc545bd056f499253f6a7ad9566b0193c9d13c462fc3298499"
+      "generated": "d21f5d197fdd635b16311b80439bb2c03c66dce3c45a2f76769d85a5f27ecf16",
+      "disk": "b6dfabdb3ad0f5377274cb0fac92366471c003d16e32c95e230ca175f0d0de38"
     },
     "app/api/notifications/send/route.ts": {
-      "generated": "04346061e792a9a735332357dd378f11d7a912540cffa10d2b2424745dbeb645",
-      "disk": "92ea523a2b4cb10e61409285a4fbae1bd49161da0e1d4337f125694a3d6eba08"
+      "generated": "a44c4f44ef2285f01452ed4f597e889850f9d2ee5e3fd2311280a68a12b3ff58",
+      "disk": "49bedff4709a89fa0ea399f5fe80624a8d94ec732818fdef944bcf7cc42f7f06"
     },
     "app/api/organizations/route.ts": {
-      "generated": "98d54144a228c53b9c6086c911c5901772e99ab87914bef237402eb6fb469c71",
-      "disk": "3d40ca2dbfaeea4cd8d0c4298ec527c983811b875e3e4cc5eca68301cc6409c4"
+      "generated": "1d5be5a8292a2332f5e99b6f69d31e0bdb52215573e58938a2d2173992de2cae",
+      "disk": "703d8749b234539d3ed03b82893a2890f13067e199d173d1043d30bac3d6f1e9"
     },
     "app/api/organizations/invite/route.ts": {
-      "generated": "80eea31d8e6ad81575b8f199f78feb733ff3a581e16dfc49356abccacee5f6a4",
-      "disk": "80eea31d8e6ad81575b8f199f78feb733ff3a581e16dfc49356abccacee5f6a4"
+      "generated": "57806843ee4f4134cf6476d22f0302d68328d57b3693e8d7bd81aa72f3626f45",
+      "disk": "57806843ee4f4134cf6476d22f0302d68328d57b3693e8d7bd81aa72f3626f45"
     },
     "app/api/projects/route.ts": {
-      "generated": "9d10d8290be0b0774278ee0cff364deffa6cf04b205c80da3c203f1521c742ce",
-      "disk": "a77c1f2a00ee4d6fd7c4d235f20111396c05bfa58657442b8ca05e955c80af2c"
+      "generated": "651876a50ca712e8b7f3d34a71c346f66af85508dfffb79bc9ad16d664901c2e",
+      "disk": "722e8d95ef7d71a6c74059bee342f040aa33ac649136de17e2a41c24fb81b916"
     },
     "app/api/rbac/member-role/route.ts": {
-      "generated": "eda017102902ca2fb087ab2ff3e512f7968d5d446d52b3631d6e6ed92c336dea",
-      "disk": "eda017102902ca2fb087ab2ff3e512f7968d5d446d52b3631d6e6ed92c336dea"
+      "generated": "1629abce9a75d18f7d580dc35ce001123970c129d2ea496f5628db4f8902f210",
+      "disk": "1629abce9a75d18f7d580dc35ce001123970c129d2ea496f5628db4f8902f210"
     },
     "app/api/rbac/roles/route.ts": {
-      "generated": "3c7eaf0a78f37e753116bb379a13d04b66f078535157f71591aedbdca3cfc86a",
-      "disk": "1c340c2432e874ae3bbf4cec1e5f110db35a277c64d658994489fe401801eb2a"
+      "generated": "0359e69c039f5fedf79091e89683052dbcbf439a6b5b26ed8d6c3ba1b35e6ccc",
+      "disk": "33115db0b3a76f88cbb09c32b4c77b40c28d4fc75db92f4e73274c0ef981f5c6"
     },
     "app/api/search/route.ts": {
-      "generated": "85049ff5f573037a000832f9bf8fadc4a0141190ca6558ccb0117aea7115d92a",
-      "disk": "9cb30b5999acc40dd661f8263b6027cdf08910bc7fb0b8fe1de42bb383c274d2"
+      "generated": "d2d3f5d3b7759b8bb2feee306f8b7522ca4969060f32ec386078fcde8a83e725",
+      "disk": "f729a9af53773c2fd36132529b0e08db48650e92badc25ca5d7d926a77a7a6f8"
     },
     "app/api/storage/delete/route.ts": {
-      "generated": "a669e8d02f705c2c51817afeed54e37b4949866483764b8296d20a95b7b655d3",
-      "disk": "a303e15d1b7aa396659e8befff693a39dab3cc4f9aad44560aaab5683f7aceeb"
+      "generated": "2f15780a33724d1973f1add553a52945efd73afe325112b6b276b5c0ee929933",
+      "disk": "f38f0dd2a275c3bde99a16d9e639df71d343fdcb6a6774a186437b10362b7873"
     },
     "app/api/storage/files/route.ts": {
-      "generated": "7ee97ceeccaa39fd64e4ed46456e1a8b9c664770c1f00fea44a5099642c15893",
-      "disk": "c1cf644e3fa76d542442b6cad8988ff55f07ffb57c6c8a35a13651658bba32de"
+      "generated": "484903fa397eae7ce2e1adecbf0afc40e13cfc63a717b4240a9d1439bcce6660",
+      "disk": "214026dfcfaad8698d7da4104b9f78bc711083f6a762c117386a2f6ebdac827f"
     },
     "app/api/storage/upload/route.ts": {
-      "generated": "e5b76c8c854bf47f0bdab5667df8790ea31dcd30362465d3e2f4e3350c9f6486",
-      "disk": "67ca1c1a36a39ada2df3345d20133594f51367eebb6d0793420eba4a360b43d0"
+      "generated": "f1918d763126020f5d0957f90a899e414ff9173301500b62fdd503045d908c33",
+      "disk": "f9b95c48a648d4e1e431a8126e5ed48d6aa9e583c0a027d9f7eef2b0f7e2ae3e"
     },
     "app/api/tasks/route.ts": {
-      "generated": "49a7d639f4711c6574c3856a64e29bfe3a9b8b1a900cbd3860c7344eb183cdbd",
-      "disk": "6edda559d57509a542873d7e2f496be22e42fe0c406225c9dc6f3fce2c478eae"
+      "generated": "692a4d82c4bbe98fc590ed7d19d2911ae1b7e29ba1e113f3220f2e12bdf286fc",
+      "disk": "2451be00b689aefc3603d8363a4348a585fb2f04bc2e49748ee89158e24925f5"
     },
     "app/api/tickets/route.ts": {
-      "generated": "64dc5ef3393ef54f1950c6873c83e55ffa3c1853c8d47cb15b3adb0330c16069",
-      "disk": "8bd0a06b8b31dfebc1f8033e7d0ad21efcc2efd7097135fed650cc61d5690c7e"
+      "generated": "5a36ef3d3b0e8d76d54989e4332d1650bd86c61838e5fc0fd4b39b2ed86bf65c",
+      "disk": "b32003cb1999601cbc9a3f6661bba3ada6d8ee98095873d747732b7073a735ee"
     },
     "app/api/whiteboards/route.ts": {
-      "generated": "9da73b8559ae21a365cc2acfc52702f9b04b231663fc985868767136cdc9c4f3",
-      "disk": "b8e6eb5da9d05be6ca6829c4490c6887f44343794122ff3a78c0df44cc439753"
+      "generated": "dbd925330e89be1cfab49e58fe56b2a3e25a19f3e2761c5d1bf0e93dc3e4c2c8",
+      "disk": "e0836f153fd9a5ff77a7599020ca3359d10e54b0fb75c81d9863f180b4e81259"
     },
     "app/api/workspaces/route.ts": {
-      "generated": "3ff2ef7e831cd49e2ddfd34005566f92fd53e61f65c54821ac0566d0ca485321",
-      "disk": "52df213a255b082c0c5636aabb9c27b05de19284d4d607ac1880fe7d1b4406cc"
+      "generated": "4209f5fe1b911506123d28608b64dd0f0a82768d6f79dd9ae3b397cb9637ab9f",
+      "disk": "fbe2569b0a486392147238410188d1d91fe080ec271cdcb8f4653b823834573b"
     },
     "app/ai/chat/page.tsx": {
       "generated": "c569e755516f59f26204fabe5479f4a4af7e73590b988bd4974719a2a73ffc6e",
@@ -1228,6 +1219,30 @@
     "app/workspaces/page.tsx": {
       "generated": "5d48ed66717fb7705307d0c941b6f4053b8f4459f18c5915dc9e9f64cdc516f8",
       "disk": "45be467cc1945bb540426286194bc7c0854b1f7da51ce136fda3584b158de84f"
+    },
+    "package.json": {
+      "generated": "06a46b266012820bb8f634c390d586d529cf3f3df6992ba4798f2e8c15b028ae",
+      "disk": "06a46b266012820bb8f634c390d586d529cf3f3df6992ba4798f2e8c15b028ae"
+    },
+    "tsconfig.json": {
+      "generated": "5981c52debc5a5f73d88bb56eabe14ccb7e02ac38cec58c8fc77f57f29ca0597",
+      "disk": "5981c52debc5a5f73d88bb56eabe14ccb7e02ac38cec58c8fc77f57f29ca0597"
+    },
+    "postcss.config.js": {
+      "generated": "fa650b380adfabb151a0b352f7135e107e6352345f899060f1c5c231228f94bf",
+      "disk": "fa650b380adfabb151a0b352f7135e107e6352345f899060f1c5c231228f94bf"
+    },
+    "tailwind.config.ts": {
+      "generated": "7bad3266cff4d82659d2246408cfe33e6b67b70299ce787f59111509540a766f",
+      "disk": "bf95b1fcade752f3b7280e4c22844330c2db6cb62567aa3a0b9b44761628542c"
+    },
+    "next.config.mjs": {
+      "generated": "73f18ea67787ab9d40bedbf6600bc6f822dfc31347374a54677d67a36567b20b",
+      "disk": "73f18ea67787ab9d40bedbf6600bc6f822dfc31347374a54677d67a36567b20b"
+    },
+    ".env.local": {
+      "generated": "a5924f857142242c18953fe006389926781048d90b2a8beac47d0d16232a4cf4",
+      "disk": "a5924f857142242c18953fe006389926781048d90b2a8beac47d0d16232a4cf4"
     },
     "app/globals.css": {
       "generated": "ecbfe8b9473e9fbbb584a597760495c2fd9f8512bb757199db8d7d699036c0a0",

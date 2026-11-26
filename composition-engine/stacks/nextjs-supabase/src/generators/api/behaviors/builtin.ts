@@ -2,8 +2,7 @@ import { BehaviorContext } from '../types.js';
 
 /** Behavior 'auth.login'. */
 export function authLogin(ctx: BehaviorContext): string {
-  return `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+  return `import { createSupabaseServerClient } from '${ctx.serverClientImport}';
 import { NextResponse } from 'next/server';
 
 /**
@@ -11,7 +10,7 @@ import { NextResponse } from 'next/server';
  * Path: /${ctx.routePath}
  */
 export async function POST(request: Request) {
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = await createSupabaseServerClient();
   try {
     const { email, password } = await request.json();
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -30,8 +29,7 @@ export async function POST(request: Request) {
 
 /** Behavior 'auth.logout'. */
 export function authLogout(ctx: BehaviorContext): string {
-  return `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+  return `import { createSupabaseServerClient } from '${ctx.serverClientImport}';
 import { NextResponse } from 'next/server';
 
 /**
@@ -39,7 +37,7 @@ import { NextResponse } from 'next/server';
  * Path: /${ctx.routePath}
  */
 export async function POST(_request: Request) {
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = await createSupabaseServerClient();
   try {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
@@ -54,8 +52,7 @@ export async function POST(_request: Request) {
 
 /** Behavior 'auth.reset-password'. */
 export function authResetPassword(ctx: BehaviorContext): string {
-  return `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+  return `import { createSupabaseServerClient } from '${ctx.serverClientImport}';
 import { NextResponse } from 'next/server';
 
 /**
@@ -63,7 +60,7 @@ import { NextResponse } from 'next/server';
  * Path: /${ctx.routePath}
  */
 export async function POST(request: Request) {
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = await createSupabaseServerClient();
   try {
     const { email } = await request.json();
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -81,8 +78,7 @@ export async function POST(request: Request) {
 
 /** Behavior 'organizations.invite'. */
 export function organizationsInvite(ctx: BehaviorContext): string {
-  return `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+  return `import { createSupabaseServerClient } from '${ctx.serverClientImport}';
 import { NextResponse } from 'next/server';
 
 /**
@@ -90,7 +86,7 @@ import { NextResponse } from 'next/server';
  * Path: /${ctx.routePath}
  */
 export async function POST(request: Request) {
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = await createSupabaseServerClient();
   try {
     const { email, organization_id: organizationId, role } = await request.json();
     const token = crypto.randomUUID();
@@ -119,13 +115,12 @@ export async function POST(request: Request) {
 }
 
 /** Behavior 'storage.upload'. */
-export function storageUpload(_ctx: BehaviorContext): string {
-  return `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+export function storageUpload(ctx: BehaviorContext): string {
+  return `import { createSupabaseServerClient } from '${ctx.serverClientImport}';
 import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = await createSupabaseServerClient();
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File;
@@ -166,13 +161,12 @@ export async function POST(request: Request) {
 }
 
 /** Behavior 'storage.delete'. */
-export function storageDelete(_ctx: BehaviorContext): string {
-  return `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+export function storageDelete(ctx: BehaviorContext): string {
+  return `import { createSupabaseServerClient } from '${ctx.serverClientImport}';
 import { NextResponse } from 'next/server';
 
 export async function DELETE(request: Request) {
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = await createSupabaseServerClient();
   try {
     const { id, path } = await request.json();
 
@@ -203,13 +197,12 @@ export async function DELETE(request: Request) {
 }
 
 /** Behavior 'notifications.send'. */
-export function notificationsSend(_ctx: BehaviorContext): string {
-  return `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+export function notificationsSend(ctx: BehaviorContext): string {
+  return `import { createSupabaseServerClient } from '${ctx.serverClientImport}';
 import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = await createSupabaseServerClient();
   try {
     const { user_id: userId, channel, title, content } = await request.json();
 
@@ -243,13 +236,12 @@ export async function POST(request: Request) {
 }
 
 /** Behavior 'search.query'. */
-export function searchQuery(_ctx: BehaviorContext): string {
-  return `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+export function searchQuery(ctx: BehaviorContext): string {
+  return `import { createSupabaseServerClient } from '${ctx.serverClientImport}';
 import { NextResponse } from 'next/server';
 
 export async function GET(request: Request) {
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = await createSupabaseServerClient();
   try {
     const { searchParams } = new URL(request.url);
     const query = searchParams.get('q') || '';
@@ -283,13 +275,12 @@ export async function GET(request: Request) {
 }
 
 /** Behavior 'ai.chat.post'. */
-export function aiChatPost(_ctx: BehaviorContext): string {
-  return `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+export function aiChatPost(ctx: BehaviorContext): string {
+  return `import { createSupabaseServerClient } from '${ctx.serverClientImport}';
 import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = await createSupabaseServerClient();
   try {
     const { session_id: sessionId, content } = await request.json();
 
@@ -337,8 +328,9 @@ export async function POST(request: Request) {
 `;
 }
 
-const RPC_ROUTE_HEAD = `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+const rpcRouteHead = (
+  ctx: BehaviorContext
+) => `import { createSupabaseServerClient } from '${ctx.serverClientImport}';
 import { NextResponse } from 'next/server';
 `;
 
@@ -357,13 +349,13 @@ const RPC_ERROR = `    if (error) {
 
 /** Behavior 'organizations.create': calls create_organization(), which also makes the caller owner. */
 export function organizationsCreate(ctx: BehaviorContext): string {
-  return `${RPC_ROUTE_HEAD}
+  return `${rpcRouteHead(ctx)}
 /**
  * ${ctx.description}
  * Path: /${ctx.routePath}
  */
 export async function POST(request: Request) {
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = await createSupabaseServerClient();
   try {
     const { name } = await request.json();
     if (typeof name !== 'string' || name.trim() === '') {
@@ -375,13 +367,13 @@ ${RPC_ERROR}`;
 
 /** Behavior 'rbac.change-member-role': calls change_member_role(), which checks rbac.write. */
 export function rbacChangeMemberRole(ctx: BehaviorContext): string {
-  return `${RPC_ROUTE_HEAD}
+  return `${rpcRouteHead(ctx)}
 /**
  * ${ctx.description}
  * Path: /${ctx.routePath}
  */
 export async function PUT(request: Request) {
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = await createSupabaseServerClient();
   try {
     const { organization_id: organizationId, user_id: userId, role } = await request.json();
     if (!organizationId || !userId || !role) {

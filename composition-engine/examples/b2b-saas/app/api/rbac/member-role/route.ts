@@ -1,7 +1,6 @@
 // Generated route: /api/rbac/member-role
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { createSupabaseServerClient } from '../../../../generated/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,7 +9,7 @@ export const dynamic = 'force-dynamic';
  * Path: /api/rbac/member-role
  */
 export async function PUT(request: Request) {
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = await createSupabaseServerClient();
   try {
     const { organization_id: organizationId, user_id: userId, role } = await request.json();
     if (!organizationId || !userId || !role) {

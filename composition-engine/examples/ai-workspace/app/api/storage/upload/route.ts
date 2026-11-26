@@ -1,12 +1,11 @@
 // Generated route: /api/storage/upload
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { createSupabaseServerClient } from '../../../../generated/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = await createSupabaseServerClient();
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File;

@@ -128,6 +128,15 @@ describe.each(APPS)('generated app %s matches its generated database', (app) => 
     expect([...new Set(problems)]).toEqual([]);
   });
 
+  test('test_GeneratedApp_UsesSupabaseSsrNotDeprecatedAuthHelpers', () => {
+    const pkg = fs.readFileSync(path.join(root, 'package.json'), 'utf8');
+    expect(pkg).toContain('@supabase/ssr');
+    expect(pkg).not.toContain('auth-helpers');
+    for (const file of listSourceFiles(root)) {
+      expect(fs.readFileSync(file, 'utf8')).not.toContain('auth-helpers');
+    }
+  });
+
   test('test_GeneratedPages_PostBodies_MatchAcceptedFieldsOfCrudRoutes', () => {
     const problems: string[] = [];
     for (const file of listSourceFiles(root)) {

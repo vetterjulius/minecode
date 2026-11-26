@@ -1,7 +1,6 @@
 // Generated route: /api/organizations
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { createSupabaseServerClient } from '../../../generated/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,7 +15,7 @@ function crudError(error: unknown) {
 }
 
 export async function GET(request: Request) {
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = await createSupabaseServerClient();
   try {
     const params = new URL(request.url).searchParams;
     let query = supabase
@@ -42,7 +41,7 @@ export async function GET(request: Request) {
  * Path: /api/organizations
  */
 export async function POST(request: Request) {
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = await createSupabaseServerClient();
   try {
     const { name } = await request.json();
     if (typeof name !== 'string' || name.trim() === '') {

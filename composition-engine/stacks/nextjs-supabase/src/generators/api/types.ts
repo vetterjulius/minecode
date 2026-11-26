@@ -5,6 +5,8 @@ export interface BehaviorContext {
   description: string;
   /** Route path without leading slash, for example `api/auth/login`. */
   routePath: string;
+  /** Import path of the generated server Supabase client, relative to the route file. */
+  serverClientImport: string;
   api: ApiArtifact;
 }
 

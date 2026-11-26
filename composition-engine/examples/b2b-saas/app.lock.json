@@ -287,10 +287,7 @@
         "pooling": true
       },
       "authentication": {
-        "providers": [
-          "email",
-          "google"
-        ],
+        "providers": ["email", "google"],
         "sessionTimeout": 86400
       },
       "organizations": {
@@ -302,11 +299,7 @@
         "currency": "EUR"
       },
       "rbac": {
-        "defaultRoles": [
-          "admin",
-          "member",
-          "billing_admin"
-        ]
+        "defaultRoles": ["admin", "member", "billing_admin"]
       }
     }
   },
@@ -376,6 +369,10 @@
       "generated": "271148c4c37055a27fb22f61678de209f84e86dc2487a20221ee6d308d04616b",
       "disk": "271148c4c37055a27fb22f61678de209f84e86dc2487a20221ee6d308d04616b"
     },
+    "generated/lib/supabase/server.ts": {
+      "generated": "2c8b92ba25c434bc3eae1a5ab87189dbf15dbf98fd5d4224826c7b2347bdb1e1",
+      "disk": "2c8b92ba25c434bc3eae1a5ab87189dbf15dbf98fd5d4224826c7b2347bdb1e1"
+    },
     "generated/lib/billing/verify-stripe-signature.ts": {
       "generated": "8f3f5d2a39855e45a1d712112fe5b23be9bde48b0c22b7e11a9b09dae91217ce",
       "disk": "8f3f5d2a39855e45a1d712112fe5b23be9bde48b0c22b7e11a9b09dae91217ce"
@@ -385,16 +382,16 @@
       "disk": "5c725470dddd05da86f765947da8f0532515ae251f18b9a678b8f9b0271fd2c1"
     },
     "app/api/auth/login/route.ts": {
-      "generated": "4333c8b27f4a54a6c7a34f12b6f7f390a4d7195cb37cada539e2df3629affb45",
-      "disk": "4333c8b27f4a54a6c7a34f12b6f7f390a4d7195cb37cada539e2df3629affb45"
+      "generated": "4144385bc563273fce02a437a056e30ee49af6241fbecd31b3b415202b460a69",
+      "disk": "4144385bc563273fce02a437a056e30ee49af6241fbecd31b3b415202b460a69"
     },
     "app/api/auth/logout/route.ts": {
-      "generated": "b1da06101e061bde4b1e5d88968c6db4d8daed68596efe9450b1aaa8bfae302f",
-      "disk": "b1da06101e061bde4b1e5d88968c6db4d8daed68596efe9450b1aaa8bfae302f"
+      "generated": "d7d022c5cb54b41345a98a2c3e8c63ee6f8dbf948e2e7a873a9ebd11cba9a209",
+      "disk": "d7d022c5cb54b41345a98a2c3e8c63ee6f8dbf948e2e7a873a9ebd11cba9a209"
     },
     "app/api/auth/reset-password/route.ts": {
-      "generated": "1ff38c409ab47c3457dafb121fa94c4911caef4f8718de73c7c322158b7aa205",
-      "disk": "1ff38c409ab47c3457dafb121fa94c4911caef4f8718de73c7c322158b7aa205"
+      "generated": "ea058211de6a9810ef1debeded5ea159b621a72742a8d60b869887839db4a84e",
+      "disk": "ea058211de6a9810ef1debeded5ea159b621a72742a8d60b869887839db4a84e"
     },
     "app/api/billing/checkout/route.ts": {
       "generated": "26a8a7599cba21baa9e7af8725256bd980f2352857c3a1e645ebe4b9c3625ccb",
@@ -405,20 +402,20 @@
       "disk": "6b77d18cf37e95eca4679e691fe0694e4a0a091f987390528e64b309a4836895"
     },
     "app/api/organizations/route.ts": {
-      "generated": "98d54144a228c53b9c6086c911c5901772e99ab87914bef237402eb6fb469c71",
-      "disk": "3d40ca2dbfaeea4cd8d0c4298ec527c983811b875e3e4cc5eca68301cc6409c4"
+      "generated": "1d5be5a8292a2332f5e99b6f69d31e0bdb52215573e58938a2d2173992de2cae",
+      "disk": "703d8749b234539d3ed03b82893a2890f13067e199d173d1043d30bac3d6f1e9"
     },
     "app/api/organizations/invite/route.ts": {
-      "generated": "80eea31d8e6ad81575b8f199f78feb733ff3a581e16dfc49356abccacee5f6a4",
-      "disk": "80eea31d8e6ad81575b8f199f78feb733ff3a581e16dfc49356abccacee5f6a4"
+      "generated": "57806843ee4f4134cf6476d22f0302d68328d57b3693e8d7bd81aa72f3626f45",
+      "disk": "57806843ee4f4134cf6476d22f0302d68328d57b3693e8d7bd81aa72f3626f45"
     },
     "app/api/rbac/member-role/route.ts": {
-      "generated": "eda017102902ca2fb087ab2ff3e512f7968d5d446d52b3631d6e6ed92c336dea",
-      "disk": "eda017102902ca2fb087ab2ff3e512f7968d5d446d52b3631d6e6ed92c336dea"
+      "generated": "1629abce9a75d18f7d580dc35ce001123970c129d2ea496f5628db4f8902f210",
+      "disk": "1629abce9a75d18f7d580dc35ce001123970c129d2ea496f5628db4f8902f210"
     },
     "app/api/rbac/roles/route.ts": {
-      "generated": "3c7eaf0a78f37e753116bb379a13d04b66f078535157f71591aedbdca3cfc86a",
-      "disk": "1c340c2432e874ae3bbf4cec1e5f110db35a277c64d658994489fe401801eb2a"
+      "generated": "0359e69c039f5fedf79091e89683052dbcbf439a6b5b26ed8d6c3ba1b35e6ccc",
+      "disk": "33115db0b3a76f88cbb09c32b4c77b40c28d4fc75db92f4e73274c0ef981f5c6"
     },
     "app/auth/login/page.tsx": {
       "generated": "3a9f3ed9437b3be33ef5ace17425ccc1cced37786232f5eb76d4ebdac9d11a0c",
@@ -439,6 +436,30 @@
     "app/rbac-admin/page.tsx": {
       "generated": "7eadc81fbbd93a86432d29df9b2c6a3b5dc64a8b8d71fecb7025402cb626be26",
       "disk": "dc8ce53d6963c9e081fbe6326fe95c1e4e56a30542d31533974d26d8c54a59d4"
+    },
+    "package.json": {
+      "generated": "3f9c9a3a6f2c145fc5eda629f8b09062a3378ad621d51b2df645fa6589ef1dd6",
+      "disk": "3f9c9a3a6f2c145fc5eda629f8b09062a3378ad621d51b2df645fa6589ef1dd6"
+    },
+    "tsconfig.json": {
+      "generated": "5981c52debc5a5f73d88bb56eabe14ccb7e02ac38cec58c8fc77f57f29ca0597",
+      "disk": "5981c52debc5a5f73d88bb56eabe14ccb7e02ac38cec58c8fc77f57f29ca0597"
+    },
+    "postcss.config.js": {
+      "generated": "fa650b380adfabb151a0b352f7135e107e6352345f899060f1c5c231228f94bf",
+      "disk": "fa650b380adfabb151a0b352f7135e107e6352345f899060f1c5c231228f94bf"
+    },
+    "tailwind.config.ts": {
+      "generated": "7bad3266cff4d82659d2246408cfe33e6b67b70299ce787f59111509540a766f",
+      "disk": "bf95b1fcade752f3b7280e4c22844330c2db6cb62567aa3a0b9b44761628542c"
+    },
+    "next.config.mjs": {
+      "generated": "73f18ea67787ab9d40bedbf6600bc6f822dfc31347374a54677d67a36567b20b",
+      "disk": "73f18ea67787ab9d40bedbf6600bc6f822dfc31347374a54677d67a36567b20b"
+    },
+    ".env.local": {
+      "generated": "a5924f857142242c18953fe006389926781048d90b2a8beac47d0d16232a4cf4",
+      "disk": "a5924f857142242c18953fe006389926781048d90b2a8beac47d0d16232a4cf4"
     },
     "app/globals.css": {
       "generated": "ecbfe8b9473e9fbbb584a597760495c2fd9f8512bb757199db8d7d699036c0a0",

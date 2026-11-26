@@ -51,5 +51,5 @@ The generated apps build and their database and routes are consistent, but sever
 - **AI chat:** the assistant replies with canned text and is not connected to a model provider.
 - **Client-supplied identifiers:** generic create routes reject generated columns, so ids and the acting user come from the database and session. Behavior routes (for example notifications send, storage upload, invite) still take some identifiers from the request and are checked by RLS only. The `crud` operations `get`, `update` and `delete` are not generated yet.
 - **Storage:** the `files` storage bucket is not created by any migration.
-- **Dependencies:** the generated apps use Next.js 14 and the deprecated `@supabase/auth-helpers-nextjs`.
+- **Dependencies:** generated apps use Next.js 16, React 19 and `@supabase/ssr` through a generated `lib/supabase/server.ts`. They stay on Tailwind 3 and TypeScript 5 and no longer ship ESLint; versions are pinned in `workspace.ts` and only checked by building the two example apps.
 - **Ownership model:** `app/` is regenerated in full and overwritten; `extensions/` is not yet wired into the generated code, and there is no lockfile or upgrade path.

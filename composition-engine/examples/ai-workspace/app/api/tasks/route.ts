@@ -1,7 +1,6 @@
 // Generated route: /api/tasks
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { createSupabaseServerClient } from '../../../generated/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
 
@@ -41,7 +40,7 @@ function checkBody(
 }
 
 export async function GET(request: Request) {
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = await createSupabaseServerClient();
   try {
     const params = new URL(request.url).searchParams;
     let query = supabase.from('task').select('*').order('created_at', { ascending: false });
@@ -69,7 +68,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = await createSupabaseServerClient();
   try {
     const body = await request.json();
     const problem = checkBody(

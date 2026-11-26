@@ -62,10 +62,15 @@ describe('generic crud routes', () => {
   test('test_Generate_ListAndCreateOnSamePath_ProduceOneRouteFileWithBothHandlers', () => {
     const files = generate([list, create]);
     const route = files['app/api/things/route.ts'];
-    expect(Object.keys(files)).toEqual(['app/api/things/route.ts']);
+    expect(Object.keys(files).sort()).toEqual([
+      'app/api/things/route.ts',
+      'lib/supabase/server.ts',
+    ]);
     expect(route).toContain('export async function GET(');
     expect(route).toContain('export async function POST(');
-    expect(route.match(/^import /gm)).toHaveLength(3);
+    expect(route.match(/^import /gm)).toHaveLength(2);
+    expect(route).toContain('createSupabaseServerClient');
+    expect(route).not.toContain('auth-helpers');
   });
 
   test('test_Generate_List_OrdersByCreatedAtAndFiltersByEveryColumn', () => {
