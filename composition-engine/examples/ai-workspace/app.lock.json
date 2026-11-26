@@ -878,13 +878,18 @@
       "workspace.read",
       "workspace.write"
     ],
-    "rawMigrations": ["database/0007_search_schema.sql"],
+    "rawMigrations": [
+      "database/0007_search_schema.sql"
+    ],
     "featureConfig": {
       "database": {
         "pooling": true
       },
       "authentication": {
-        "providers": ["email", "google"],
+        "providers": [
+          "email",
+          "google"
+        ],
         "sessionTimeout": 86400
       },
       "organizations": {
@@ -896,15 +901,349 @@
         "currency": "USD"
       },
       "notifications": {
-        "channels": ["email", "slack"]
+        "channels": [
+          "email",
+          "slack"
+        ]
       },
       "rbac": {
-        "defaultRoles": ["owner", "admin", "member", "guest"]
+        "defaultRoles": [
+          "owner",
+          "admin",
+          "member",
+          "guest"
+        ]
       },
       "storage": {
         "maxSizeMb": 50
       }
     }
   },
-  "migrationCount": 29
+  "migrationCount": 29,
+  "files": {
+    "supabase/migrations/20260101000000_search_schema.sql": {
+      "generated": "cc602dc5484340164027d44500daca7f3d61ebd9ffcb767274e273db7fc0bbb2",
+      "disk": "cc602dc5484340164027d44500daca7f3d61ebd9ffcb767274e273db7fc0bbb2"
+    },
+    "supabase/migrations/20260101000001_create_organization.sql": {
+      "generated": "ba5c46dad26cd894ee249e191e9cf383e00b7f13653be80fdc11f0fce902fd8d",
+      "disk": "ba5c46dad26cd894ee249e191e9cf383e00b7f13653be80fdc11f0fce902fd8d"
+    },
+    "supabase/migrations/20260101000002_create_profile.sql": {
+      "generated": "5ee5e0966564f9cabbdc0f4f11ae7936a1f3dfca920b1c08b3b991f246caa6c7",
+      "disk": "5ee5e0966564f9cabbdc0f4f11ae7936a1f3dfca920b1c08b3b991f246caa6c7"
+    },
+    "supabase/migrations/20260101000003_create_article.sql": {
+      "generated": "51c958a00f4c22558a1ab399167b559e41d8b21e7fab34c7f906990fa9de59f7",
+      "disk": "51c958a00f4c22558a1ab399167b559e41d8b21e7fab34c7f906990fa9de59f7"
+    },
+    "supabase/migrations/20260101000004_create_audit_log.sql": {
+      "generated": "763daa150e40d43814a23a8f2f08e0d2a8c8906f8e14cb95e65422d53125bb6f",
+      "disk": "763daa150e40d43814a23a8f2f08e0d2a8c8906f8e14cb95e65422d53125bb6f"
+    },
+    "supabase/migrations/20260101000005_create_chat_message.sql": {
+      "generated": "a2bc77ad78b9c0e53b8d67e37ad791616bf62318f14534d992ecc87eae431d2b",
+      "disk": "a2bc77ad78b9c0e53b8d67e37ad791616bf62318f14534d992ecc87eae431d2b"
+    },
+    "supabase/migrations/20260101000006_create_workspace.sql": {
+      "generated": "75e0a01c82fade31f82c4578f775246df5f2fdd056ebe80bfa8150eee4a6c755",
+      "disk": "75e0a01c82fade31f82c4578f775246df5f2fdd056ebe80bfa8150eee4a6c755"
+    },
+    "supabase/migrations/20260101000007_create_project.sql": {
+      "generated": "299efdd3b8d13dd0a2565362c9e3c6f0ad1af324bc7d08aa2c8e627896d6bd80",
+      "disk": "299efdd3b8d13dd0a2565362c9e3c6f0ad1af324bc7d08aa2c8e627896d6bd80"
+    },
+    "supabase/migrations/20260101000008_create_document.sql": {
+      "generated": "a24b7cc2522eed6f6f3d0790295286d508043afe2f8bb6a218af0828174de81b",
+      "disk": "a24b7cc2522eed6f6f3d0790295286d508043afe2f8bb6a218af0828174de81b"
+    },
+    "supabase/migrations/20260101000009_create_feedback.sql": {
+      "generated": "d664aa85b9ccad3dc91291f5622728facbd49ebb2b2be9e29a28402a100183f7",
+      "disk": "d664aa85b9ccad3dc91291f5622728facbd49ebb2b2be9e29a28402a100183f7"
+    },
+    "supabase/migrations/20260101000010_create_file.sql": {
+      "generated": "f5d13f366284b99399d05416af1de6066f73ddcc884b038d20d7b4ea26024ba6",
+      "disk": "f5d13f366284b99399d05416af1de6066f73ddcc884b038d20d7b4ea26024ba6"
+    },
+    "supabase/migrations/20260101000011_create_invitation.sql": {
+      "generated": "2fb6e998d0f05c95290154dc567dead2bfbdbf6fb978728a9398ab6b498d8772",
+      "disk": "2fb6e998d0f05c95290154dc567dead2bfbdbf6fb978728a9398ab6b498d8772"
+    },
+    "supabase/migrations/20260101000012_create_membership.sql": {
+      "generated": "6a1f8ed3b99f07deac834ae5ed4e6f6d42447ed6597dafe31c1cae06c1aa44ac",
+      "disk": "6a1f8ed3b99f07deac834ae5ed4e6f6d42447ed6597dafe31c1cae06c1aa44ac"
+    },
+    "supabase/migrations/20260101000013_create_metric.sql": {
+      "generated": "30ae232b1b50e1a2f4ff4b97133ea97a49c0277f67dcda4da1e4c89deb3b4941",
+      "disk": "30ae232b1b50e1a2f4ff4b97133ea97a49c0277f67dcda4da1e4c89deb3b4941"
+    },
+    "supabase/migrations/20260101000014_create_notification.sql": {
+      "generated": "f38c4a78754bbc21d130b61adcbb11cd27f57888acbc6a5bc20a5aed200e2cd0",
+      "disk": "f38c4a78754bbc21d130b61adcbb11cd27f57888acbc6a5bc20a5aed200e2cd0"
+    },
+    "supabase/migrations/20260101000015_create_permission.sql": {
+      "generated": "c462fe1a3e23b69fa4caa6802aa64f6c0c44d86ecc26197997c828d6b90d4fd8",
+      "disk": "c462fe1a3e23b69fa4caa6802aa64f6c0c44d86ecc26197997c828d6b90d4fd8"
+    },
+    "supabase/migrations/20260101000016_create_role.sql": {
+      "generated": "e32cf3ac9feed536dd61ddcb5aa65431b06b5cb036ed31fb80040d7463bc8ba1",
+      "disk": "e32cf3ac9feed536dd61ddcb5aa65431b06b5cb036ed31fb80040d7463bc8ba1"
+    },
+    "supabase/migrations/20260101000017_create_role_permission.sql": {
+      "generated": "3319854b15fcbab231f3a100da16034f61fe9dd7b60161eb2c5845c32e44f5cc",
+      "disk": "3319854b15fcbab231f3a100da16034f61fe9dd7b60161eb2c5845c32e44f5cc"
+    },
+    "supabase/migrations/20260101000018_create_stripe_customer.sql": {
+      "generated": "11c4fff2b0990374e08bd8600caf0131bf4653291718d6e9499b752ad20a722d",
+      "disk": "11c4fff2b0990374e08bd8600caf0131bf4653291718d6e9499b752ad20a722d"
+    },
+    "supabase/migrations/20260101000019_create_subscription.sql": {
+      "generated": "819223a010726210b79c559cf0c82675a4be3b74c25f8ad11249d637de667f85",
+      "disk": "819223a010726210b79c559cf0c82675a4be3b74c25f8ad11249d637de667f85"
+    },
+    "supabase/migrations/20260101000020_create_task.sql": {
+      "generated": "f37290959c346b5ec5adcce510aeb1017105e8056956d6ddcffd7910103b44c9",
+      "disk": "f37290959c346b5ec5adcce510aeb1017105e8056956d6ddcffd7910103b44c9"
+    },
+    "supabase/migrations/20260101000021_create_ticket.sql": {
+      "generated": "35a79050cbae83e06cc631658837bfc175cc580e6a18d7d08ee47a0ea27ea790",
+      "disk": "35a79050cbae83e06cc631658837bfc175cc580e6a18d7d08ee47a0ea27ea790"
+    },
+    "supabase/migrations/20260101000022_create_whiteboard_session.sql": {
+      "generated": "ea8d8386d826a694d5d42e08651f953cd03a45537083e807d65bce3036671726",
+      "disk": "ea8d8386d826a694d5d42e08651f953cd03a45537083e807d65bce3036671726"
+    },
+    "supabase/migrations/20260101000023_rls_helpers.sql": {
+      "generated": "335ecc4b88913c254b8722015f01dcbffa2ba034086fc05237674da37d5da455",
+      "disk": "335ecc4b88913c254b8722015f01dcbffa2ba034086fc05237674da37d5da455"
+    },
+    "supabase/migrations/20260101000024_rbac_helpers.sql": {
+      "generated": "e3cc6e56f285706220356f7edd71ae02cda72466effd1c9cc0446e5ffd233df8",
+      "disk": "e3cc6e56f285706220356f7edd71ae02cda72466effd1c9cc0446e5ffd233df8"
+    },
+    "supabase/migrations/20260101000025_rbac_seed.sql": {
+      "generated": "6e2adc9d41ecea70d10ef659470ef8bebf5d22f4b5a6e1cee43ade93b31cd763",
+      "disk": "6e2adc9d41ecea70d10ef659470ef8bebf5d22f4b5a6e1cee43ade93b31cd763"
+    },
+    "supabase/migrations/20260101000026_organization_functions.sql": {
+      "generated": "4d2f02b9f62cff9e31160fb8311bf39ae248553b1d69851c7ecc60e5c96b9d3a",
+      "disk": "4d2f02b9f62cff9e31160fb8311bf39ae248553b1d69851c7ecc60e5c96b9d3a"
+    },
+    "supabase/migrations/20260101000027_rls_policies.sql": {
+      "generated": "44dcfff4ce83ec239138931e0e9fbd99e2ca260246d340feb59792169754dccc",
+      "disk": "44dcfff4ce83ec239138931e0e9fbd99e2ca260246d340feb59792169754dccc"
+    },
+    "supabase/migrations/20260101000028_profile_sync.sql": {
+      "generated": "327beac6d0412d4cca4b8c898342e5fa0909d441c73fa00f6af647d9c6d1798e",
+      "disk": "327beac6d0412d4cca4b8c898342e5fa0909d441c73fa00f6af647d9c6d1798e"
+    },
+    "generated/types/database.ts": {
+      "generated": "53a9207157642958e8810012174ec1b58dbe3b86f209da25f6ab93e5033d180a",
+      "disk": "53a9207157642958e8810012174ec1b58dbe3b86f209da25f6ab93e5033d180a"
+    },
+    "generated/lib/billing/verify-stripe-signature.ts": {
+      "generated": "8f3f5d2a39855e45a1d712112fe5b23be9bde48b0c22b7e11a9b09dae91217ce",
+      "disk": "8f3f5d2a39855e45a1d712112fe5b23be9bde48b0c22b7e11a9b09dae91217ce"
+    },
+    "generated/lib/supabase/admin.ts": {
+      "generated": "5c725470dddd05da86f765947da8f0532515ae251f18b9a678b8f9b0271fd2c1",
+      "disk": "5c725470dddd05da86f765947da8f0532515ae251f18b9a678b8f9b0271fd2c1"
+    },
+    "app/api/ai/chat/route.ts": {
+      "generated": "8ff5037025c0c6ac77a1e5dd335e4450c1ac792273a945e98dbd9c25f07cd402",
+      "disk": "c9bb64ea5f7b44c0ea31991e18a55d8caecb9b482cbbb6bc116c343216ae7b77"
+    },
+    "app/api/analytics/metrics/route.ts": {
+      "generated": "c4636eeedffa164ac40f5c09e10d3ff300ff3a47f8d02be80187d6b5712c80a4",
+      "disk": "01ab8007f62423d2599d81408795517a76bb044536cf07fbe0ba9aee4d8f8f28"
+    },
+    "app/api/audit-logs/route.ts": {
+      "generated": "e61b0721d891ddf73ef7debd9c5f2a8ef3d4f8ce1dcf21f28840eb44526dcd5f",
+      "disk": "b43eaa5ba81fc113c89bdb49cf8653c4350536cc9bf47f533cbcfd31722d9782"
+    },
+    "app/api/auth/login/route.ts": {
+      "generated": "4333c8b27f4a54a6c7a34f12b6f7f390a4d7195cb37cada539e2df3629affb45",
+      "disk": "4333c8b27f4a54a6c7a34f12b6f7f390a4d7195cb37cada539e2df3629affb45"
+    },
+    "app/api/auth/logout/route.ts": {
+      "generated": "b1da06101e061bde4b1e5d88968c6db4d8daed68596efe9450b1aaa8bfae302f",
+      "disk": "b1da06101e061bde4b1e5d88968c6db4d8daed68596efe9450b1aaa8bfae302f"
+    },
+    "app/api/auth/reset-password/route.ts": {
+      "generated": "1ff38c409ab47c3457dafb121fa94c4911caef4f8718de73c7c322158b7aa205",
+      "disk": "1ff38c409ab47c3457dafb121fa94c4911caef4f8718de73c7c322158b7aa205"
+    },
+    "app/api/billing/checkout/route.ts": {
+      "generated": "26a8a7599cba21baa9e7af8725256bd980f2352857c3a1e645ebe4b9c3625ccb",
+      "disk": "26a8a7599cba21baa9e7af8725256bd980f2352857c3a1e645ebe4b9c3625ccb"
+    },
+    "app/api/billing/webhook/route.ts": {
+      "generated": "6b77d18cf37e95eca4679e691fe0694e4a0a091f987390528e64b309a4836895",
+      "disk": "6b77d18cf37e95eca4679e691fe0694e4a0a091f987390528e64b309a4836895"
+    },
+    "app/api/feedback/route.ts": {
+      "generated": "2fddbdea112b58b9596ab7d8f10db1d23b0c8aa0bcf259d12b3d18663febbc55",
+      "disk": "42d58ac543946b190b5297b5b71fcfb13d22f7ce3db9da5562ecca06bb11f5b4"
+    },
+    "app/api/documents/route.ts": {
+      "generated": "4c3e883469cc10fc28d7adef02c3d0946ec79dcf0e8e649a2a893984bfa45de3",
+      "disk": "8dbdd736871e6cbfd33c21110cdc06040ddff8f55d0da5d5494d200c6d90f4e6"
+    },
+    "app/api/kb/articles/route.ts": {
+      "generated": "56d80e802abc99f5f5741c6c2e57ce15cf25a2ea56d551a1d4d2d1e8554e12d2",
+      "disk": "1e9549097f7750fb99fde457126518ec538f3e93c65e5a233410d132e1a9a770"
+    },
+    "app/api/notifications/route.ts": {
+      "generated": "273be29d77883d3924bd13274cca001caac5ea67b7c0a5f4b8d62eb59b839c27",
+      "disk": "c6292ba0ab7db1dc545bd056f499253f6a7ad9566b0193c9d13c462fc3298499"
+    },
+    "app/api/notifications/send/route.ts": {
+      "generated": "04346061e792a9a735332357dd378f11d7a912540cffa10d2b2424745dbeb645",
+      "disk": "92ea523a2b4cb10e61409285a4fbae1bd49161da0e1d4337f125694a3d6eba08"
+    },
+    "app/api/organizations/route.ts": {
+      "generated": "98d54144a228c53b9c6086c911c5901772e99ab87914bef237402eb6fb469c71",
+      "disk": "3d40ca2dbfaeea4cd8d0c4298ec527c983811b875e3e4cc5eca68301cc6409c4"
+    },
+    "app/api/organizations/invite/route.ts": {
+      "generated": "80eea31d8e6ad81575b8f199f78feb733ff3a581e16dfc49356abccacee5f6a4",
+      "disk": "80eea31d8e6ad81575b8f199f78feb733ff3a581e16dfc49356abccacee5f6a4"
+    },
+    "app/api/projects/route.ts": {
+      "generated": "9d10d8290be0b0774278ee0cff364deffa6cf04b205c80da3c203f1521c742ce",
+      "disk": "a77c1f2a00ee4d6fd7c4d235f20111396c05bfa58657442b8ca05e955c80af2c"
+    },
+    "app/api/rbac/member-role/route.ts": {
+      "generated": "eda017102902ca2fb087ab2ff3e512f7968d5d446d52b3631d6e6ed92c336dea",
+      "disk": "eda017102902ca2fb087ab2ff3e512f7968d5d446d52b3631d6e6ed92c336dea"
+    },
+    "app/api/rbac/roles/route.ts": {
+      "generated": "3c7eaf0a78f37e753116bb379a13d04b66f078535157f71591aedbdca3cfc86a",
+      "disk": "1c340c2432e874ae3bbf4cec1e5f110db35a277c64d658994489fe401801eb2a"
+    },
+    "app/api/search/route.ts": {
+      "generated": "85049ff5f573037a000832f9bf8fadc4a0141190ca6558ccb0117aea7115d92a",
+      "disk": "9cb30b5999acc40dd661f8263b6027cdf08910bc7fb0b8fe1de42bb383c274d2"
+    },
+    "app/api/storage/delete/route.ts": {
+      "generated": "a669e8d02f705c2c51817afeed54e37b4949866483764b8296d20a95b7b655d3",
+      "disk": "a303e15d1b7aa396659e8befff693a39dab3cc4f9aad44560aaab5683f7aceeb"
+    },
+    "app/api/storage/files/route.ts": {
+      "generated": "7ee97ceeccaa39fd64e4ed46456e1a8b9c664770c1f00fea44a5099642c15893",
+      "disk": "c1cf644e3fa76d542442b6cad8988ff55f07ffb57c6c8a35a13651658bba32de"
+    },
+    "app/api/storage/upload/route.ts": {
+      "generated": "e5b76c8c854bf47f0bdab5667df8790ea31dcd30362465d3e2f4e3350c9f6486",
+      "disk": "67ca1c1a36a39ada2df3345d20133594f51367eebb6d0793420eba4a360b43d0"
+    },
+    "app/api/tasks/route.ts": {
+      "generated": "49a7d639f4711c6574c3856a64e29bfe3a9b8b1a900cbd3860c7344eb183cdbd",
+      "disk": "6edda559d57509a542873d7e2f496be22e42fe0c406225c9dc6f3fce2c478eae"
+    },
+    "app/api/tickets/route.ts": {
+      "generated": "64dc5ef3393ef54f1950c6873c83e55ffa3c1853c8d47cb15b3adb0330c16069",
+      "disk": "8bd0a06b8b31dfebc1f8033e7d0ad21efcc2efd7097135fed650cc61d5690c7e"
+    },
+    "app/api/whiteboards/route.ts": {
+      "generated": "9da73b8559ae21a365cc2acfc52702f9b04b231663fc985868767136cdc9c4f3",
+      "disk": "b8e6eb5da9d05be6ca6829c4490c6887f44343794122ff3a78c0df44cc439753"
+    },
+    "app/api/workspaces/route.ts": {
+      "generated": "3ff2ef7e831cd49e2ddfd34005566f92fd53e61f65c54821ac0566d0ca485321",
+      "disk": "52df213a255b082c0c5636aabb9c27b05de19284d4d607ac1880fe7d1b4406cc"
+    },
+    "app/ai/chat/page.tsx": {
+      "generated": "c569e755516f59f26204fabe5479f4a4af7e73590b988bd4974719a2a73ffc6e",
+      "disk": "f67df802de3f6aa2bcb8cec371f59a092e81225b0b5638831e92a5959643da39"
+    },
+    "app/analytics/page.tsx": {
+      "generated": "1535d65c5bb6e62efdaab4770e8bc0ff8aa5bbee83921be63f53dcefe3f8e80d",
+      "disk": "6be96967b18412fd311d58314a08935a4adb732bd5d93e08c3848f77d62d59ed"
+    },
+    "app/audit-logs/page.tsx": {
+      "generated": "4d2e82cc8dc6c87b3139387520b5756a2842d22221c577a9390065b0e4e9417a",
+      "disk": "5f3c492184e7bcb9567190433a6d8277fa19164927d7841064061772eea2631a"
+    },
+    "app/auth/login/page.tsx": {
+      "generated": "3a9f3ed9437b3be33ef5ace17425ccc1cced37786232f5eb76d4ebdac9d11a0c",
+      "disk": "1721391c40e5ddf830c4ce6813c6bfa4c03c78ef68b58be6e68a1ea2704cc45a"
+    },
+    "app/auth/reset-password/page.tsx": {
+      "generated": "817c7b710f10f56fe0b43b5e3c91a5f533ab32c5b3d7d32bea186f50f26d17bc",
+      "disk": "a2b6c38db510a61f1c5201a7c0837ebe16303c5794f7abd668bee2009651bba6"
+    },
+    "app/billing/page.tsx": {
+      "generated": "bf748e697ceabf93429275722dae3c969db4105d1045bba0bc5a7f56a7cb36eb",
+      "disk": "e53811c13023451c476cecde9e4ed3f0e57052950ff85dd197222c4e262fac8c"
+    },
+    "app/feedback/page.tsx": {
+      "generated": "748cd35ea17ae6329031a5003faf5dfc4703b3c41838b90f79072da430b6622d",
+      "disk": "317aa38c7b9ffb16ac4703f8196bebc7224feb5fb58020780e6898e91b199c69"
+    },
+    "app/documents/page.tsx": {
+      "generated": "37bcda8ef999040da44e46ec9abdcac5d01540b6228ca203e5f67e9b418a0e45",
+      "disk": "d8548f7e9845f95654503ee418df336846611a1c664bb2e309ec0f5ab4dfda21"
+    },
+    "app/kb/page.tsx": {
+      "generated": "e21da65a6702464ebd27f721122aad2eac5b4b15a10d00b275497844b69b7c08",
+      "disk": "24ae3c6134ef8ad31974b30b0bdf2dd2c0bcfb6b8cbb19e9e5d035434b03622a"
+    },
+    "app/notifications/page.tsx": {
+      "generated": "3901dfaf0eb2b2cbd70fafc2d953275f5424414ca3860b0c8183624d0903d817",
+      "disk": "2724c39f4fb85e5e926f9278c2e96a8c1649fbfc93ca0d60babb3f6e80955c40"
+    },
+    "app/organizations/page.tsx": {
+      "generated": "a6341311160b957c667498988fb25d6a46eff9b066deafd3a7e76fd4f211cf8f",
+      "disk": "2dc9dbd6dcfcf5704caa15f9bc0706d46be20e49096689c046f63afb5afda2ab"
+    },
+    "app/projects/page.tsx": {
+      "generated": "477c18f343e8b12204a85be18125270b7106966bda798a4a36a3b4d7f7481ccf",
+      "disk": "a88c8af8e097146a6b073708d9d0c52ac95fbb95083d30c76e56a7d167a375b3"
+    },
+    "app/rbac-admin/page.tsx": {
+      "generated": "7eadc81fbbd93a86432d29df9b2c6a3b5dc64a8b8d71fecb7025402cb626be26",
+      "disk": "dc8ce53d6963c9e081fbe6326fe95c1e4e56a30542d31533974d26d8c54a59d4"
+    },
+    "app/search/page.tsx": {
+      "generated": "f7e5f3f026ad38c681aaa3180b6ecdc034144ed597cb8a02569e98448631d7fa",
+      "disk": "6e19086b7ce00d6a427d0cf12fc86c86333e3a8ef55d7e76776219d7b48130ab"
+    },
+    "app/storage/page.tsx": {
+      "generated": "13ddb4eac407c6411ab6cc5baf03802794c142544bd9b9fe7ca3a872d8cb005d",
+      "disk": "7254c646a64659f6660cee903ebbca158c70ca131dc5455192e2b9b2813668d6"
+    },
+    "app/tasks/page.tsx": {
+      "generated": "6dde2e1814bc9da5d0106137d7d11e9ef033be98720486c5e8c004401af0eba1",
+      "disk": "7b69740e3b5b5277efb4e7e7b8ce46366da0490da8100c4e495f39a368765b91"
+    },
+    "app/tickets/page.tsx": {
+      "generated": "9bd2a406e310966c9d171ac76d8abc2e4598c2ebb62ba32760ae8fe12f285b25",
+      "disk": "dfc5a5ed17d9807619d073e42ae10acfd03767acfcfb109e07f060fdfe4e18ee"
+    },
+    "app/whiteboard/page.tsx": {
+      "generated": "47654365c736d9ca9ef2297107ffb6e11e0260ffc3733703aac4edb1a0ac96a3",
+      "disk": "ee6f4b6af79e31451aeb6add44a3b94b71b27eaf5cabed5ab1fd40466b5173d1"
+    },
+    "app/workspaces/page.tsx": {
+      "generated": "5d48ed66717fb7705307d0c941b6f4053b8f4459f18c5915dc9e9f64cdc516f8",
+      "disk": "45be467cc1945bb540426286194bc7c0854b1f7da51ce136fda3584b158de84f"
+    },
+    "app/globals.css": {
+      "generated": "ecbfe8b9473e9fbbb584a597760495c2fd9f8512bb757199db8d7d699036c0a0",
+      "disk": "ecbfe8b9473e9fbbb584a597760495c2fd9f8512bb757199db8d7d699036c0a0"
+    },
+    "app/layout.tsx": {
+      "generated": "56971b17c1956847fd5531b0bd25078eedd225711b9ec3f5a2ac4c605f87509a",
+      "disk": "116785263e019e47c5aadbd65d324010cc1974f08fb31026971166b7d3dfb4fb"
+    },
+    "app/page.tsx": {
+      "generated": "fb75c3f2ce49b09d9cb6cd2fab571894d834f9f0bbd3866433769fd9edcf6017",
+      "disk": "1fb575a698065600a62a7c58c6ba9312dee80eeaf693541f56941e367c7dd8c4"
+    },
+    "config/permissions.ts": {
+      "generated": "b07a21fc233f6609429498838fb4197edab3c85cc28b81ef96a299563e22c0bc",
+      "disk": "d29438c4806aac401274ba478198ca4f43f1bc7b0475503ee82bfc5132e783ac"
+    }
+  }
 }

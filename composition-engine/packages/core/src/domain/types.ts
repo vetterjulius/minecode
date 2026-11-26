@@ -342,4 +342,15 @@ export interface SchemaLock {
   schema: SchemaSnapshot;
   /** Number of migration files generated so far; the next file continues the sequence. */
   migrationCount: number;
+  /**
+   * Ownership manifest: for every generated file, the hash of the generated source and the hash
+   * of what was written to disk (after formatting). A file whose disk hash differs was edited by
+   * a person and is never overwritten silently.
+   */
+  files?: Record<string, GeneratedFileRecord>;
+}
+
+export interface GeneratedFileRecord {
+  generated: string;
+  disk: string;
 }
