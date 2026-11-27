@@ -1,7 +1,7 @@
 import { ApiArtifact, CompositionPlan, DatabaseArtifact, SubGenerator } from '@minecode/core';
 import { buildCrudHandler, crudImports } from './api/crud.js';
 import { generatedLibImport, SUPABASE_SERVER_LIB, SUPABASE_SERVER_LIB_PATH } from './billing.js';
-import { behaviorFor } from './api/behaviors/index.js';
+import { BehaviorRegistry } from './api/behaviors/index.js';
 import { EntityIndex } from './api/types.js';
 import { UnsupportedContractError } from './errors.js';
 
@@ -33,7 +33,8 @@ function pieceFor(
   api: ApiArtifact,
   routePath: string,
   entities: EntityIndex,
-  extraFiles: Record<string, string>
+  extraFiles: Record<string, string>,
+  behaviors: BehaviorRegistry
 ): RoutePiece {
   const method = (api.method ?? 'GET').toUpperCase();
   const serverClientImport = generatedLibImport(routePath, 'supabase/server');
@@ -61,7 +62,7 @@ function pieceFor(
     );
   }
   const description = api.description || `Handler for ${api.name} (${method})`;
-  const output = behaviorFor(
+  const output = behaviors.get(
     api.behavior as string,
     api.id
   )({ description, routePath, api, serverClientImport });
@@ -95,6 +96,8 @@ function assembleRoute(routePath: string, pieces: RoutePiece[]): string {
 export class NextjsSupabaseApiSubGenerator implements SubGenerator {
   public readonly id = 'nextjs-supabase-api';
 
+  constructor(private readonly behaviors: BehaviorRegistry = new BehaviorRegistry()) {}
+
   public generate(plan: CompositionPlan): Record<string, string> {
     const entities: EntityIndex = new Map<string, DatabaseArtifact>(
       plan.database.map((d) => [d.entityName, d])
@@ -104,7 +107,7 @@ export class NextjsSupabaseApiSubGenerator implements SubGenerator {
 
     for (const api of plan.api) {
       const routePath = routePathOf(api);
-      const piece = pieceFor(api, routePath, entities, files);
+      const piece = pieceFor(api, routePath, entities, files, this.behaviors);
       const pieces = byPath.get(routePath) ?? [];
       if (pieces.some((p) => p.method === piece.method)) {
         throw new UnsupportedContractError(

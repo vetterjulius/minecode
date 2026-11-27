@@ -1,5 +1,6 @@
 import { StackAdapter, StackOutputLayout, CompositionPlan, SubGenerator } from '@minecode/core';
-import { BEHAVIORS } from './generators/api/behaviors/index.js';
+import { BehaviorRegistry } from './generators/api/behaviors/index.js';
+import type { BehaviorBuilder } from './generators/api/types.js';
 import { SupabaseDatabaseSubGenerator } from './generators/database/index.js';
 import { NextjsSupabaseApiSubGenerator } from './generators/api.js';
 import { NextjsSupabaseUiSubGenerator } from './generators/ui.js';
@@ -34,11 +35,23 @@ export class NextJsSupabaseAdapter implements StackAdapter {
   public readonly stackId = 'nextjs-supabase';
   public readonly description =
     'Next.js (App Router) with Supabase: Postgres schema, RLS, route handlers, pages';
-  public readonly behaviors = Object.keys(BEHAVIORS);
+  private readonly behaviorRegistry = new BehaviorRegistry();
+
+  public get behaviors(): readonly string[] {
+    return this.behaviorRegistry.ids();
+  }
+
+  /** Adds behaviors shipped by feature packages. Ids must not collide with built-in ones. */
+  public registerBehaviors(behaviors: Record<string, unknown>): void {
+    for (const [id, builder] of Object.entries(behaviors)) {
+      this.behaviorRegistry.register(id, builder as BehaviorBuilder);
+    }
+  }
+
   public readonly layout = nextjsSupabaseLayout;
 
   public readonly databaseGenerator = new SupabaseDatabaseSubGenerator();
-  public readonly apiGenerator = new NextjsSupabaseApiSubGenerator();
+  public readonly apiGenerator = new NextjsSupabaseApiSubGenerator(this.behaviorRegistry);
   public readonly uiGenerator = new NextjsSupabaseUiSubGenerator();
   public readonly navigationGenerator = new NextjsNavigationSubGenerator();
   public readonly workspaceGenerator = new NextjsWorkspaceSubGenerator();
@@ -81,6 +94,8 @@ export class NextJsSupabaseAdapter implements StackAdapter {
 
 export * from './generators/database/index.js';
 export * from './generators/api.js';
+export type { BehaviorBuilder, BehaviorContext, BehaviorOutput } from './generators/api/types.js';
+export { BehaviorRegistry } from './generators/api/behaviors/index.js';
 export * from './generators/ui.js';
 export * from './generators/navigation.js';
 export * from './generators/workspace.js';

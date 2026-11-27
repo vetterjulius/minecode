@@ -2,8 +2,16 @@
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
-import { getGeneratorInfo, ApplicationGenerator } from '@minecode/generator';
-import { FileSystemRegistry } from '@minecode/registry';
+import {
+  getGeneratorInfo,
+  ApplicationGenerator,
+  createDefaultStackRegistry,
+} from '@minecode/generator';
+import {
+  FileSystemRegistry,
+  discoverFeaturePackages,
+  loadStackBehaviors,
+} from '@minecode/registry';
 import { parseBlueprintYaml } from '@minecode/schemas';
 import {
   BlueprintValidator,
@@ -16,7 +24,22 @@ import { DEFAULT_STACK_ID } from '@minecode/core';
 let registryLoadError: Error | null = null;
 const featuresDir =
   process.env.MINECODE_FEATURES_DIR || process.env.FEATURES_DIR || 'composition-engine/features';
-const registry = new FileSystemRegistry(featuresDir);
+// Feature packages (npm) installed in the project directory contribute features and stack behaviors.
+const projectDir = process.env.MINECODE_PROJECT_DIR || process.cwd();
+const featurePackages = discoverFeaturePackages(projectDir);
+const registry = new FileSystemRegistry([
+  featuresDir,
+  ...featurePackages.flatMap((p) => (p.featuresDir ? [p.featuresDir] : [])),
+]);
+const stacks = createDefaultStackRegistry();
+const stacksReady: Promise<void> = (async () => {
+  for (const pkg of featurePackages) {
+    for (const stackId of Object.keys(pkg.stackModules)) {
+      const adapter = stacks.list().find((s) => s.stackId === stackId);
+      adapter?.registerBehaviors?.(await loadStackBehaviors(pkg, stackId));
+    }
+  }
+})();
 
 try {
   registry.load();
@@ -502,7 +525,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         const plan = composer.compose(result.resolvedFeatures, result.blueprint);
 
         // 2. Generate application files
-        const generator = new ApplicationGenerator(outDir);
+        await stacksReady;
+        const generator = new ApplicationGenerator(outDir, stacks);
         const report = generator.generate(plan, { runnable });
         const writtenPaths = [...report.written, ...report.unchanged];
 

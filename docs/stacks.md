@@ -30,4 +30,33 @@ Run `minecode stacks` to list them. A feature is usable with a stack once its `m
 ## Adding a stack
 
 Implement `StackAdapter`, register it in a `StackRegistry` and pass the registry to `ApplicationGenerator`. Distribution
-of stacks and features as npm packages is the next step.
+Feature libraries are distributed as npm packages, see below.
+
+## Feature packages (npm)
+
+A feature library is an ordinary npm package whose `package.json` has a `minecode` field:
+
+```json
+{
+  "name": "acme-polls",
+  "minecode": {
+    "features": "features",
+    "stacks": { "nextjs-supabase": "./dist/nextjs.js" }
+  }
+}
+```
+
+- `features`: directory with feature folders (`feature.yaml`, `contract.yaml`, ...), exactly like the built-in ones.
+- `stacks`: per stack, a module exporting `behaviors`, a map from behavior id (as named in the package's contracts)
+  to that stack's builder. For `nextjs-supabase` the builder type is `BehaviorBuilder` from
+  `@minecode/nextjs-supabase`.
+
+The CLI and MCP server look at the (dev)dependencies of the `package.json` next to the blueprint (MCP:
+`MINECODE_PROJECT_DIR`, default cwd), add the packages' feature directories to the registry and register their
+behaviors with the matching stacks. Rules:
+
+- A package behavior may not reuse the id of a built-in behavior.
+- A feature that names a behavior the chosen stack does not have fails before anything is written.
+- Features are declared compatible with a stack through `metadata.stack`; a package that ships no module for a stack
+  simply cannot be used with it.
+- Stack modules are executed code. Install feature packages only from sources you trust, as with any npm dependency.
