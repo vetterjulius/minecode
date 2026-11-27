@@ -287,7 +287,10 @@
         "pooling": true
       },
       "authentication": {
-        "providers": ["email", "google"],
+        "providers": [
+          "email",
+          "google"
+        ],
         "sessionTimeout": 86400
       },
       "organizations": {
@@ -299,7 +302,11 @@
         "currency": "EUR"
       },
       "rbac": {
-        "defaultRoles": ["admin", "member", "billing_admin"]
+        "defaultRoles": [
+          "admin",
+          "member",
+          "billing_admin"
+        ]
       }
     }
   },

@@ -878,13 +878,18 @@
       "workspace.read",
       "workspace.write"
     ],
-    "rawMigrations": ["database/0007_search_schema.sql"],
+    "rawMigrations": [
+      "database/0007_search_schema.sql"
+    ],
     "featureConfig": {
       "database": {
         "pooling": true
       },
       "authentication": {
-        "providers": ["email", "google"],
+        "providers": [
+          "email",
+          "google"
+        ],
         "sessionTimeout": 86400
       },
       "organizations": {
@@ -896,10 +901,18 @@
         "currency": "USD"
       },
       "notifications": {
-        "channels": ["email", "slack"]
+        "channels": [
+          "email",
+          "slack"
+        ]
       },
       "rbac": {
-        "defaultRoles": ["owner", "admin", "member", "guest"]
+        "defaultRoles": [
+          "owner",
+          "admin",
+          "member",
+          "guest"
+        ]
       },
       "storage": {
         "maxSizeMb": 50
