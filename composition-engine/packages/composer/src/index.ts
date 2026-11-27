@@ -370,6 +370,26 @@ export class Composer {
     validateApiReferences(api, database, permissions);
     validatePermissionReferences(database, permissions);
 
+    // Every generic create endpoint can be customized before and after the insert.
+    for (const endpoint of api) {
+      if (endpoint.crud?.operation !== 'create') continue;
+      for (const [phase, description] of [
+        ['beforeCreate', 'validate or adjust the row before it is inserted; throw to reject'],
+        ['afterCreate', 'react to the inserted row (notifications, audit, integrations)'],
+      ]) {
+        const name = `${endpoint.crud.entity}.${phase}`;
+        if (extensionPointsMap.has(name)) continue;
+        extensionPointsMap.set(name, {
+          id: `${endpoint.featureId}:${name}`,
+          featureId: endpoint.featureId,
+          name,
+          type: 'function',
+          description: `Hook to ${description}.`,
+          contributions: [],
+        });
+      }
+    }
+
     const extensionPoints = Array.from(extensionPointsMap.values());
     extensionPoints.sort(sortById);
 

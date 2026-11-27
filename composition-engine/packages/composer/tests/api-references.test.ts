@@ -61,4 +61,36 @@ describe('API reference validation', () => {
       )
     ).toThrow(/unknown permission "nope"/);
   });
+
+  test('test_Compose_CreateEndpoint_DerivesBeforeAndAfterHookExtensionPoints', () => {
+    const plan = new Composer().compose(
+      [
+        feature([
+          {
+            name: 'CreateThing',
+            path: '/api/things',
+            crud: { entity: 'Thing', operation: 'create' },
+          },
+        ]),
+      ],
+      blueprint
+    );
+    expect(plan.extensionPoints.map((e) => e.name)).toEqual([
+      'Thing.afterCreate',
+      'Thing.beforeCreate',
+    ]);
+    expect(plan.extensionPoints.every((e) => e.type === 'function')).toBe(true);
+  });
+
+  test('test_Compose_ListEndpointOnly_DerivesNoHooks', () => {
+    const plan = new Composer().compose(
+      [
+        feature([
+          { name: 'ListThings', path: '/api/things', crud: { entity: 'Thing', operation: 'list' } },
+        ]),
+      ],
+      blueprint
+    );
+    expect(plan.extensionPoints).toEqual([]);
+  });
 });

@@ -5,8 +5,9 @@ import { columnName, tableName } from '../database/naming.js';
 import { primaryKeyFields } from '../database/primary-key.js';
 import { EntityIndex } from './types.js';
 
-export const crudImports = (serverClientImport: string) => [
+export const crudImports = (serverClientImport: string, extensionsImport?: string) => [
   `import { createSupabaseServerClient } from '${serverClientImport}';`,
+  ...(extensionsImport ? [`import { extensions } from '${extensionsImport}';`] : []),
   "import { NextResponse } from 'next/server';",
 ];
 
@@ -50,6 +51,8 @@ export interface CrudHandler {
   method: 'GET' | 'POST';
   code: string;
   helpers: string[];
+  /** True when the handler calls application hooks from extensions/. */
+  usesExtensions: boolean;
 }
 
 function kindOf(field: EntityField): 'string' | 'number' | 'boolean' | 'json' {
@@ -128,12 +131,19 @@ ${allowed.replace(/^ {4}/gm, '        ')}
       return NextResponse.json({ success: false, error: problem }, { status: 400 });
     }
 
+    const { data: auth } = await supabase.auth.getUser();
+    const context = { userId: auth.user?.id ?? null };
+    const before = extensions.hooks?.['${entity.entityName}.beforeCreate'];
+    const row = (before ? await before(body, context) : undefined) ?? body;
+
     const { data, error } = await supabase
       .from('${tableName(entity.entityName)}')
-      .insert(body)
+      .insert(row)
       .select()
       .single();
     if (error) throw error;
+
+    await extensions.hooks?.['${entity.entityName}.afterCreate']?.(data, context);
     return NextResponse.json({ success: true, data });
   } catch (error) {
     return crudError(error);
@@ -152,12 +162,14 @@ export function buildCrudHandler(api: ApiArtifact, entities: EntityIndex): CrudH
         method: 'GET',
         code: buildList(api, entity, entities),
         helpers: [CRUD_ERROR_HELPER],
+        usesExtensions: false,
       };
     case 'create':
       return {
         method: 'POST',
         code: buildCreate(entity),
         helpers: [CRUD_ERROR_HELPER, CRUD_BODY_HELPER],
+        usesExtensions: true,
       };
     default:
       throw new UnsupportedContractError(

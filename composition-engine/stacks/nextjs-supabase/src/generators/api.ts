@@ -5,6 +5,11 @@ import { behaviorFor } from './api/behaviors/index.js';
 import { EntityIndex } from './api/types.js';
 import { UnsupportedContractError } from './errors.js';
 
+/** Import path of extensions/index.ts, relative to app/<routePath>/route.ts. */
+function extensionsImport(routePath: string): string {
+  return `${'../'.repeat(routePath.split('/').length + 1)}extensions`;
+}
+
 const IMPORT_LINE = /^import [^\n]*;\n/gm;
 
 interface RoutePiece {
@@ -42,7 +47,10 @@ function pieceFor(
     }
     return {
       method,
-      imports: crudImports(serverClientImport),
+      imports: crudImports(
+        serverClientImport,
+        handler.usesExtensions ? extensionsImport(routePath) : undefined
+      ),
       helpers: handler.helpers,
       code: handler.code,
     };

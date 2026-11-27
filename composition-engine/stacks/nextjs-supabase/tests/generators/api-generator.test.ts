@@ -68,7 +68,7 @@ describe('generic crud routes', () => {
     ]);
     expect(route).toContain('export async function GET(');
     expect(route).toContain('export async function POST(');
-    expect(route.match(/^import /gm)).toHaveLength(2);
+    expect(route.match(/^import /gm)).toHaveLength(3);
     expect(route).toContain('createSupabaseServerClient');
     expect(route).not.toContain('auth-helpers');
   });
@@ -117,6 +117,19 @@ describe('generic crud routes', () => {
   test('test_Generate_Create_MapsRowLevelSecurityViolationToForbidden', () => {
     const route = generate([create])['app/api/things/route.ts'];
     expect(route).toContain("code === '42501' ? 403 : 400");
+  });
+
+  test('test_Generate_Create_CallsExtensionHooksAroundInsert', () => {
+    const route = generate([create])['app/api/things/route.ts'];
+    expect(route).toContain("import { extensions } from '../../../extensions';");
+    expect(route).toContain("extensions.hooks?.['Thing.beforeCreate']");
+    expect(route).toContain("extensions.hooks?.['Thing.afterCreate']");
+    expect(route.indexOf('beforeCreate')).toBeLessThan(route.indexOf('.insert(row)'));
+    expect(route.indexOf('.insert(row)')).toBeLessThan(route.indexOf('afterCreate'));
+  });
+
+  test('test_Generate_ListOnly_DoesNotImportExtensions', () => {
+    expect(generate([list])['app/api/things/route.ts']).not.toContain('extensions');
   });
 
   test('test_Generate_CrudOperationWithWrongMethod_Throws', () => {

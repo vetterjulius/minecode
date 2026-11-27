@@ -103,6 +103,19 @@ export class ApplicationGenerator {
 
     for (const [relPath, content] of Object.entries(virtualFiles)) {
       const targetRel = this.targetPath(relPath);
+      if (targetRel.startsWith('extensions/')) {
+        // Application code: scaffolded once, then owned by the developer. Not in the manifest.
+        const scaffold = path.join(this.outDir, targetRel);
+        if (fs.existsSync(scaffold)) {
+          report.unchanged.push(targetRel);
+        } else {
+          fs.mkdirSync(path.dirname(scaffold), { recursive: true });
+          fs.writeFileSync(scaffold, content, 'utf8');
+          toFormat.push(scaffold);
+          report.written.push(targetRel);
+        }
+        continue;
+      }
       produced.add(targetRel);
       const target = path.join(this.outDir, targetRel);
       const generated = sha256(content);
@@ -157,7 +170,7 @@ export class ApplicationGenerator {
         // Formatting is best effort; the manifest hashes what is on disk either way.
       }
     }
-    for (const rel of report.written) {
+    for (const rel of report.written.filter((f) => !f.startsWith('extensions/'))) {
       records[rel].disk = sha256(fs.readFileSync(path.join(this.outDir, rel), 'utf8'));
     }
 
@@ -176,6 +189,7 @@ export class ApplicationGenerator {
       relPath.startsWith('app/') ||
       relPath.startsWith('config/') ||
       relPath.startsWith('supabase/migrations/') ||
+      relPath.startsWith('extensions/') ||
       ROOT_FILES.has(relPath)
     ) {
       return relPath;

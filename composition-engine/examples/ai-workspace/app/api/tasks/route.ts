@@ -1,6 +1,7 @@
 // Generated route: /api/tasks
 import { NextResponse } from 'next/server';
 import { createSupabaseServerClient } from '../../../generated/lib/supabase/server';
+import { extensions } from '../../../extensions';
 
 export const dynamic = 'force-dynamic';
 
@@ -87,8 +88,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: problem }, { status: 400 });
     }
 
-    const { data, error } = await supabase.from('task').insert(body).select().single();
+    const { data: auth } = await supabase.auth.getUser();
+    const context = { userId: auth.user?.id ?? null };
+    const before = extensions.hooks?.['Task.beforeCreate'];
+    const row = (before ? await before(body, context) : undefined) ?? body;
+
+    const { data, error } = await supabase.from('task').insert(row).select().single();
     if (error) throw error;
+
+    await extensions.hooks?.['Task.afterCreate']?.(data, context);
     return NextResponse.json({ success: true, data });
   } catch (error) {
     return crudError(error);

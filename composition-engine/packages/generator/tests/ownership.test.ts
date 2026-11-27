@@ -133,4 +133,35 @@ describe('ownership manifest', () => {
     expect(report.conflicts).toEqual([]);
     expect(report.written).toEqual([]);
   });
+
+  test('test_Generate_ExtensionsScaffold_IsCreatedOnceAndNeverOverwritten', () => {
+    const withHook = (): CompositionPlan => ({
+      ...plan([note()]),
+      extensionPoints: [
+        {
+          id: 'n:Note.beforeCreate',
+          featureId: 'n',
+          name: 'Note.beforeCreate',
+          type: 'function',
+          description: '',
+          contributions: [],
+        },
+      ],
+    });
+    const first = run(withHook());
+    expect(first.written).toContain('extensions/index.ts');
+    expect(fs.readFileSync(file('extensions/index.ts'), 'utf8')).toMatch(
+      /["']Note\.beforeCreate["']/
+    );
+
+    fs.writeFileSync(file('extensions/index.ts'), 'export const extensions = { mine: true };\n');
+    const second = run(withHook());
+    expect(second.written).not.toContain('extensions/index.ts');
+    expect(second.conflicts).toEqual([]);
+    expect(fs.readFileSync(file('extensions/index.ts'), 'utf8')).toContain('mine: true');
+    expect(Object.keys(readLock(dir)?.files ?? {})).not.toContain('extensions/index.ts');
+    expect(fs.readFileSync(file('generated/lib/extensions.ts'), 'utf8')).toMatch(
+      /["']Note\.beforeCreate["']\?: BeforeCreateHook/
+    );
+  });
 });

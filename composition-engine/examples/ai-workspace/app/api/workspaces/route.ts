@@ -1,6 +1,7 @@
 // Generated route: /api/workspaces
 import { NextResponse } from 'next/server';
 import { createSupabaseServerClient } from '../../../generated/lib/supabase/server';
+import { extensions } from '../../../extensions';
 
 export const dynamic = 'force-dynamic';
 
@@ -74,8 +75,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: problem }, { status: 400 });
     }
 
-    const { data, error } = await supabase.from('workspace').insert(body).select().single();
+    const { data: auth } = await supabase.auth.getUser();
+    const context = { userId: auth.user?.id ?? null };
+    const before = extensions.hooks?.['Workspace.beforeCreate'];
+    const row = (before ? await before(body, context) : undefined) ?? body;
+
+    const { data, error } = await supabase.from('workspace').insert(row).select().single();
     if (error) throw error;
+
+    await extensions.hooks?.['Workspace.afterCreate']?.(data, context);
     return NextResponse.json({ success: true, data });
   } catch (error) {
     return crudError(error);

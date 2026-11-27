@@ -185,6 +185,18 @@ If your new feature has unique requirements not covered by the generic templates
 
 ---
 
+## Custom logic in an application
+
+Do not edit generated files. Application code goes in `extensions/index.ts` (created once, never overwritten). Generic `create` endpoints call `extensions.hooks['<Entity>.beforeCreate']` and `['<Entity>.afterCreate']`; the types are in `generated/lib/extensions.ts`.
+
+```ts
+export const extensions: Extensions = {
+  hooks: {
+    'Project.beforeCreate': (row) => ({ ...row, name: String(row.name).trim() }),
+  },
+};
+```
+
 ## 5. Entities, Schema and Access Rules
 
 Entities declared in `contract.yaml` are the single source of truth for the database. The Supabase generator turns them into tables, foreign keys, indexes, row level security (RLS) policies and TypeScript row types. Do not add hand-written `CREATE TABLE` SQL for entities.

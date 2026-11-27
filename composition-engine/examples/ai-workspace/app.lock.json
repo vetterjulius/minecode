@@ -1073,12 +1073,12 @@
       "disk": "6b77d18cf37e95eca4679e691fe0694e4a0a091f987390528e64b309a4836895"
     },
     "app/api/feedback/route.ts": {
-      "generated": "7b1a8c18c9361b76d71f5c372913f1a155105622d1fd78ed8306ad104ee811d1",
-      "disk": "788e37cdb4f2ea711a88cf0674255497828a303f9549cdf6802bdec6edb88314"
+      "generated": "7886dd94d1671fe63628b2cc2756440ed9ed112cb844dceafebfa38147a429e2",
+      "disk": "e677b8fbdf25276d48be4ac80577362f962a17769c4dbf6f039a4842a07a82e3"
     },
     "app/api/documents/route.ts": {
-      "generated": "15a776544523e49f4df05bbe608bea63547fefa502c439ee29f36a9411760264",
-      "disk": "b0515e8f95d22a97b7c55df60aa24f71608985e33aed61b7b86b527226779ef2"
+      "generated": "1c946be256faea626ca994c54e3bd1745368d3bc9eeb6eeff07c699ce07741f3",
+      "disk": "5e3b047f5722fedd5d37078b5700df82ab77246b0d4af081177d7315281f4c9e"
     },
     "app/api/kb/articles/route.ts": {
       "generated": "7a2005758ff064ffbbab65a0ad20adfcb7407b8ec7bac6b6c14a1ab1d641478b",
@@ -1101,8 +1101,8 @@
       "disk": "57806843ee4f4134cf6476d22f0302d68328d57b3693e8d7bd81aa72f3626f45"
     },
     "app/api/projects/route.ts": {
-      "generated": "651876a50ca712e8b7f3d34a71c346f66af85508dfffb79bc9ad16d664901c2e",
-      "disk": "722e8d95ef7d71a6c74059bee342f040aa33ac649136de17e2a41c24fb81b916"
+      "generated": "9dad1083cd8afce953823f5f2950fbb720effe444a86321d14625d28fdc2a2ba",
+      "disk": "c1a546a8b493961e00709a262e40fea5b50793bc0a50a25434cdd3352e85e0dd"
     },
     "app/api/rbac/member-role/route.ts": {
       "generated": "1629abce9a75d18f7d580dc35ce001123970c129d2ea496f5628db4f8902f210",
@@ -1129,20 +1129,20 @@
       "disk": "f9b95c48a648d4e1e431a8126e5ed48d6aa9e583c0a027d9f7eef2b0f7e2ae3e"
     },
     "app/api/tasks/route.ts": {
-      "generated": "692a4d82c4bbe98fc590ed7d19d2911ae1b7e29ba1e113f3220f2e12bdf286fc",
-      "disk": "2451be00b689aefc3603d8363a4348a585fb2f04bc2e49748ee89158e24925f5"
+      "generated": "2e374ef020afa86f06bbe0c92bf913785b578eddc06c50804ce06becd78173dc",
+      "disk": "04dd7209d838db2e5f7b264a6f172ecd4cdb102f498c032951e54d37497abcea"
     },
     "app/api/tickets/route.ts": {
-      "generated": "5a36ef3d3b0e8d76d54989e4332d1650bd86c61838e5fc0fd4b39b2ed86bf65c",
-      "disk": "b32003cb1999601cbc9a3f6661bba3ada6d8ee98095873d747732b7073a735ee"
+      "generated": "65a5f7f9bbd22dbacfaecae20631fb79990ed4ce45555c7f63ed0b8e615d0802",
+      "disk": "6337a8b6a5836df362048cecf790b016bccd99141955aea5a8788f370717e765"
     },
     "app/api/whiteboards/route.ts": {
-      "generated": "dbd925330e89be1cfab49e58fe56b2a3e25a19f3e2761c5d1bf0e93dc3e4c2c8",
-      "disk": "e0836f153fd9a5ff77a7599020ca3359d10e54b0fb75c81d9863f180b4e81259"
+      "generated": "15e3da6689d20a60efd4de5c0f40d74a454e007bc81944599206288707f50032",
+      "disk": "60b0b220dcc724919c525d45fa4800b4fc92444da061e2489ed9447386211248"
     },
     "app/api/workspaces/route.ts": {
-      "generated": "4209f5fe1b911506123d28608b64dd0f0a82768d6f79dd9ae3b397cb9637ab9f",
-      "disk": "fbe2569b0a486392147238410188d1d91fe080ec271cdcb8f4653b823834573b"
+      "generated": "ede226397601239aee18a523c85a16843f7f9a3ac491d7e52dc8ef1853a9b131",
+      "disk": "c44b0a44c56282a73bbdc538417ca737c0525dbfa4769afc14e19405f7fc3669"
     },
     "app/ai/chat/page.tsx": {
       "generated": "c569e755516f59f26204fabe5479f4a4af7e73590b988bd4974719a2a73ffc6e",
@@ -1255,6 +1255,14 @@
     "app/page.tsx": {
       "generated": "fb75c3f2ce49b09d9cb6cd2fab571894d834f9f0bbd3866433769fd9edcf6017",
       "disk": "1fb575a698065600a62a7c58c6ba9312dee80eeaf693541f56941e367c7dd8c4"
+    },
+    "config/extensions.ts": {
+      "generated": "baf249b9bbdba3559a8f7f12fe218de6dfa17a9088227946e71b36ab0b345b05",
+      "disk": "51a395168f91040ef6db7f32c727e40036c8058a039717b5d245391b057bd61a"
+    },
+    "generated/lib/extensions.ts": {
+      "generated": "c2c748160ec3e92361313379ff416a0d451ae1cd3aba63889cf30e499a47fca7",
+      "disk": "c2c748160ec3e92361313379ff416a0d451ae1cd3aba63889cf30e499a47fca7"
     },
     "config/permissions.ts": {
       "generated": "b07a21fc233f6609429498838fb4197edab3c85cc28b81ef96a299563e22c0bc",
