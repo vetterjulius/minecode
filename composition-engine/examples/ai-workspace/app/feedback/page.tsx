@@ -14,7 +14,6 @@ export default function FeedbackDashboardPage() {
   const [feedbacks, setFeedbacks] = useState<CustomerFeedbackRecord[]>([]);
   const [rating, setRating] = useState('5');
   const [comment, setComment] = useState('');
-  const [userId, setUserId] = useState('');
   const [orgId, setOrgId] = useState('');
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(true);
@@ -44,7 +43,7 @@ export default function FeedbackDashboardPage() {
       const res = await fetch('/api/feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ rating, comment, userId, organizationId: orgId }),
+        body: JSON.stringify({ rating: Number(rating), comment, organization_id: orgId }),
       });
       const data = await res.json();
       if (data.success) {
@@ -99,17 +98,6 @@ export default function FeedbackDashboardPage() {
                 rows={3}
                 className="w-full border rounded p-2"
                 placeholder="Tell us how we can improve..."
-              />
-            </div>
-            <div>
-              <label className="block font-medium mb-1">User ID</label>
-              <input
-                type="text"
-                value={userId}
-                onChange={(e) => setUserId(e.target.value)}
-                required
-                className="w-full border rounded p-2"
-                placeholder="uuid"
               />
             </div>
             <div>

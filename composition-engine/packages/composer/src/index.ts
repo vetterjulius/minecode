@@ -19,6 +19,65 @@ export function getComposerInfo(): string {
   return `Minecode Composer relying on: ${getResolverInfo()}`;
 }
 
+/**
+ * Checks that every `crud.entity` and `permission` named by an API entry exists in the
+ * composition. Fails early so a stack never has to guess what an endpoint refers to.
+ */
+function validateApiReferences(
+  api: ApiArtifact[],
+  database: DatabaseArtifact[],
+  permissions: PermissionArtifact[]
+): void {
+  const entities = new Set(database.map((d) => d.entityName));
+  const permissionNames = new Set(permissions.map((p) => p.name));
+  for (const endpoint of api) {
+    if (endpoint.crud && !entities.has(endpoint.crud.entity)) {
+      throw new Error(
+        `API "${endpoint.id}" references unknown entity "${endpoint.crud.entity}" in its crud definition`
+      );
+    }
+    for (const name of endpoint.crud?.include ?? []) {
+      const child = database.find((d) => d.entityName === name);
+      const refersBack = child?.fields.some((f) => f.references?.entity === endpoint.crud?.entity);
+      if (!child || !refersBack) {
+        throw new Error(
+          `API "${endpoint.id}" includes "${name}", which does not reference "${endpoint.crud?.entity}"`
+        );
+      }
+    }
+    if (endpoint.permission && !permissionNames.has(endpoint.permission)) {
+      throw new Error(`API "${endpoint.id}" requires unknown permission "${endpoint.permission}"`);
+    }
+  }
+}
+
+function validatePermissionReferences(
+  database: DatabaseArtifact[],
+  permissions: PermissionArtifact[]
+): void {
+  const names = new Set(permissions.map((p) => p.name));
+  for (const entity of database) {
+    for (const name of [entity.access?.permissions?.read, entity.access?.permissions?.write]) {
+      if (name && !names.has(name)) {
+        throw new Error(`Entity "${entity.entityName}" requires unknown permission "${name}"`);
+      }
+    }
+  }
+}
+
+function collectFeatureConfig(
+  resolvedFeatures: Feature[],
+  blueprint: Blueprint
+): Record<string, Record<string, unknown>> {
+  const configured = Array.isArray(blueprint.features) ? {} : (blueprint.features ?? {});
+  const result: Record<string, Record<string, unknown>> = {};
+  for (const feature of resolvedFeatures) {
+    const config = configured[feature.id]?.config;
+    if (config) result[feature.id] = config;
+  }
+  return result;
+}
+
 export class Composer {
   /**
    * Generates a deterministic CompositionPlan from a resolved feature graph and blueprint.
@@ -101,6 +160,9 @@ export class Composer {
               path: apiDef.path,
               method: apiDef.method,
               description: apiDef.description,
+              ...(apiDef.crud ? { crud: apiDef.crud } : {}),
+              ...(apiDef.behavior ? { behavior: apiDef.behavior } : {}),
+              ...(apiDef.permission ? { permission: apiDef.permission } : {}),
             });
           }
         }
@@ -305,6 +367,29 @@ export class Composer {
     permissions.sort(sortById);
     migrations.sort(sortById);
 
+    validateApiReferences(api, database, permissions);
+    validatePermissionReferences(database, permissions);
+
+    // Every generic create endpoint can be customized before and after the insert.
+    for (const endpoint of api) {
+      if (endpoint.crud?.operation !== 'create') continue;
+      for (const [phase, description] of [
+        ['beforeCreate', 'validate or adjust the row before it is inserted; throw to reject'],
+        ['afterCreate', 'react to the inserted row (notifications, audit, integrations)'],
+      ]) {
+        const name = `${endpoint.crud.entity}.${phase}`;
+        if (extensionPointsMap.has(name)) continue;
+        extensionPointsMap.set(name, {
+          id: `${endpoint.featureId}:${name}`,
+          featureId: endpoint.featureId,
+          name,
+          type: 'function',
+          description: `Hook to ${description}.`,
+          contributions: [],
+        });
+      }
+    }
+
     const extensionPoints = Array.from(extensionPointsMap.values());
     extensionPoints.sort(sortById);
 
@@ -319,6 +404,7 @@ export class Composer {
       permissions,
       migrations,
       extensionPoints,
+      featureConfig: collectFeatureConfig(resolvedFeatures, blueprint),
     };
   }
 }

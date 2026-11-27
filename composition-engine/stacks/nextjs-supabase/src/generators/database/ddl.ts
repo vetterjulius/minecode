@@ -32,7 +32,7 @@ function referenceClause(
   return `REFERENCES ${quote(tableName(target.entityName))}(${column})${onDelete}`;
 }
 
-function columnDefinition(
+export function columnDefinition(
   entity: DatabaseArtifact,
   field: EntityField,
   entities: Map<string, DatabaseArtifact>
@@ -63,12 +63,32 @@ export function indexedColumns(entity: DatabaseArtifact): string[] {
   return [...columns].sort();
 }
 
-function indexStatements(entity: DatabaseArtifact): string[] {
+export function indexStatements(entity: DatabaseArtifact): string[] {
   const table = tableName(entity.entityName);
   return indexedColumns(entity).map((name) => {
     const column = columnName(name);
     return `CREATE INDEX IF NOT EXISTS ${quote(`idx_${table}_${column}`)} ON ${quote(table)} (${quote(column)});`;
   });
+}
+
+/** Additive migration for new columns of an existing table. */
+export function buildAddColumns(
+  entity: DatabaseArtifact,
+  fieldNames: string[],
+  entities: Map<string, DatabaseArtifact>
+): string {
+  const table = quote(tableName(entity.entityName));
+  const statements = fieldNames.map((name) => {
+    const field = entity.fields.find((f) => f.name === name) as EntityField;
+    return `ALTER TABLE ${table} ADD COLUMN IF NOT EXISTS ${columnDefinition(entity, field, entities).trim()};`;
+  });
+  return (
+    [
+      `-- Entity: ${entity.entityName} (new columns)`,
+      ...statements,
+      ...indexStatements(entity),
+    ].join('\n') + '\n'
+  );
 }
 
 export function buildCreateTable(

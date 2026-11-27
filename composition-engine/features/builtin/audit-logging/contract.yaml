@@ -50,6 +50,10 @@ provides:
       path: /api/audit-logs
       method: GET
       description: Fetch and filter system audit logs.
+      crud:
+        entity: AuditLog
+        operation: list
+      permission: audit.read
   ui:
     - name: AuditLogDashboard
       route: audit-logs

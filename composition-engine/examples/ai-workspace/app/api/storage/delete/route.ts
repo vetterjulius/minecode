@@ -1,9 +1,11 @@
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+// Generated route: /api/storage/delete
 import { NextResponse } from 'next/server';
+import { createSupabaseServerClient } from '../../../../generated/lib/supabase/server';
+
+export const dynamic = 'force-dynamic';
 
 export async function DELETE(request: Request) {
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = await createSupabaseServerClient();
   try {
     const { id, path } = await request.json();
 

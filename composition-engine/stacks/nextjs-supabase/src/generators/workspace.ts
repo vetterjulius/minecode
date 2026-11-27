@@ -20,33 +20,30 @@ export class NextjsWorkspaceSubGenerator implements SubGenerator {
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "start": "next start"
   },
   "dependencies": {
-    "next": "^14.2.3",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "@supabase/supabase-js": "^2.43.2",
-    "@supabase/auth-helpers-nextjs": "^0.10.0"
+    "next": "^16.4.6",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "@supabase/supabase-js": "^2.119.2",
+    "@supabase/ssr": "^0.12.7"
   },
   "devDependencies": {
-    "typescript": "^5.4.5",
-    "@types/node": "^20.12.12",
-    "@types/react": "^18.3.3",
-    "@types/react-dom": "^18.3.0",
-    "autoprefixer": "^10.4.19",
-    "postcss": "^8.4.38",
-    "tailwindcss": "^3.4.3",
-    "eslint": "^8.57.0",
-    "eslint-config-next": "^14.2.3"
+    "typescript": "^5.9.3",
+    "@types/node": "^22.20.7",
+    "@types/react": "^19.3.3",
+    "@types/react-dom": "^19.3.0",
+    "autoprefixer": "^10.7.0",
+    "postcss": "^8.5.33",
+    "tailwindcss": "^3.4.19"
   }
 }
 `;
 
       files['tsconfig.json'] = `{
   "compilerOptions": {
-    "target": "es5",
+    "target": "ES2017",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
@@ -57,7 +54,7 @@ export class NextjsWorkspaceSubGenerator implements SubGenerator {
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "incremental": true,
     "plugins": [
       {

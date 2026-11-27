@@ -4,5 +4,6 @@ export function getGeneratorInfo(): string {
   return `Minecode Generator relying on: ${getComposerInfo()}`;
 }
 
-export { ApplicationGenerator } from './application-generator.js';
+export { ApplicationGenerator, LOCK_FILE, readLock } from './application-generator.js';
+export type { GenerationReport } from './application-generator.js';
 export * from '@minecode/nextjs-supabase';

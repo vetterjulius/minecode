@@ -44,6 +44,9 @@ provides:
       access:
         scope: tenant
         field: organizationId
+        permissions:
+          read: articles.read
+          write: articles.write
   permissions:
     - name: articles.read
       description: Read help articles
@@ -54,6 +57,10 @@ provides:
       path: /api/kb/articles
       method: GET
       description: Fetch knowledge base articles.
+      crud:
+        entity: Article
+        operation: list
+      permission: articles.read
   ui:
     - name: HelpCenter
       route: kb

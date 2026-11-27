@@ -45,7 +45,12 @@ export default function ProjectsPage() {
       const res = await fetch('/api/projects', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, description, organizationId: orgId, workspaceId }),
+        body: JSON.stringify({
+          name,
+          description,
+          organization_id: orgId,
+          workspace_id: workspaceId,
+        }),
       });
       const data = await res.json();
       if (data.success) {

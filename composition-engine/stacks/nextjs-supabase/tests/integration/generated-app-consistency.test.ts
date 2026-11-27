@@ -5,9 +5,11 @@ import { beforeAll, describe, expect, test } from 'vitest';
 import { applyMigrations, createSupabaseLikeDb } from '../support/supabase-db.js';
 import {
   extractFetchUsages,
+  extractRequestBodies,
   extractTableUsages,
   listApiRoutes,
   listSourceFiles,
+  readCrudBodyRule,
   topLevelKeys,
 } from '../support/static-usage.js';
 
@@ -125,6 +127,51 @@ describe.each(APPS)('generated app %s matches its generated database', (app) => 
     );
     expect([...new Set(problems)]).toEqual([]);
   });
+
+  test('test_GeneratedApp_UsesSupabaseSsrNotDeprecatedAuthHelpers', () => {
+    const pkg = fs.readFileSync(path.join(root, 'package.json'), 'utf8');
+    expect(pkg).toContain('@supabase/ssr');
+    expect(pkg).not.toContain('auth-helpers');
+    for (const file of listSourceFiles(root)) {
+      expect(fs.readFileSync(file, 'utf8')).not.toContain('auth-helpers');
+    }
+  });
+
+  test('test_GeneratedPages_PostBodies_MatchAcceptedFieldsOfCrudRoutes', () => {
+    const problems: string[] = [];
+    for (const file of listSourceFiles(root)) {
+      const source = fs.readFileSync(file, 'utf8');
+      for (const body of extractRequestBodies(path.relative(root, file), source)) {
+        const routeFile = path.join(root, 'app', body.url, 'route.ts');
+        const rule = fs.existsSync(routeFile)
+          ? readCrudBodyRule(fs.readFileSync(routeFile, 'utf8'))
+          : null;
+        if (!rule) continue;
+        for (const key of body.keys.filter((k) => !rule.allowed.includes(k))) {
+          problems.push(`${body.file}: ${body.url} does not accept '${key}'`);
+        }
+        for (const key of rule.required.filter((k) => !body.keys.includes(k))) {
+          problems.push(`${body.file}: ${body.url} requires '${key}' but the page omits it`);
+        }
+      }
+    }
+    expect([...new Set(problems)]).toEqual([]);
+  });
+
+  test.runIf(app === 'ai-workspace')(
+    'test_GeneratedPages_PostBodyOracle_ChecksAtLeastOneCrudForm',
+    () => {
+      const checked = listSourceFiles(root).flatMap((file) =>
+        extractRequestBodies(path.relative(root, file), fs.readFileSync(file, 'utf8')).filter(
+          (b) => {
+            const route = path.join(root, 'app', b.url, 'route.ts');
+            return fs.existsSync(route) && readCrudBodyRule(fs.readFileSync(route, 'utf8'));
+          }
+        )
+      );
+      expect(checked.length).toBeGreaterThan(0);
+    }
+  );
 
   test('test_GeneratedCode_ClientComponents_NeverReferenceServiceRoleKeyOrAdminClient', () => {
     const offenders = listSourceFiles(root)

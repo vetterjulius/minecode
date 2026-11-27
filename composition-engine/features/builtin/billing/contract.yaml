@@ -26,6 +26,8 @@ provides:
         scope: tenant
         field: organizationId
         writes: server-only
+        permissions:
+          read: billing.read
     - name: Subscription
       description: Organization subscription details
       fields:
@@ -58,6 +60,8 @@ provides:
         scope: tenant
         field: organizationId
         writes: server-only
+        permissions:
+          read: billing.read
   permissions:
     - name: billing.read
       description: Read billing details and subscriptions
@@ -68,10 +72,13 @@ provides:
       path: /api/billing/checkout
       method: POST
       description: Create a new checkout session.
+      behavior: billing.checkout
+      permission: billing.write
     - name: Webhook
       path: /api/billing/webhook
       method: POST
       description: Stripe secure webhook endpoint handler.
+      behavior: billing.webhook
   ui:
     - name: BillingSettingsPage
       route: billing

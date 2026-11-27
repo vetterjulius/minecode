@@ -1,13 +1,15 @@
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+// Generated route: /api/auth/logout
 import { NextResponse } from 'next/server';
+import { createSupabaseServerClient } from '../../../../generated/lib/supabase/server';
+
+export const dynamic = 'force-dynamic';
 
 /**
  * Invalidate the active session.
  * Path: /api/auth/logout
  */
 export async function POST(_request: Request) {
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = await createSupabaseServerClient();
   try {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;

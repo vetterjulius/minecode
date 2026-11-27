@@ -1,13 +1,15 @@
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+// Generated route: /api/auth/reset-password
 import { NextResponse } from 'next/server';
+import { createSupabaseServerClient } from '../../../../generated/lib/supabase/server';
+
+export const dynamic = 'force-dynamic';
 
 /**
  * Request password reset.
  * Path: /api/auth/reset-password
  */
 export async function POST(request: Request) {
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = await createSupabaseServerClient();
   try {
     const { email } = await request.json();
     const { error } = await supabase.auth.resetPasswordForEmail(email, {

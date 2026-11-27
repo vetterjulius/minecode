@@ -74,7 +74,7 @@ export interface FeedbackRow {
   rating: number;
   /** Customer comments text */
   comment?: string | null;
-  /** Reference to User */
+  /** Author of the feedback, taken from the session */
   user_id: string;
   /** Reference to Organization */
   organization_id: string;
@@ -174,9 +174,7 @@ export interface OrganizationRow {
 
 /** Specific action permission key (table "permission") */
 export interface PermissionRow {
-  /** Primary key */
-  id: string;
-  /** Unique permission handle (e.g. user.create) */
+  /** Unique permission handle (e.g. project.write) */
   name: string;
   /** Purpose description */
   description?: string | null;
@@ -212,11 +210,9 @@ export interface ProjectRow {
   created_at: string;
 }
 
-/** User security group role (table "role") */
+/** Named bundle of permissions assigned to organization members (table "role") */
 export interface RoleRow {
-  /** Primary key */
-  id: string;
-  /** Unique identifier name of the role */
+  /** Role name, matched against membership.role */
   name: string;
   /** Friendly description of the role */
   description?: string | null;
@@ -224,8 +220,10 @@ export interface RoleRow {
 
 /** Grants a permission to a role (table "role_permission") */
 export interface RolePermissionRow {
-  role_id: string;
-  permission_id: string;
+  /** Role name */
+  role: string;
+  /** Permission name */
+  permission: string;
 }
 
 /** Mapping of organization to Stripe customer (table "stripe_customer") */

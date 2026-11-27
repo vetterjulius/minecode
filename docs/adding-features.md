@@ -185,6 +185,18 @@ If your new feature has unique requirements not covered by the generic templates
 
 ---
 
+## Custom logic in an application
+
+Do not edit generated files. Application code goes in `extensions/index.ts` (created once, never overwritten). Generic `create` endpoints call `extensions.hooks['<Entity>.beforeCreate']` and `['<Entity>.afterCreate']`; the types are in `generated/lib/extensions.ts`.
+
+```ts
+export const extensions: Extensions = {
+  hooks: {
+    'Project.beforeCreate': (row) => ({ ...row, name: String(row.name).trim() }),
+  },
+};
+```
+
 ## 5. Entities, Schema and Access Rules
 
 Entities declared in `contract.yaml` are the single source of truth for the database. The Supabase generator turns them into tables, foreign keys, indexes, row level security (RLS) policies and TypeScript row types. Do not add hand-written `CREATE TABLE` SQL for entities.
@@ -213,6 +225,12 @@ Each entity can declare one `access` rule. An entity without one is private: RLS
 | `private`            | Nobody except the service role                                                                                                                       |
 
 `writes` narrows write access for `tenant` and `owner`: `members` (default, insert/update/delete), `insert-only` (append-only, for example audit logs) or `server-only` (reads only; writes need the service role, for example memberships or billing data).
+
+`permissions: { read, write }` (tenant scope only) names permissions of your feature. When the composition contains the `rbac` feature, the database checks them through `has_permission(...)` using the member's role; without `rbac` membership alone suffices. Role grants are seeded from all composed permissions and can be changed with the rbac `roles` blueprint config (`roles: { viewer: ['*.read'] }`; `*`, `prefix.*` and a leading `!` to remove are supported).
+
+Write endpoints never take ids, timestamps or the current user from the client: fields with `generate` (`uuid`, `now`, `auth-user`) are filled by the database and rejected in request bodies. List endpoints accept any column of the entity as an equality filter (`?organization_id=...`).
+
+API entries in `provides.api` declare exactly one of `crud: { entity, operation }` (`list`, `get`, `create`, `update`, `delete`) or `behavior: <id>`, and optionally `permission: <name>`.
 
 Tenant rules need the `organizations` feature (entities `Organization` and `Membership`). The generator validates all of this and names the entity and feature that is wrong.
 

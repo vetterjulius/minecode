@@ -22,6 +22,7 @@ provides:
           type: string
           required: true
           description: Project status (e.g. active, archived)
+          default: active
         - name: organizationId
           type: uuid
           required: true
@@ -44,6 +45,9 @@ provides:
       access:
         scope: tenant
         field: organizationId
+        permissions:
+          read: project.read
+          write: project.write
   permissions:
     - name: project.read
       description: Read project details
@@ -54,10 +58,18 @@ provides:
       path: /api/projects
       method: GET
       description: List projects for a workspace.
+      crud:
+        entity: Project
+        operation: list
+      permission: project.read
     - name: CreateProject
       path: /api/projects
       method: POST
       description: Create a new project.
+      crud:
+        entity: Project
+        operation: create
+      permission: project.write
   ui:
     - name: ProjectsDashboard
       route: projects

@@ -39,14 +39,17 @@ provides:
       path: /api/auth/login
       method: POST
       description: Authenticate a user with email and password.
+      behavior: auth.login
     - name: Logout
       path: /api/auth/logout
       method: POST
       description: Invalidate the active session.
+      behavior: auth.logout
     - name: ResetPassword
       path: /api/auth/reset-password
       method: POST
       description: Request password reset.
+      behavior: auth.reset-password
   ui:
     - name: LoginPage
       route: auth/login

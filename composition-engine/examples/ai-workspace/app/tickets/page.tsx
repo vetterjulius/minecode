@@ -44,7 +44,7 @@ export default function TicketInboxPage() {
       const res = await fetch('/api/tickets', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, priority, organizationId: orgId }),
+        body: JSON.stringify({ title, priority, organization_id: orgId }),
       });
       const data = await res.json();
       if (data.success) {

@@ -29,6 +29,9 @@ provides:
       access:
         scope: tenant
         field: organizationId
+        permissions:
+          read: workspace.read
+          write: workspace.write
   permissions:
     - name: workspace.read
       description: Read workspace details
@@ -39,10 +42,18 @@ provides:
       path: /api/workspaces
       method: GET
       description: List workspaces for an organization.
+      crud:
+        entity: Workspace
+        operation: list
+      permission: workspace.read
     - name: CreateWorkspace
       path: /api/workspaces
       method: POST
       description: Create a new workspace.
+      crud:
+        entity: Workspace
+        operation: create
+      permission: workspace.write
   ui:
     - name: WorkspacesDashboard
       route: workspaces

@@ -1,13 +1,15 @@
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+// Generated route: /api/auth/login
 import { NextResponse } from 'next/server';
+import { createSupabaseServerClient } from '../../../../generated/lib/supabase/server';
+
+export const dynamic = 'force-dynamic';
 
 /**
  * Authenticate a user with email and password.
  * Path: /api/auth/login
  */
 export async function POST(request: Request) {
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = await createSupabaseServerClient();
   try {
     const { email, password } = await request.json();
     const { data, error } = await supabase.auth.signInWithPassword({

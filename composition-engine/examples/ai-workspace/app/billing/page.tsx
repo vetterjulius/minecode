@@ -14,7 +14,7 @@ export default function BillingSettingsPage() {
       const res = await fetch('/api/billing/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ organizationId, priceId }),
+        body: JSON.stringify({ organization_id: organizationId, price_id: priceId }),
       });
       const data = await res.json();
       if (data.success && data.url) {

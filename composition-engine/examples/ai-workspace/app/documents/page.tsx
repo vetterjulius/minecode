@@ -43,7 +43,7 @@ export default function DocumentsPage() {
       const res = await fetch('/api/documents', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, content: contentBody, projectId }),
+        body: JSON.stringify({ title, content: contentBody, project_id: projectId }),
       });
       const data = await res.json();
       if (data.success) {

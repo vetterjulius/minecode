@@ -31,7 +31,7 @@ The generator uses a deterministic file registry and pre-defined templates to co
 
 ## 6. Database Migration Constraints
 
-Tables, constraints and RLS policies are generated from entities in dependency order. Generated migrations are create-only: they use `CREATE TABLE IF NOT EXISTS` and `DROP POLICY IF EXISTS` followed by `CREATE POLICY`. The system does not support:
+Tables, constraints and RLS policies are generated from entities in dependency order. Generated migrations are idempotent where possible: they use `CREATE TABLE IF NOT EXISTS` and `DROP POLICY IF EXISTS` followed by `CREATE POLICY`. Schema evolution is additive only: `app.lock.json` turns blueprint changes into incremental migrations, but removals, renames and column changes must be written by hand and the lock updated (a rename looks like a removal plus an addition and is blocked); seeded grants are never revoked. The system does not support:
 
 - Altering an existing database when an entity changes (adding a column or changing a type is not migrated).
 - Live database schema diffing.
@@ -46,10 +46,10 @@ The system provides 19 built-in features (authentication, organizations, rbac, b
 
 The generated apps build and their database and routes are consistent, but several behaviours are not production-ready:
 
-- **Permissions are not enforced in routes.** `config/permissions.ts` is generated but no route checks it, and no default roles are seeded. Tenant isolation is enforced by RLS; fine-grained permissions are not.
+- **Permissions are enforced in the database only.** Tenant tables check `has_permission` through RLS when the `rbac` feature is present, so unauthorized writes are rejected, but routes do not yet check the `permission` of an endpoint and the UI does not hide actions. Creating an organization makes the caller `owner` (`create_organization`) and `change_member_role` requires `rbac.write` and keeps at least one owner; invitations are stored but accepting one (which would create the membership) is not generated yet.
 - **Billing:** checkout returns `501 Not Implemented`. The Stripe webhook verifies signatures and stores the customer mapping, but no subscription lifecycle is handled.
 - **AI chat:** the assistant replies with canned text and is not connected to a model provider.
-- **Client-supplied identifiers:** some create routes still take `userId` or `organizationId` from the request body. RLS stops cross-tenant writes, but a member can set another user's id on tenant-scoped rows.
+- **Client-supplied identifiers:** generic create routes reject generated columns, so ids and the acting user come from the database and session. Behavior routes (for example notifications send, storage upload, invite) still take some identifiers from the request and are checked by RLS only. The `crud` operations `get`, `update` and `delete` are not generated yet.
 - **Storage:** the `files` storage bucket is not created by any migration.
-- **Dependencies:** the generated apps use Next.js 14 and the deprecated `@supabase/auth-helpers-nextjs`.
-- **Ownership model:** `app/` is regenerated in full and overwritten; `extensions/` is not yet wired into the generated code, and there is no lockfile or upgrade path.
+- **Dependencies:** generated apps use Next.js 16, React 19 and `@supabase/ssr` through a generated `lib/supabase/server.ts`. They stay on Tailwind 3 and TypeScript 5 and no longer ship ESLint; versions are pinned in `workspace.ts` and only checked by building the two example apps.
+- **Ownership model:** generated files are managed by the engine and protected by the manifest if edited anyway. Custom logic plugs in through `extensions/` hooks, which currently exist only around generic `create` endpoints (`beforeCreate`, `afterCreate`). There are no hooks for list, behaviors, UI components or custom routes yet; additional routes and pages can be added next to generated ones in `app/`.

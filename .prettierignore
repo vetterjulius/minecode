@@ -2,3 +2,5 @@
 architecture/
 engineering/
 AGENTS.md
+# Machine written lock files; formatting them would make regeneration differ
+app.lock.json

@@ -64,11 +64,22 @@ export type AccessScope = 'tenant' | 'owner' | 'authenticated-read' | 'private';
 
 export type WriteMode = 'members' | 'insert-only' | 'server-only';
 
+/** Permission names (declared by features) required to read or write rows of an entity. */
+export interface EntityPermissions {
+  read?: string;
+  write?: string;
+}
+
 export interface EntityAccess {
   scope: AccessScope;
   field?: string;
   via?: string;
   writes?: WriteMode;
+  /**
+   * Tenant scope only. Enforced in the database when the composition provides roles
+   * (the 'rbac' feature); otherwise organization membership alone grants access.
+   */
+  permissions?: EntityPermissions;
 }
 
 export interface EntityDefinition {
@@ -89,11 +100,27 @@ export interface PermissionDefinition {
   description?: string;
 }
 
+export type CrudOperation = 'list' | 'get' | 'create' | 'update' | 'delete';
+
+/** Generic endpoint derived from an entity; the stack decides how to implement it. */
+export interface ApiCrud {
+  entity: string;
+  operation: CrudOperation;
+  /** `list` only: entities with a foreign key to `entity` whose rows are embedded in each result. */
+  include?: string[];
+}
+
 export interface ApiDefinition {
   name: string;
   path: string;
   method?: string;
   description?: string;
+  /** Generic entity endpoint. Exactly one of `crud` and `behavior` is set. */
+  crud?: ApiCrud;
+  /** Named, stack-agnostic behavior implemented by the stack's behavior registry. */
+  behavior?: string;
+  /** Permission (declared by the providing feature) required to call the endpoint. */
+  permission?: string;
 }
 
 export interface UiDefinition {
@@ -157,6 +184,9 @@ export interface ApiArtifact {
   path: string;
   method?: string;
   description?: string;
+  crud?: ApiCrud;
+  behavior?: string;
+  permission?: string;
 }
 
 export interface UiArtifact {
@@ -232,6 +262,10 @@ export interface CompositionPlan {
   permissions: PermissionArtifact[];
   migrations: MigrationArtifact[];
   extensionPoints: ExtensionPointArtifact[];
+  /** Blueprint configuration of the enabled features, keyed by feature id. */
+  featureConfig?: Record<string, Record<string, unknown>>;
+  /** Lock from an earlier generation. When present, only additive schema changes are generated. */
+  schemaBaseline?: SchemaLock;
 }
 
 export interface Feature {
@@ -282,4 +316,41 @@ export interface Application {
 export interface StackAdapter {
   readonly stackId: string;
   generate(plan: CompositionPlan, options?: { runnable?: boolean }): Record<string, string>;
+}
+
+/**
+ * Stack-agnostic record of what has already been generated for an application.
+ * It lets the engine turn a changed blueprint into additive migrations instead of
+ * regenerating (and thereby rewriting) the whole schema.
+ */
+export interface SchemaSnapshot {
+  entities: Record<string, SnapshotEntity>;
+  permissions: string[];
+  /** Feature-provided raw migrations already emitted, by name. */
+  rawMigrations: string[];
+  /** Blueprint configuration that influences generated data (for example role grants). */
+  featureConfig: Record<string, Record<string, unknown>>;
+}
+
+export interface SnapshotEntity {
+  fields: Record<string, Omit<EntityField, 'description' | 'name'>>;
+  access?: EntityAccess;
+}
+
+export interface SchemaLock {
+  version: 1;
+  schema: SchemaSnapshot;
+  /** Number of migration files generated so far; the next file continues the sequence. */
+  migrationCount: number;
+  /**
+   * Ownership manifest: for every generated file, the hash of the generated source and the hash
+   * of what was written to disk (after formatting). A file whose disk hash differs was edited by
+   * a person and is never overwritten silently.
+   */
+  files?: Record<string, GeneratedFileRecord>;
+}
+
+export interface GeneratedFileRecord {
+  generated: string;
+  disk: string;
 }

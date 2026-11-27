@@ -10,6 +10,8 @@ provides:
       path: /api/search
       method: GET
       description: 'Run a full text search query across resources.'
+      behavior: search.query
+      permission: search.query
   ui:
     - name: SearchResults
       route: search

@@ -163,6 +163,40 @@ export function extractFetchUsages(file: string, source: string): FetchUsage[] {
   return usages;
 }
 
+export interface BodyUsage {
+  file: string;
+  url: string;
+  keys: string[];
+}
+
+/**
+ * Keys of `fetch('/api/x', { method: 'POST', body: JSON.stringify({ ... }) })` calls.
+ * Only flat object literals are handled, which is what the generated pages use.
+ */
+export function extractRequestBodies(file: string, source: string): BodyUsage[] {
+  const usages: BodyUsage[] = [];
+  for (const match of source.matchAll(
+    /fetch\(\s*(['"`])(\/api\/[^'"`?$]*)\1\s*,\s*\{(?:[^{}]|\{[^{}]*\})*?body:\s*JSON\.stringify\((\{[^}]*\})\)/g
+  )) {
+    usages.push({ file, url: match[2].replace(/\/$/, ''), keys: topLevelKeys(match[3]) });
+  }
+  return usages;
+}
+
+export interface CrudBodyRule {
+  allowed: string[];
+  required: string[];
+}
+
+/** Reads the accepted and required body fields out of a generated crud POST route. */
+export function readCrudBodyRule(routeSource: string): CrudBodyRule | null {
+  const call = /checkBody\(\s*body,\s*\{([^}]*)\},\s*\[([^\]]*)\]/.exec(routeSource);
+  if (!call) return null;
+  const allowed = [...call[1].matchAll(/^\s*([a-z_0-9]+):/gm)].map((m) => m[1]);
+  const required = [...call[2].matchAll(/'([a-z_0-9]+)'/g)].map((m) => m[1]);
+  return { allowed, required };
+}
+
 export function listApiRoutes(root: string): Map<string, string[]> {
   const routes = new Map<string, string[]>();
   const apiDir = path.join(root, 'app/api');

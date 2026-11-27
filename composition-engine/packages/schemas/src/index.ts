@@ -98,9 +98,22 @@ export const RawContractSchema = z.object({
                   field: z.string().min(1).optional(),
                   via: z.string().min(1).optional(),
                   writes: z.enum(['members', 'insert-only', 'server-only']).optional(),
+                  permissions: z
+                    .object({
+                      read: z.string().min(1).optional(),
+                      write: z.string().min(1).optional(),
+                    })
+                    .strict()
+                    .optional(),
                 })
                 .strict()
                 .superRefine((a, ctx) => {
+                  if (a.permissions && a.scope !== 'tenant') {
+                    ctx.addIssue({
+                      code: 'custom',
+                      message: 'access.permissions is only valid for "tenant" scope',
+                    });
+                  }
                   const needsField = a.scope === 'tenant' || a.scope === 'owner';
                   if (needsField !== Boolean(a.field)) {
                     ctx.addIssue({
@@ -179,12 +192,27 @@ export const RawContractSchema = z.object({
       capabilities: z.array(z.string()).optional(),
       api: z
         .array(
-          z.object({
-            name: z.string().min(1),
-            path: z.string().min(1),
-            method: z.string().optional(),
-            description: z.string().optional(),
-          })
+          z
+            .object({
+              name: z.string().min(1),
+              path: z.string().min(1),
+              method: z.string().optional(),
+              description: z.string().optional(),
+              crud: z
+                .object({
+                  entity: z.string().min(1),
+                  operation: z.enum(['list', 'get', 'create', 'update', 'delete']),
+                  include: z.array(z.string().min(1)).optional(),
+                })
+                .strict()
+                .optional(),
+              behavior: z.string().min(1).optional(),
+              permission: z.string().min(1).optional(),
+            })
+            .strict()
+            .refine((a) => (a.crud ? 1 : 0) + (a.behavior ? 1 : 0) === 1, {
+              message: 'API entry must declare exactly one of "crud" or "behavior"',
+            })
         )
         .optional(),
       ui: z
@@ -399,6 +427,9 @@ export function normalizeContract(raw: any): Contract {
         path: a.path,
         method: a.method,
         description: a.description ?? '',
+        ...(a.crud ? { crud: a.crud } : {}),
+        ...(a.behavior ? { behavior: a.behavior } : {}),
+        ...(a.permission ? { permission: a.permission } : {}),
       }));
     }
 

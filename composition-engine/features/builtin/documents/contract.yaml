@@ -33,6 +33,9 @@ provides:
       access:
         scope: tenant
         field: projectId
+        permissions:
+          read: document.read
+          write: document.write
         via: Project
   permissions:
     - name: document.read
@@ -44,10 +47,18 @@ provides:
       path: /api/documents
       method: GET
       description: List documents for a project.
+      crud:
+        entity: Document
+        operation: list
+      permission: document.read
     - name: CreateDocument
       path: /api/documents
       method: POST
       description: Create a new document.
+      crud:
+        entity: Document
+        operation: create
+      permission: document.write
   ui:
     - name: DocumentsDashboard
       route: documents

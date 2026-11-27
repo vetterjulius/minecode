@@ -2,9 +2,8 @@
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
-import { getGeneratorInfo, ApplicationGenerator, NextJsSupabaseAdapter } from '@minecode/generator';
+import { getGeneratorInfo, ApplicationGenerator } from '@minecode/generator';
 import { FileSystemRegistry } from '@minecode/registry';
-import * as path from 'path';
 import { parseBlueprintYaml } from '@minecode/schemas';
 import {
   BlueprintValidator,
@@ -503,28 +502,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
         // 2. Generate application files
         const generator = new ApplicationGenerator(outDir);
-        generator.generate(plan, { runnable });
-
-        // 3. Build list of files written
-        const adapter = new NextJsSupabaseAdapter();
-        const virtualFiles = adapter.generate(plan, { runnable });
-        const writtenPaths: string[] = [];
-
-        for (const relPath of Object.keys(virtualFiles)) {
-          let physicalRelPath: string;
-          if (relPath.startsWith('app/')) {
-            physicalRelPath = relPath;
-          } else if (relPath.startsWith('config/')) {
-            physicalRelPath = relPath;
-          } else if (relPath.startsWith('types/') || relPath.startsWith('components/')) {
-            physicalRelPath = path.join('generated', relPath);
-          } else if (relPath.startsWith('supabase/migrations/')) {
-            physicalRelPath = relPath;
-          } else {
-            physicalRelPath = path.join('generated', relPath);
-          }
-          writtenPaths.push(physicalRelPath);
-        }
+        const report = generator.generate(plan, { runnable });
+        const writtenPaths = [...report.written, ...report.unchanged];
 
         return {
           content: [
@@ -536,6 +515,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
                   message: `Application '${plan.applicationName}' successfully composed and written to '${outDir}'.`,
                   outDir,
                   files: writtenPaths,
+                  conflicts: report.conflicts,
+                  orphaned: report.orphaned,
                 },
                 null,
                 2

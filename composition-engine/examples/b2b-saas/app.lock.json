@@ -1,0 +1,488 @@
+{
+  "version": 1,
+  "schema": {
+    "entities": {
+      "Profile": {
+        "fields": {
+          "id": {
+            "type": "uuid",
+            "required": true,
+            "references": {
+              "external": "auth.users",
+              "column": "id",
+              "onDelete": "cascade"
+            }
+          },
+          "email": {
+            "type": "string",
+            "required": true
+          },
+          "name": {
+            "type": "string",
+            "required": false
+          },
+          "createdAt": {
+            "type": "timestamp",
+            "required": true,
+            "generate": "now"
+          }
+        },
+        "access": {
+          "scope": "owner",
+          "field": "id"
+        }
+      },
+      "StripeCustomer": {
+        "fields": {
+          "id": {
+            "type": "uuid",
+            "required": true,
+            "generate": "uuid"
+          },
+          "organizationId": {
+            "type": "uuid",
+            "required": true,
+            "references": {
+              "entity": "Organization",
+              "onDelete": "cascade"
+            }
+          },
+          "stripeCustomerId": {
+            "type": "string",
+            "required": true,
+            "unique": true
+          }
+        },
+        "access": {
+          "scope": "tenant",
+          "field": "organizationId",
+          "writes": "server-only",
+          "permissions": {
+            "read": "billing.read"
+          }
+        }
+      },
+      "Subscription": {
+        "fields": {
+          "id": {
+            "type": "uuid",
+            "required": true,
+            "generate": "uuid"
+          },
+          "organizationId": {
+            "type": "uuid",
+            "required": true,
+            "references": {
+              "entity": "Organization",
+              "onDelete": "cascade"
+            }
+          },
+          "status": {
+            "type": "string",
+            "required": true
+          },
+          "priceId": {
+            "type": "string",
+            "required": true
+          },
+          "createdAt": {
+            "type": "timestamp",
+            "required": true,
+            "generate": "now"
+          }
+        },
+        "access": {
+          "scope": "tenant",
+          "field": "organizationId",
+          "writes": "server-only",
+          "permissions": {
+            "read": "billing.read"
+          }
+        }
+      },
+      "Invitation": {
+        "fields": {
+          "id": {
+            "type": "uuid",
+            "required": true,
+            "generate": "uuid"
+          },
+          "organizationId": {
+            "type": "uuid",
+            "required": true,
+            "references": {
+              "entity": "Organization",
+              "onDelete": "cascade"
+            }
+          },
+          "email": {
+            "type": "string",
+            "required": true
+          },
+          "role": {
+            "type": "string",
+            "required": true
+          },
+          "token": {
+            "type": "string",
+            "required": true,
+            "unique": true
+          },
+          "expiresAt": {
+            "type": "timestamp",
+            "required": true
+          }
+        },
+        "access": {
+          "scope": "tenant",
+          "field": "organizationId",
+          "writes": "server-only",
+          "permissions": {
+            "read": "org.invite"
+          }
+        }
+      },
+      "Membership": {
+        "fields": {
+          "id": {
+            "type": "uuid",
+            "required": true,
+            "generate": "uuid"
+          },
+          "organizationId": {
+            "type": "uuid",
+            "required": true,
+            "references": {
+              "entity": "Organization",
+              "onDelete": "cascade"
+            }
+          },
+          "userId": {
+            "type": "uuid",
+            "required": true,
+            "references": {
+              "entity": "Profile",
+              "onDelete": "cascade"
+            }
+          },
+          "role": {
+            "type": "string",
+            "required": true
+          },
+          "createdAt": {
+            "type": "timestamp",
+            "required": true,
+            "generate": "now"
+          }
+        },
+        "access": {
+          "scope": "tenant",
+          "field": "organizationId",
+          "writes": "server-only",
+          "permissions": {
+            "read": "org.read"
+          }
+        }
+      },
+      "Organization": {
+        "fields": {
+          "id": {
+            "type": "uuid",
+            "required": true,
+            "generate": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "required": true
+          },
+          "createdAt": {
+            "type": "timestamp",
+            "required": true,
+            "generate": "now"
+          }
+        },
+        "access": {
+          "scope": "tenant",
+          "field": "id",
+          "writes": "server-only",
+          "permissions": {
+            "read": "org.read"
+          }
+        }
+      },
+      "Permission": {
+        "fields": {
+          "name": {
+            "type": "string",
+            "required": true,
+            "primaryKey": true
+          },
+          "description": {
+            "type": "string",
+            "required": false
+          }
+        },
+        "access": {
+          "scope": "authenticated-read"
+        }
+      },
+      "Role": {
+        "fields": {
+          "name": {
+            "type": "string",
+            "required": true,
+            "primaryKey": true
+          },
+          "description": {
+            "type": "string",
+            "required": false
+          }
+        },
+        "access": {
+          "scope": "authenticated-read"
+        }
+      },
+      "RolePermission": {
+        "fields": {
+          "role": {
+            "type": "string",
+            "required": true,
+            "references": {
+              "entity": "Role",
+              "column": "name",
+              "onDelete": "cascade"
+            },
+            "primaryKey": true
+          },
+          "permission": {
+            "type": "string",
+            "required": true,
+            "references": {
+              "entity": "Permission",
+              "column": "name",
+              "onDelete": "cascade"
+            },
+            "primaryKey": true
+          }
+        },
+        "access": {
+          "scope": "authenticated-read"
+        }
+      }
+    },
+    "permissions": [
+      "auth.read",
+      "auth.write",
+      "billing.read",
+      "billing.write",
+      "org.invite",
+      "org.read",
+      "org.write",
+      "rbac.read",
+      "rbac.write"
+    ],
+    "rawMigrations": [],
+    "featureConfig": {
+      "database": {
+        "pooling": true
+      },
+      "authentication": {
+        "providers": [
+          "email",
+          "google"
+        ],
+        "sessionTimeout": 86400
+      },
+      "organizations": {
+        "allowMultipleOrganizations": true,
+        "invitationExpirySeconds": 259200
+      },
+      "billing": {
+        "provider": "stripe",
+        "currency": "EUR"
+      },
+      "rbac": {
+        "defaultRoles": [
+          "admin",
+          "member",
+          "billing_admin"
+        ]
+      }
+    }
+  },
+  "migrationCount": 15,
+  "files": {
+    "supabase/migrations/20260101000000_create_organization.sql": {
+      "generated": "ba5c46dad26cd894ee249e191e9cf383e00b7f13653be80fdc11f0fce902fd8d",
+      "disk": "ba5c46dad26cd894ee249e191e9cf383e00b7f13653be80fdc11f0fce902fd8d"
+    },
+    "supabase/migrations/20260101000001_create_invitation.sql": {
+      "generated": "2fb6e998d0f05c95290154dc567dead2bfbdbf6fb978728a9398ab6b498d8772",
+      "disk": "2fb6e998d0f05c95290154dc567dead2bfbdbf6fb978728a9398ab6b498d8772"
+    },
+    "supabase/migrations/20260101000002_create_profile.sql": {
+      "generated": "5ee5e0966564f9cabbdc0f4f11ae7936a1f3dfca920b1c08b3b991f246caa6c7",
+      "disk": "5ee5e0966564f9cabbdc0f4f11ae7936a1f3dfca920b1c08b3b991f246caa6c7"
+    },
+    "supabase/migrations/20260101000003_create_membership.sql": {
+      "generated": "6a1f8ed3b99f07deac834ae5ed4e6f6d42447ed6597dafe31c1cae06c1aa44ac",
+      "disk": "6a1f8ed3b99f07deac834ae5ed4e6f6d42447ed6597dafe31c1cae06c1aa44ac"
+    },
+    "supabase/migrations/20260101000004_create_permission.sql": {
+      "generated": "c462fe1a3e23b69fa4caa6802aa64f6c0c44d86ecc26197997c828d6b90d4fd8",
+      "disk": "c462fe1a3e23b69fa4caa6802aa64f6c0c44d86ecc26197997c828d6b90d4fd8"
+    },
+    "supabase/migrations/20260101000005_create_role.sql": {
+      "generated": "e32cf3ac9feed536dd61ddcb5aa65431b06b5cb036ed31fb80040d7463bc8ba1",
+      "disk": "e32cf3ac9feed536dd61ddcb5aa65431b06b5cb036ed31fb80040d7463bc8ba1"
+    },
+    "supabase/migrations/20260101000006_create_role_permission.sql": {
+      "generated": "3319854b15fcbab231f3a100da16034f61fe9dd7b60161eb2c5845c32e44f5cc",
+      "disk": "3319854b15fcbab231f3a100da16034f61fe9dd7b60161eb2c5845c32e44f5cc"
+    },
+    "supabase/migrations/20260101000007_create_stripe_customer.sql": {
+      "generated": "11c4fff2b0990374e08bd8600caf0131bf4653291718d6e9499b752ad20a722d",
+      "disk": "11c4fff2b0990374e08bd8600caf0131bf4653291718d6e9499b752ad20a722d"
+    },
+    "supabase/migrations/20260101000008_create_subscription.sql": {
+      "generated": "819223a010726210b79c559cf0c82675a4be3b74c25f8ad11249d637de667f85",
+      "disk": "819223a010726210b79c559cf0c82675a4be3b74c25f8ad11249d637de667f85"
+    },
+    "supabase/migrations/20260101000009_rls_helpers.sql": {
+      "generated": "335ecc4b88913c254b8722015f01dcbffa2ba034086fc05237674da37d5da455",
+      "disk": "335ecc4b88913c254b8722015f01dcbffa2ba034086fc05237674da37d5da455"
+    },
+    "supabase/migrations/20260101000010_rbac_helpers.sql": {
+      "generated": "e3cc6e56f285706220356f7edd71ae02cda72466effd1c9cc0446e5ffd233df8",
+      "disk": "e3cc6e56f285706220356f7edd71ae02cda72466effd1c9cc0446e5ffd233df8"
+    },
+    "supabase/migrations/20260101000011_rbac_seed.sql": {
+      "generated": "d3ef5fc5c278dc1e4808a06f5c9e68a1404f423300934cd689b46ed8e212cfd5",
+      "disk": "d3ef5fc5c278dc1e4808a06f5c9e68a1404f423300934cd689b46ed8e212cfd5"
+    },
+    "supabase/migrations/20260101000012_organization_functions.sql": {
+      "generated": "4d2f02b9f62cff9e31160fb8311bf39ae248553b1d69851c7ecc60e5c96b9d3a",
+      "disk": "4d2f02b9f62cff9e31160fb8311bf39ae248553b1d69851c7ecc60e5c96b9d3a"
+    },
+    "supabase/migrations/20260101000013_rls_policies.sql": {
+      "generated": "9bd71b278191479703893dea4fa2de8a2863ad37e194e38fb06a2bbe50b0b808",
+      "disk": "9bd71b278191479703893dea4fa2de8a2863ad37e194e38fb06a2bbe50b0b808"
+    },
+    "supabase/migrations/20260101000014_profile_sync.sql": {
+      "generated": "327beac6d0412d4cca4b8c898342e5fa0909d441c73fa00f6af647d9c6d1798e",
+      "disk": "327beac6d0412d4cca4b8c898342e5fa0909d441c73fa00f6af647d9c6d1798e"
+    },
+    "generated/types/database.ts": {
+      "generated": "271148c4c37055a27fb22f61678de209f84e86dc2487a20221ee6d308d04616b",
+      "disk": "271148c4c37055a27fb22f61678de209f84e86dc2487a20221ee6d308d04616b"
+    },
+    "generated/lib/supabase/server.ts": {
+      "generated": "2c8b92ba25c434bc3eae1a5ab87189dbf15dbf98fd5d4224826c7b2347bdb1e1",
+      "disk": "2c8b92ba25c434bc3eae1a5ab87189dbf15dbf98fd5d4224826c7b2347bdb1e1"
+    },
+    "generated/lib/billing/verify-stripe-signature.ts": {
+      "generated": "8f3f5d2a39855e45a1d712112fe5b23be9bde48b0c22b7e11a9b09dae91217ce",
+      "disk": "8f3f5d2a39855e45a1d712112fe5b23be9bde48b0c22b7e11a9b09dae91217ce"
+    },
+    "generated/lib/supabase/admin.ts": {
+      "generated": "5c725470dddd05da86f765947da8f0532515ae251f18b9a678b8f9b0271fd2c1",
+      "disk": "5c725470dddd05da86f765947da8f0532515ae251f18b9a678b8f9b0271fd2c1"
+    },
+    "app/api/auth/login/route.ts": {
+      "generated": "4144385bc563273fce02a437a056e30ee49af6241fbecd31b3b415202b460a69",
+      "disk": "4144385bc563273fce02a437a056e30ee49af6241fbecd31b3b415202b460a69"
+    },
+    "app/api/auth/logout/route.ts": {
+      "generated": "d7d022c5cb54b41345a98a2c3e8c63ee6f8dbf948e2e7a873a9ebd11cba9a209",
+      "disk": "d7d022c5cb54b41345a98a2c3e8c63ee6f8dbf948e2e7a873a9ebd11cba9a209"
+    },
+    "app/api/auth/reset-password/route.ts": {
+      "generated": "ea058211de6a9810ef1debeded5ea159b621a72742a8d60b869887839db4a84e",
+      "disk": "ea058211de6a9810ef1debeded5ea159b621a72742a8d60b869887839db4a84e"
+    },
+    "app/api/billing/checkout/route.ts": {
+      "generated": "26a8a7599cba21baa9e7af8725256bd980f2352857c3a1e645ebe4b9c3625ccb",
+      "disk": "26a8a7599cba21baa9e7af8725256bd980f2352857c3a1e645ebe4b9c3625ccb"
+    },
+    "app/api/billing/webhook/route.ts": {
+      "generated": "6b77d18cf37e95eca4679e691fe0694e4a0a091f987390528e64b309a4836895",
+      "disk": "6b77d18cf37e95eca4679e691fe0694e4a0a091f987390528e64b309a4836895"
+    },
+    "app/api/organizations/route.ts": {
+      "generated": "1d5be5a8292a2332f5e99b6f69d31e0bdb52215573e58938a2d2173992de2cae",
+      "disk": "703d8749b234539d3ed03b82893a2890f13067e199d173d1043d30bac3d6f1e9"
+    },
+    "app/api/organizations/invite/route.ts": {
+      "generated": "57806843ee4f4134cf6476d22f0302d68328d57b3693e8d7bd81aa72f3626f45",
+      "disk": "57806843ee4f4134cf6476d22f0302d68328d57b3693e8d7bd81aa72f3626f45"
+    },
+    "app/api/rbac/member-role/route.ts": {
+      "generated": "1629abce9a75d18f7d580dc35ce001123970c129d2ea496f5628db4f8902f210",
+      "disk": "1629abce9a75d18f7d580dc35ce001123970c129d2ea496f5628db4f8902f210"
+    },
+    "app/api/rbac/roles/route.ts": {
+      "generated": "0359e69c039f5fedf79091e89683052dbcbf439a6b5b26ed8d6c3ba1b35e6ccc",
+      "disk": "33115db0b3a76f88cbb09c32b4c77b40c28d4fc75db92f4e73274c0ef981f5c6"
+    },
+    "app/auth/login/page.tsx": {
+      "generated": "3a9f3ed9437b3be33ef5ace17425ccc1cced37786232f5eb76d4ebdac9d11a0c",
+      "disk": "1721391c40e5ddf830c4ce6813c6bfa4c03c78ef68b58be6e68a1ea2704cc45a"
+    },
+    "app/auth/reset-password/page.tsx": {
+      "generated": "817c7b710f10f56fe0b43b5e3c91a5f533ab32c5b3d7d32bea186f50f26d17bc",
+      "disk": "a2b6c38db510a61f1c5201a7c0837ebe16303c5794f7abd668bee2009651bba6"
+    },
+    "app/billing/page.tsx": {
+      "generated": "bf748e697ceabf93429275722dae3c969db4105d1045bba0bc5a7f56a7cb36eb",
+      "disk": "e53811c13023451c476cecde9e4ed3f0e57052950ff85dd197222c4e262fac8c"
+    },
+    "app/organizations/page.tsx": {
+      "generated": "a6341311160b957c667498988fb25d6a46eff9b066deafd3a7e76fd4f211cf8f",
+      "disk": "2dc9dbd6dcfcf5704caa15f9bc0706d46be20e49096689c046f63afb5afda2ab"
+    },
+    "app/rbac-admin/page.tsx": {
+      "generated": "7eadc81fbbd93a86432d29df9b2c6a3b5dc64a8b8d71fecb7025402cb626be26",
+      "disk": "dc8ce53d6963c9e081fbe6326fe95c1e4e56a30542d31533974d26d8c54a59d4"
+    },
+    "package.json": {
+      "generated": "3f9c9a3a6f2c145fc5eda629f8b09062a3378ad621d51b2df645fa6589ef1dd6",
+      "disk": "3f9c9a3a6f2c145fc5eda629f8b09062a3378ad621d51b2df645fa6589ef1dd6"
+    },
+    "tsconfig.json": {
+      "generated": "5981c52debc5a5f73d88bb56eabe14ccb7e02ac38cec58c8fc77f57f29ca0597",
+      "disk": "5981c52debc5a5f73d88bb56eabe14ccb7e02ac38cec58c8fc77f57f29ca0597"
+    },
+    "postcss.config.js": {
+      "generated": "fa650b380adfabb151a0b352f7135e107e6352345f899060f1c5c231228f94bf",
+      "disk": "fa650b380adfabb151a0b352f7135e107e6352345f899060f1c5c231228f94bf"
+    },
+    "tailwind.config.ts": {
+      "generated": "7bad3266cff4d82659d2246408cfe33e6b67b70299ce787f59111509540a766f",
+      "disk": "bf95b1fcade752f3b7280e4c22844330c2db6cb62567aa3a0b9b44761628542c"
+    },
+    "next.config.mjs": {
+      "generated": "73f18ea67787ab9d40bedbf6600bc6f822dfc31347374a54677d67a36567b20b",
+      "disk": "73f18ea67787ab9d40bedbf6600bc6f822dfc31347374a54677d67a36567b20b"
+    },
+    ".env.local": {
+      "generated": "a5924f857142242c18953fe006389926781048d90b2a8beac47d0d16232a4cf4",
+      "disk": "a5924f857142242c18953fe006389926781048d90b2a8beac47d0d16232a4cf4"
+    },
+    "app/globals.css": {
+      "generated": "ecbfe8b9473e9fbbb584a597760495c2fd9f8512bb757199db8d7d699036c0a0",
+      "disk": "ecbfe8b9473e9fbbb584a597760495c2fd9f8512bb757199db8d7d699036c0a0"
+    },
+    "app/layout.tsx": {
+      "generated": "d709b2b0d2d1ae905f109c994716de01cc8595e832b4d434818377b30046cf65",
+      "disk": "f9f9744bb72f8e9132bafd42149a7ebea8fe437318392f41f95ac2518ed718e3"
+    },
+    "app/page.tsx": {
+      "generated": "c891bed8ae370e23892326d5a6d4673743af3e6ff5c4f648c27450de9d029635",
+      "disk": "a9755441a7ab0473452d948d59ed4667269e90ea8a88aa29f39495fd2e4c42d1"
+    },
+    "config/permissions.ts": {
+      "generated": "919606a225f64af5fdaba91aec6163f2e88fb2fc7afda56169b57d50b38db221",
+      "disk": "cdee3ccc71b2f7893a7eb128df451c23f14e7d21cb3ae4c4701f9f2e7042d12a"
+    }
+  }
+}

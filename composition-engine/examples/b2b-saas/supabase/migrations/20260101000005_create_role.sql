@@ -1,7 +1,6 @@
 -- Entity: Role (feature: rbac)
--- User security group role
+-- Named bundle of permissions assigned to organization members
 CREATE TABLE IF NOT EXISTS "role" (
-  "id" UUID PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
-  "name" VARCHAR(255) NOT NULL UNIQUE,
+  "name" VARCHAR(255) PRIMARY KEY NOT NULL,
   "description" VARCHAR(255)
 );

@@ -1,0 +1,1285 @@
+{
+  "version": 1,
+  "schema": {
+    "entities": {
+      "ChatMessage": {
+        "fields": {
+          "id": {
+            "type": "uuid",
+            "required": true,
+            "generate": "uuid"
+          },
+          "sessionId": {
+            "type": "uuid",
+            "required": true
+          },
+          "role": {
+            "type": "string",
+            "required": true
+          },
+          "content": {
+            "type": "string",
+            "required": true
+          },
+          "createdAt": {
+            "type": "timestamp",
+            "required": true,
+            "generate": "now"
+          },
+          "userId": {
+            "type": "uuid",
+            "required": true,
+            "references": {
+              "entity": "Profile",
+              "onDelete": "cascade"
+            },
+            "generate": "auth-user"
+          }
+        },
+        "access": {
+          "scope": "owner",
+          "field": "userId"
+        }
+      },
+      "Metric": {
+        "fields": {
+          "id": {
+            "type": "uuid",
+            "required": true,
+            "generate": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "required": true
+          },
+          "value": {
+            "type": "float",
+            "required": true
+          },
+          "organizationId": {
+            "type": "uuid",
+            "required": true,
+            "references": {
+              "entity": "Organization",
+              "onDelete": "cascade"
+            }
+          },
+          "createdAt": {
+            "type": "timestamp",
+            "required": true,
+            "generate": "now"
+          }
+        },
+        "access": {
+          "scope": "tenant",
+          "field": "organizationId",
+          "permissions": {
+            "read": "analytics.view",
+            "write": "analytics.view"
+          }
+        }
+      },
+      "AuditLog": {
+        "fields": {
+          "id": {
+            "type": "uuid",
+            "required": true,
+            "generate": "uuid"
+          },
+          "action": {
+            "type": "string",
+            "required": true
+          },
+          "actorId": {
+            "type": "uuid",
+            "required": false,
+            "references": {
+              "entity": "Profile",
+              "onDelete": "set null"
+            }
+          },
+          "entityName": {
+            "type": "string",
+            "required": false
+          },
+          "entityId": {
+            "type": "string",
+            "required": false
+          },
+          "payload": {
+            "type": "string",
+            "required": false
+          },
+          "createdAt": {
+            "type": "timestamp",
+            "required": true,
+            "generate": "now"
+          }
+        },
+        "access": {
+          "scope": "owner",
+          "field": "actorId",
+          "writes": "insert-only"
+        }
+      },
+      "Profile": {
+        "fields": {
+          "id": {
+            "type": "uuid",
+            "required": true,
+            "references": {
+              "external": "auth.users",
+              "column": "id",
+              "onDelete": "cascade"
+            }
+          },
+          "email": {
+            "type": "string",
+            "required": true
+          },
+          "name": {
+            "type": "string",
+            "required": false
+          },
+          "createdAt": {
+            "type": "timestamp",
+            "required": true,
+            "generate": "now"
+          }
+        },
+        "access": {
+          "scope": "owner",
+          "field": "id"
+        }
+      },
+      "StripeCustomer": {
+        "fields": {
+          "id": {
+            "type": "uuid",
+            "required": true,
+            "generate": "uuid"
+          },
+          "organizationId": {
+            "type": "uuid",
+            "required": true,
+            "references": {
+              "entity": "Organization",
+              "onDelete": "cascade"
+            }
+          },
+          "stripeCustomerId": {
+            "type": "string",
+            "required": true,
+            "unique": true
+          }
+        },
+        "access": {
+          "scope": "tenant",
+          "field": "organizationId",
+          "writes": "server-only",
+          "permissions": {
+            "read": "billing.read"
+          }
+        }
+      },
+      "Subscription": {
+        "fields": {
+          "id": {
+            "type": "uuid",
+            "required": true,
+            "generate": "uuid"
+          },
+          "organizationId": {
+            "type": "uuid",
+            "required": true,
+            "references": {
+              "entity": "Organization",
+              "onDelete": "cascade"
+            }
+          },
+          "status": {
+            "type": "string",
+            "required": true
+          },
+          "priceId": {
+            "type": "string",
+            "required": true
+          },
+          "createdAt": {
+            "type": "timestamp",
+            "required": true,
+            "generate": "now"
+          }
+        },
+        "access": {
+          "scope": "tenant",
+          "field": "organizationId",
+          "writes": "server-only",
+          "permissions": {
+            "read": "billing.read"
+          }
+        }
+      },
+      "Feedback": {
+        "fields": {
+          "id": {
+            "type": "uuid",
+            "required": true,
+            "generate": "uuid"
+          },
+          "rating": {
+            "type": "integer",
+            "required": true
+          },
+          "comment": {
+            "type": "string",
+            "required": false
+          },
+          "userId": {
+            "type": "uuid",
+            "required": true,
+            "references": {
+              "entity": "Profile",
+              "onDelete": "cascade"
+            },
+            "generate": "auth-user"
+          },
+          "organizationId": {
+            "type": "uuid",
+            "required": true,
+            "references": {
+              "entity": "Organization",
+              "onDelete": "cascade"
+            }
+          },
+          "createdAt": {
+            "type": "timestamp",
+            "required": true,
+            "generate": "now"
+          }
+        },
+        "access": {
+          "scope": "tenant",
+          "field": "organizationId",
+          "permissions": {
+            "read": "feedback.read",
+            "write": "feedback.write"
+          }
+        }
+      },
+      "Document": {
+        "fields": {
+          "id": {
+            "type": "uuid",
+            "required": true,
+            "generate": "uuid"
+          },
+          "title": {
+            "type": "string",
+            "required": true
+          },
+          "content": {
+            "type": "text",
+            "required": false
+          },
+          "projectId": {
+            "type": "uuid",
+            "required": true,
+            "references": {
+              "entity": "Project",
+              "onDelete": "cascade"
+            }
+          },
+          "createdAt": {
+            "type": "timestamp",
+            "required": true,
+            "generate": "now"
+          }
+        },
+        "access": {
+          "scope": "tenant",
+          "field": "projectId",
+          "via": "Project",
+          "permissions": {
+            "read": "document.read",
+            "write": "document.write"
+          }
+        }
+      },
+      "Article": {
+        "fields": {
+          "id": {
+            "type": "uuid",
+            "required": true,
+            "generate": "uuid"
+          },
+          "title": {
+            "type": "string",
+            "required": true
+          },
+          "content": {
+            "type": "string",
+            "required": true
+          },
+          "category": {
+            "type": "string",
+            "required": true
+          },
+          "authorId": {
+            "type": "uuid",
+            "required": false,
+            "references": {
+              "entity": "Profile",
+              "onDelete": "set null"
+            }
+          },
+          "organizationId": {
+            "type": "uuid",
+            "required": true,
+            "references": {
+              "entity": "Organization",
+              "onDelete": "cascade"
+            }
+          },
+          "createdAt": {
+            "type": "timestamp",
+            "required": true,
+            "generate": "now"
+          }
+        },
+        "access": {
+          "scope": "tenant",
+          "field": "organizationId",
+          "permissions": {
+            "read": "articles.read",
+            "write": "articles.write"
+          }
+        }
+      },
+      "Notification": {
+        "fields": {
+          "id": {
+            "type": "uuid",
+            "required": true,
+            "generate": "uuid"
+          },
+          "userId": {
+            "type": "uuid",
+            "required": true,
+            "references": {
+              "entity": "Profile",
+              "onDelete": "cascade"
+            }
+          },
+          "channel": {
+            "type": "string",
+            "required": true
+          },
+          "title": {
+            "type": "string",
+            "required": true
+          },
+          "content": {
+            "type": "string",
+            "required": true
+          },
+          "status": {
+            "type": "string",
+            "required": true,
+            "default": "pending"
+          },
+          "createdAt": {
+            "type": "timestamp",
+            "required": true,
+            "generate": "now"
+          }
+        },
+        "access": {
+          "scope": "owner",
+          "field": "userId"
+        }
+      },
+      "Invitation": {
+        "fields": {
+          "id": {
+            "type": "uuid",
+            "required": true,
+            "generate": "uuid"
+          },
+          "organizationId": {
+            "type": "uuid",
+            "required": true,
+            "references": {
+              "entity": "Organization",
+              "onDelete": "cascade"
+            }
+          },
+          "email": {
+            "type": "string",
+            "required": true
+          },
+          "role": {
+            "type": "string",
+            "required": true
+          },
+          "token": {
+            "type": "string",
+            "required": true,
+            "unique": true
+          },
+          "expiresAt": {
+            "type": "timestamp",
+            "required": true
+          }
+        },
+        "access": {
+          "scope": "tenant",
+          "field": "organizationId",
+          "writes": "server-only",
+          "permissions": {
+            "read": "org.invite"
+          }
+        }
+      },
+      "Membership": {
+        "fields": {
+          "id": {
+            "type": "uuid",
+            "required": true,
+            "generate": "uuid"
+          },
+          "organizationId": {
+            "type": "uuid",
+            "required": true,
+            "references": {
+              "entity": "Organization",
+              "onDelete": "cascade"
+            }
+          },
+          "userId": {
+            "type": "uuid",
+            "required": true,
+            "references": {
+              "entity": "Profile",
+              "onDelete": "cascade"
+            }
+          },
+          "role": {
+            "type": "string",
+            "required": true
+          },
+          "createdAt": {
+            "type": "timestamp",
+            "required": true,
+            "generate": "now"
+          }
+        },
+        "access": {
+          "scope": "tenant",
+          "field": "organizationId",
+          "writes": "server-only",
+          "permissions": {
+            "read": "org.read"
+          }
+        }
+      },
+      "Organization": {
+        "fields": {
+          "id": {
+            "type": "uuid",
+            "required": true,
+            "generate": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "required": true
+          },
+          "createdAt": {
+            "type": "timestamp",
+            "required": true,
+            "generate": "now"
+          }
+        },
+        "access": {
+          "scope": "tenant",
+          "field": "id",
+          "writes": "server-only",
+          "permissions": {
+            "read": "org.read"
+          }
+        }
+      },
+      "Project": {
+        "fields": {
+          "id": {
+            "type": "uuid",
+            "required": true,
+            "generate": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "required": true
+          },
+          "description": {
+            "type": "text",
+            "required": false
+          },
+          "status": {
+            "type": "string",
+            "required": true,
+            "default": "active"
+          },
+          "organizationId": {
+            "type": "uuid",
+            "required": true,
+            "references": {
+              "entity": "Organization",
+              "onDelete": "cascade"
+            }
+          },
+          "workspaceId": {
+            "type": "uuid",
+            "required": true,
+            "references": {
+              "entity": "Workspace",
+              "onDelete": "cascade"
+            }
+          },
+          "createdAt": {
+            "type": "timestamp",
+            "required": true,
+            "generate": "now"
+          }
+        },
+        "access": {
+          "scope": "tenant",
+          "field": "organizationId",
+          "permissions": {
+            "read": "project.read",
+            "write": "project.write"
+          }
+        }
+      },
+      "Permission": {
+        "fields": {
+          "name": {
+            "type": "string",
+            "required": true,
+            "primaryKey": true
+          },
+          "description": {
+            "type": "string",
+            "required": false
+          }
+        },
+        "access": {
+          "scope": "authenticated-read"
+        }
+      },
+      "Role": {
+        "fields": {
+          "name": {
+            "type": "string",
+            "required": true,
+            "primaryKey": true
+          },
+          "description": {
+            "type": "string",
+            "required": false
+          }
+        },
+        "access": {
+          "scope": "authenticated-read"
+        }
+      },
+      "RolePermission": {
+        "fields": {
+          "role": {
+            "type": "string",
+            "required": true,
+            "references": {
+              "entity": "Role",
+              "column": "name",
+              "onDelete": "cascade"
+            },
+            "primaryKey": true
+          },
+          "permission": {
+            "type": "string",
+            "required": true,
+            "references": {
+              "entity": "Permission",
+              "column": "name",
+              "onDelete": "cascade"
+            },
+            "primaryKey": true
+          }
+        },
+        "access": {
+          "scope": "authenticated-read"
+        }
+      },
+      "File": {
+        "fields": {
+          "id": {
+            "type": "uuid",
+            "required": true,
+            "generate": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "required": true
+          },
+          "path": {
+            "type": "string",
+            "required": true
+          },
+          "size": {
+            "type": "integer",
+            "required": true
+          },
+          "mimeType": {
+            "type": "string",
+            "required": true
+          },
+          "organizationId": {
+            "type": "uuid",
+            "required": false,
+            "references": {
+              "entity": "Organization",
+              "onDelete": "cascade"
+            }
+          },
+          "createdAt": {
+            "type": "timestamp",
+            "required": true,
+            "generate": "now"
+          }
+        },
+        "access": {
+          "scope": "tenant",
+          "field": "organizationId",
+          "permissions": {
+            "read": "storage.read",
+            "write": "storage.write"
+          }
+        }
+      },
+      "Task": {
+        "fields": {
+          "id": {
+            "type": "uuid",
+            "required": true,
+            "generate": "uuid"
+          },
+          "title": {
+            "type": "string",
+            "required": true
+          },
+          "description": {
+            "type": "text",
+            "required": false
+          },
+          "status": {
+            "type": "string",
+            "required": true,
+            "default": "todo"
+          },
+          "priority": {
+            "type": "string",
+            "required": true,
+            "default": "medium"
+          },
+          "projectId": {
+            "type": "uuid",
+            "required": true,
+            "references": {
+              "entity": "Project",
+              "onDelete": "cascade"
+            }
+          },
+          "assigneeId": {
+            "type": "uuid",
+            "required": false,
+            "references": {
+              "entity": "Profile",
+              "onDelete": "set null"
+            }
+          },
+          "createdAt": {
+            "type": "timestamp",
+            "required": true,
+            "generate": "now"
+          }
+        },
+        "access": {
+          "scope": "tenant",
+          "field": "projectId",
+          "via": "Project",
+          "permissions": {
+            "read": "task.read",
+            "write": "task.write"
+          }
+        }
+      },
+      "Ticket": {
+        "fields": {
+          "id": {
+            "type": "uuid",
+            "required": true,
+            "generate": "uuid"
+          },
+          "title": {
+            "type": "string",
+            "required": true
+          },
+          "status": {
+            "type": "string",
+            "required": true,
+            "default": "open"
+          },
+          "priority": {
+            "type": "string",
+            "required": true,
+            "default": "medium"
+          },
+          "assigneeId": {
+            "type": "uuid",
+            "required": false,
+            "references": {
+              "entity": "Profile",
+              "onDelete": "set null"
+            }
+          },
+          "organizationId": {
+            "type": "uuid",
+            "required": true,
+            "references": {
+              "entity": "Organization",
+              "onDelete": "cascade"
+            }
+          },
+          "createdAt": {
+            "type": "timestamp",
+            "required": true,
+            "generate": "now"
+          }
+        },
+        "access": {
+          "scope": "tenant",
+          "field": "organizationId",
+          "permissions": {
+            "read": "tickets.read",
+            "write": "tickets.write"
+          }
+        }
+      },
+      "WhiteboardSession": {
+        "fields": {
+          "id": {
+            "type": "uuid",
+            "required": true,
+            "generate": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "required": true
+          },
+          "organizationId": {
+            "type": "uuid",
+            "required": true,
+            "references": {
+              "entity": "Organization",
+              "onDelete": "cascade"
+            }
+          },
+          "createdAt": {
+            "type": "timestamp",
+            "required": true,
+            "generate": "now"
+          }
+        },
+        "access": {
+          "scope": "tenant",
+          "field": "organizationId",
+          "permissions": {
+            "read": "whiteboard.view",
+            "write": "whiteboard.create"
+          }
+        }
+      },
+      "Workspace": {
+        "fields": {
+          "id": {
+            "type": "uuid",
+            "required": true,
+            "generate": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "required": true
+          },
+          "organizationId": {
+            "type": "uuid",
+            "required": true,
+            "references": {
+              "entity": "Organization",
+              "onDelete": "cascade"
+            }
+          },
+          "createdAt": {
+            "type": "timestamp",
+            "required": true,
+            "generate": "now"
+          }
+        },
+        "access": {
+          "scope": "tenant",
+          "field": "organizationId",
+          "permissions": {
+            "read": "workspace.read",
+            "write": "workspace.write"
+          }
+        }
+      }
+    },
+    "permissions": [
+      "analytics.view",
+      "articles.read",
+      "articles.write",
+      "audit.read",
+      "auth.read",
+      "auth.write",
+      "billing.read",
+      "billing.write",
+      "chat.access",
+      "document.read",
+      "document.write",
+      "feedback.read",
+      "feedback.write",
+      "notifications.read",
+      "notifications.write",
+      "org.invite",
+      "org.read",
+      "org.write",
+      "project.read",
+      "project.write",
+      "rbac.read",
+      "rbac.write",
+      "search.query",
+      "storage.read",
+      "storage.write",
+      "task.read",
+      "task.write",
+      "tickets.read",
+      "tickets.write",
+      "whiteboard.create",
+      "whiteboard.view",
+      "workspace.read",
+      "workspace.write"
+    ],
+    "rawMigrations": [
+      "database/0007_search_schema.sql"
+    ],
+    "featureConfig": {
+      "database": {
+        "pooling": true
+      },
+      "authentication": {
+        "providers": [
+          "email",
+          "google"
+        ],
+        "sessionTimeout": 86400
+      },
+      "organizations": {
+        "allowMultipleOrganizations": true,
+        "invitationExpirySeconds": 259200
+      },
+      "billing": {
+        "provider": "stripe",
+        "currency": "USD"
+      },
+      "notifications": {
+        "channels": [
+          "email",
+          "slack"
+        ]
+      },
+      "rbac": {
+        "defaultRoles": [
+          "owner",
+          "admin",
+          "member",
+          "guest"
+        ]
+      },
+      "storage": {
+        "maxSizeMb": 50
+      }
+    }
+  },
+  "migrationCount": 29,
+  "files": {
+    "supabase/migrations/20260101000000_search_schema.sql": {
+      "generated": "cc602dc5484340164027d44500daca7f3d61ebd9ffcb767274e273db7fc0bbb2",
+      "disk": "cc602dc5484340164027d44500daca7f3d61ebd9ffcb767274e273db7fc0bbb2"
+    },
+    "supabase/migrations/20260101000001_create_organization.sql": {
+      "generated": "ba5c46dad26cd894ee249e191e9cf383e00b7f13653be80fdc11f0fce902fd8d",
+      "disk": "ba5c46dad26cd894ee249e191e9cf383e00b7f13653be80fdc11f0fce902fd8d"
+    },
+    "supabase/migrations/20260101000002_create_profile.sql": {
+      "generated": "5ee5e0966564f9cabbdc0f4f11ae7936a1f3dfca920b1c08b3b991f246caa6c7",
+      "disk": "5ee5e0966564f9cabbdc0f4f11ae7936a1f3dfca920b1c08b3b991f246caa6c7"
+    },
+    "supabase/migrations/20260101000003_create_article.sql": {
+      "generated": "51c958a00f4c22558a1ab399167b559e41d8b21e7fab34c7f906990fa9de59f7",
+      "disk": "51c958a00f4c22558a1ab399167b559e41d8b21e7fab34c7f906990fa9de59f7"
+    },
+    "supabase/migrations/20260101000004_create_audit_log.sql": {
+      "generated": "763daa150e40d43814a23a8f2f08e0d2a8c8906f8e14cb95e65422d53125bb6f",
+      "disk": "763daa150e40d43814a23a8f2f08e0d2a8c8906f8e14cb95e65422d53125bb6f"
+    },
+    "supabase/migrations/20260101000005_create_chat_message.sql": {
+      "generated": "a2bc77ad78b9c0e53b8d67e37ad791616bf62318f14534d992ecc87eae431d2b",
+      "disk": "a2bc77ad78b9c0e53b8d67e37ad791616bf62318f14534d992ecc87eae431d2b"
+    },
+    "supabase/migrations/20260101000006_create_workspace.sql": {
+      "generated": "75e0a01c82fade31f82c4578f775246df5f2fdd056ebe80bfa8150eee4a6c755",
+      "disk": "75e0a01c82fade31f82c4578f775246df5f2fdd056ebe80bfa8150eee4a6c755"
+    },
+    "supabase/migrations/20260101000007_create_project.sql": {
+      "generated": "299efdd3b8d13dd0a2565362c9e3c6f0ad1af324bc7d08aa2c8e627896d6bd80",
+      "disk": "299efdd3b8d13dd0a2565362c9e3c6f0ad1af324bc7d08aa2c8e627896d6bd80"
+    },
+    "supabase/migrations/20260101000008_create_document.sql": {
+      "generated": "a24b7cc2522eed6f6f3d0790295286d508043afe2f8bb6a218af0828174de81b",
+      "disk": "a24b7cc2522eed6f6f3d0790295286d508043afe2f8bb6a218af0828174de81b"
+    },
+    "supabase/migrations/20260101000009_create_feedback.sql": {
+      "generated": "d664aa85b9ccad3dc91291f5622728facbd49ebb2b2be9e29a28402a100183f7",
+      "disk": "d664aa85b9ccad3dc91291f5622728facbd49ebb2b2be9e29a28402a100183f7"
+    },
+    "supabase/migrations/20260101000010_create_file.sql": {
+      "generated": "f5d13f366284b99399d05416af1de6066f73ddcc884b038d20d7b4ea26024ba6",
+      "disk": "f5d13f366284b99399d05416af1de6066f73ddcc884b038d20d7b4ea26024ba6"
+    },
+    "supabase/migrations/20260101000011_create_invitation.sql": {
+      "generated": "2fb6e998d0f05c95290154dc567dead2bfbdbf6fb978728a9398ab6b498d8772",
+      "disk": "2fb6e998d0f05c95290154dc567dead2bfbdbf6fb978728a9398ab6b498d8772"
+    },
+    "supabase/migrations/20260101000012_create_membership.sql": {
+      "generated": "6a1f8ed3b99f07deac834ae5ed4e6f6d42447ed6597dafe31c1cae06c1aa44ac",
+      "disk": "6a1f8ed3b99f07deac834ae5ed4e6f6d42447ed6597dafe31c1cae06c1aa44ac"
+    },
+    "supabase/migrations/20260101000013_create_metric.sql": {
+      "generated": "30ae232b1b50e1a2f4ff4b97133ea97a49c0277f67dcda4da1e4c89deb3b4941",
+      "disk": "30ae232b1b50e1a2f4ff4b97133ea97a49c0277f67dcda4da1e4c89deb3b4941"
+    },
+    "supabase/migrations/20260101000014_create_notification.sql": {
+      "generated": "f38c4a78754bbc21d130b61adcbb11cd27f57888acbc6a5bc20a5aed200e2cd0",
+      "disk": "f38c4a78754bbc21d130b61adcbb11cd27f57888acbc6a5bc20a5aed200e2cd0"
+    },
+    "supabase/migrations/20260101000015_create_permission.sql": {
+      "generated": "c462fe1a3e23b69fa4caa6802aa64f6c0c44d86ecc26197997c828d6b90d4fd8",
+      "disk": "c462fe1a3e23b69fa4caa6802aa64f6c0c44d86ecc26197997c828d6b90d4fd8"
+    },
+    "supabase/migrations/20260101000016_create_role.sql": {
+      "generated": "e32cf3ac9feed536dd61ddcb5aa65431b06b5cb036ed31fb80040d7463bc8ba1",
+      "disk": "e32cf3ac9feed536dd61ddcb5aa65431b06b5cb036ed31fb80040d7463bc8ba1"
+    },
+    "supabase/migrations/20260101000017_create_role_permission.sql": {
+      "generated": "3319854b15fcbab231f3a100da16034f61fe9dd7b60161eb2c5845c32e44f5cc",
+      "disk": "3319854b15fcbab231f3a100da16034f61fe9dd7b60161eb2c5845c32e44f5cc"
+    },
+    "supabase/migrations/20260101000018_create_stripe_customer.sql": {
+      "generated": "11c4fff2b0990374e08bd8600caf0131bf4653291718d6e9499b752ad20a722d",
+      "disk": "11c4fff2b0990374e08bd8600caf0131bf4653291718d6e9499b752ad20a722d"
+    },
+    "supabase/migrations/20260101000019_create_subscription.sql": {
+      "generated": "819223a010726210b79c559cf0c82675a4be3b74c25f8ad11249d637de667f85",
+      "disk": "819223a010726210b79c559cf0c82675a4be3b74c25f8ad11249d637de667f85"
+    },
+    "supabase/migrations/20260101000020_create_task.sql": {
+      "generated": "f37290959c346b5ec5adcce510aeb1017105e8056956d6ddcffd7910103b44c9",
+      "disk": "f37290959c346b5ec5adcce510aeb1017105e8056956d6ddcffd7910103b44c9"
+    },
+    "supabase/migrations/20260101000021_create_ticket.sql": {
+      "generated": "35a79050cbae83e06cc631658837bfc175cc580e6a18d7d08ee47a0ea27ea790",
+      "disk": "35a79050cbae83e06cc631658837bfc175cc580e6a18d7d08ee47a0ea27ea790"
+    },
+    "supabase/migrations/20260101000022_create_whiteboard_session.sql": {
+      "generated": "ea8d8386d826a694d5d42e08651f953cd03a45537083e807d65bce3036671726",
+      "disk": "ea8d8386d826a694d5d42e08651f953cd03a45537083e807d65bce3036671726"
+    },
+    "supabase/migrations/20260101000023_rls_helpers.sql": {
+      "generated": "335ecc4b88913c254b8722015f01dcbffa2ba034086fc05237674da37d5da455",
+      "disk": "335ecc4b88913c254b8722015f01dcbffa2ba034086fc05237674da37d5da455"
+    },
+    "supabase/migrations/20260101000024_rbac_helpers.sql": {
+      "generated": "e3cc6e56f285706220356f7edd71ae02cda72466effd1c9cc0446e5ffd233df8",
+      "disk": "e3cc6e56f285706220356f7edd71ae02cda72466effd1c9cc0446e5ffd233df8"
+    },
+    "supabase/migrations/20260101000025_rbac_seed.sql": {
+      "generated": "6e2adc9d41ecea70d10ef659470ef8bebf5d22f4b5a6e1cee43ade93b31cd763",
+      "disk": "6e2adc9d41ecea70d10ef659470ef8bebf5d22f4b5a6e1cee43ade93b31cd763"
+    },
+    "supabase/migrations/20260101000026_organization_functions.sql": {
+      "generated": "4d2f02b9f62cff9e31160fb8311bf39ae248553b1d69851c7ecc60e5c96b9d3a",
+      "disk": "4d2f02b9f62cff9e31160fb8311bf39ae248553b1d69851c7ecc60e5c96b9d3a"
+    },
+    "supabase/migrations/20260101000027_rls_policies.sql": {
+      "generated": "44dcfff4ce83ec239138931e0e9fbd99e2ca260246d340feb59792169754dccc",
+      "disk": "44dcfff4ce83ec239138931e0e9fbd99e2ca260246d340feb59792169754dccc"
+    },
+    "supabase/migrations/20260101000028_profile_sync.sql": {
+      "generated": "327beac6d0412d4cca4b8c898342e5fa0909d441c73fa00f6af647d9c6d1798e",
+      "disk": "327beac6d0412d4cca4b8c898342e5fa0909d441c73fa00f6af647d9c6d1798e"
+    },
+    "generated/types/database.ts": {
+      "generated": "53a9207157642958e8810012174ec1b58dbe3b86f209da25f6ab93e5033d180a",
+      "disk": "53a9207157642958e8810012174ec1b58dbe3b86f209da25f6ab93e5033d180a"
+    },
+    "generated/lib/supabase/server.ts": {
+      "generated": "2c8b92ba25c434bc3eae1a5ab87189dbf15dbf98fd5d4224826c7b2347bdb1e1",
+      "disk": "2c8b92ba25c434bc3eae1a5ab87189dbf15dbf98fd5d4224826c7b2347bdb1e1"
+    },
+    "generated/lib/billing/verify-stripe-signature.ts": {
+      "generated": "8f3f5d2a39855e45a1d712112fe5b23be9bde48b0c22b7e11a9b09dae91217ce",
+      "disk": "8f3f5d2a39855e45a1d712112fe5b23be9bde48b0c22b7e11a9b09dae91217ce"
+    },
+    "generated/lib/supabase/admin.ts": {
+      "generated": "5c725470dddd05da86f765947da8f0532515ae251f18b9a678b8f9b0271fd2c1",
+      "disk": "5c725470dddd05da86f765947da8f0532515ae251f18b9a678b8f9b0271fd2c1"
+    },
+    "app/api/ai/chat/route.ts": {
+      "generated": "64556555cc39ede47905e044593120f7d990379dd87afb495ed713813497b0c2",
+      "disk": "fdf9021765036169192912d2476c217a7a1cc8bd41872aba3281008330587bcc"
+    },
+    "app/api/analytics/metrics/route.ts": {
+      "generated": "08b950d7feb94b9aebd12997ad6ecf9ee3bec8ddceaa336b3c187cfd3bf9a2b2",
+      "disk": "b00dc836c99cc1d54cd496c610cd74da6ea0e34d2400578cc9e00af008124b16"
+    },
+    "app/api/audit-logs/route.ts": {
+      "generated": "afe515a53f447c2510c1a9748a2d45e9e60c97a23c77efbbe1fa071ffab2c282",
+      "disk": "f7312d4a714366fc915a4d12df5b75d4ccbfbb70414b131d735f95472fb52828"
+    },
+    "app/api/auth/login/route.ts": {
+      "generated": "4144385bc563273fce02a437a056e30ee49af6241fbecd31b3b415202b460a69",
+      "disk": "4144385bc563273fce02a437a056e30ee49af6241fbecd31b3b415202b460a69"
+    },
+    "app/api/auth/logout/route.ts": {
+      "generated": "d7d022c5cb54b41345a98a2c3e8c63ee6f8dbf948e2e7a873a9ebd11cba9a209",
+      "disk": "d7d022c5cb54b41345a98a2c3e8c63ee6f8dbf948e2e7a873a9ebd11cba9a209"
+    },
+    "app/api/auth/reset-password/route.ts": {
+      "generated": "ea058211de6a9810ef1debeded5ea159b621a72742a8d60b869887839db4a84e",
+      "disk": "ea058211de6a9810ef1debeded5ea159b621a72742a8d60b869887839db4a84e"
+    },
+    "app/api/billing/checkout/route.ts": {
+      "generated": "26a8a7599cba21baa9e7af8725256bd980f2352857c3a1e645ebe4b9c3625ccb",
+      "disk": "26a8a7599cba21baa9e7af8725256bd980f2352857c3a1e645ebe4b9c3625ccb"
+    },
+    "app/api/billing/webhook/route.ts": {
+      "generated": "6b77d18cf37e95eca4679e691fe0694e4a0a091f987390528e64b309a4836895",
+      "disk": "6b77d18cf37e95eca4679e691fe0694e4a0a091f987390528e64b309a4836895"
+    },
+    "app/api/feedback/route.ts": {
+      "generated": "7886dd94d1671fe63628b2cc2756440ed9ed112cb844dceafebfa38147a429e2",
+      "disk": "e677b8fbdf25276d48be4ac80577362f962a17769c4dbf6f039a4842a07a82e3"
+    },
+    "app/api/documents/route.ts": {
+      "generated": "1c946be256faea626ca994c54e3bd1745368d3bc9eeb6eeff07c699ce07741f3",
+      "disk": "5e3b047f5722fedd5d37078b5700df82ab77246b0d4af081177d7315281f4c9e"
+    },
+    "app/api/kb/articles/route.ts": {
+      "generated": "7a2005758ff064ffbbab65a0ad20adfcb7407b8ec7bac6b6c14a1ab1d641478b",
+      "disk": "7212c67c100a4b3a10a1bfcb4f57f88785be60acd5dfb3eb1d9b774539dc751b"
+    },
+    "app/api/notifications/route.ts": {
+      "generated": "d21f5d197fdd635b16311b80439bb2c03c66dce3c45a2f76769d85a5f27ecf16",
+      "disk": "b6dfabdb3ad0f5377274cb0fac92366471c003d16e32c95e230ca175f0d0de38"
+    },
+    "app/api/notifications/send/route.ts": {
+      "generated": "a44c4f44ef2285f01452ed4f597e889850f9d2ee5e3fd2311280a68a12b3ff58",
+      "disk": "49bedff4709a89fa0ea399f5fe80624a8d94ec732818fdef944bcf7cc42f7f06"
+    },
+    "app/api/organizations/route.ts": {
+      "generated": "1d5be5a8292a2332f5e99b6f69d31e0bdb52215573e58938a2d2173992de2cae",
+      "disk": "703d8749b234539d3ed03b82893a2890f13067e199d173d1043d30bac3d6f1e9"
+    },
+    "app/api/organizations/invite/route.ts": {
+      "generated": "57806843ee4f4134cf6476d22f0302d68328d57b3693e8d7bd81aa72f3626f45",
+      "disk": "57806843ee4f4134cf6476d22f0302d68328d57b3693e8d7bd81aa72f3626f45"
+    },
+    "app/api/projects/route.ts": {
+      "generated": "9dad1083cd8afce953823f5f2950fbb720effe444a86321d14625d28fdc2a2ba",
+      "disk": "c1a546a8b493961e00709a262e40fea5b50793bc0a50a25434cdd3352e85e0dd"
+    },
+    "app/api/rbac/member-role/route.ts": {
+      "generated": "1629abce9a75d18f7d580dc35ce001123970c129d2ea496f5628db4f8902f210",
+      "disk": "1629abce9a75d18f7d580dc35ce001123970c129d2ea496f5628db4f8902f210"
+    },
+    "app/api/rbac/roles/route.ts": {
+      "generated": "0359e69c039f5fedf79091e89683052dbcbf439a6b5b26ed8d6c3ba1b35e6ccc",
+      "disk": "33115db0b3a76f88cbb09c32b4c77b40c28d4fc75db92f4e73274c0ef981f5c6"
+    },
+    "app/api/search/route.ts": {
+      "generated": "d2d3f5d3b7759b8bb2feee306f8b7522ca4969060f32ec386078fcde8a83e725",
+      "disk": "f729a9af53773c2fd36132529b0e08db48650e92badc25ca5d7d926a77a7a6f8"
+    },
+    "app/api/storage/delete/route.ts": {
+      "generated": "2f15780a33724d1973f1add553a52945efd73afe325112b6b276b5c0ee929933",
+      "disk": "f38f0dd2a275c3bde99a16d9e639df71d343fdcb6a6774a186437b10362b7873"
+    },
+    "app/api/storage/files/route.ts": {
+      "generated": "484903fa397eae7ce2e1adecbf0afc40e13cfc63a717b4240a9d1439bcce6660",
+      "disk": "214026dfcfaad8698d7da4104b9f78bc711083f6a762c117386a2f6ebdac827f"
+    },
+    "app/api/storage/upload/route.ts": {
+      "generated": "f1918d763126020f5d0957f90a899e414ff9173301500b62fdd503045d908c33",
+      "disk": "f9b95c48a648d4e1e431a8126e5ed48d6aa9e583c0a027d9f7eef2b0f7e2ae3e"
+    },
+    "app/api/tasks/route.ts": {
+      "generated": "2e374ef020afa86f06bbe0c92bf913785b578eddc06c50804ce06becd78173dc",
+      "disk": "04dd7209d838db2e5f7b264a6f172ecd4cdb102f498c032951e54d37497abcea"
+    },
+    "app/api/tickets/route.ts": {
+      "generated": "65a5f7f9bbd22dbacfaecae20631fb79990ed4ce45555c7f63ed0b8e615d0802",
+      "disk": "6337a8b6a5836df362048cecf790b016bccd99141955aea5a8788f370717e765"
+    },
+    "app/api/whiteboards/route.ts": {
+      "generated": "15e3da6689d20a60efd4de5c0f40d74a454e007bc81944599206288707f50032",
+      "disk": "60b0b220dcc724919c525d45fa4800b4fc92444da061e2489ed9447386211248"
+    },
+    "app/api/workspaces/route.ts": {
+      "generated": "ede226397601239aee18a523c85a16843f7f9a3ac491d7e52dc8ef1853a9b131",
+      "disk": "c44b0a44c56282a73bbdc538417ca737c0525dbfa4769afc14e19405f7fc3669"
+    },
+    "app/ai/chat/page.tsx": {
+      "generated": "c569e755516f59f26204fabe5479f4a4af7e73590b988bd4974719a2a73ffc6e",
+      "disk": "f67df802de3f6aa2bcb8cec371f59a092e81225b0b5638831e92a5959643da39"
+    },
+    "app/analytics/page.tsx": {
+      "generated": "1535d65c5bb6e62efdaab4770e8bc0ff8aa5bbee83921be63f53dcefe3f8e80d",
+      "disk": "6be96967b18412fd311d58314a08935a4adb732bd5d93e08c3848f77d62d59ed"
+    },
+    "app/audit-logs/page.tsx": {
+      "generated": "4d2e82cc8dc6c87b3139387520b5756a2842d22221c577a9390065b0e4e9417a",
+      "disk": "5f3c492184e7bcb9567190433a6d8277fa19164927d7841064061772eea2631a"
+    },
+    "app/auth/login/page.tsx": {
+      "generated": "3a9f3ed9437b3be33ef5ace17425ccc1cced37786232f5eb76d4ebdac9d11a0c",
+      "disk": "1721391c40e5ddf830c4ce6813c6bfa4c03c78ef68b58be6e68a1ea2704cc45a"
+    },
+    "app/auth/reset-password/page.tsx": {
+      "generated": "817c7b710f10f56fe0b43b5e3c91a5f533ab32c5b3d7d32bea186f50f26d17bc",
+      "disk": "a2b6c38db510a61f1c5201a7c0837ebe16303c5794f7abd668bee2009651bba6"
+    },
+    "app/billing/page.tsx": {
+      "generated": "bf748e697ceabf93429275722dae3c969db4105d1045bba0bc5a7f56a7cb36eb",
+      "disk": "e53811c13023451c476cecde9e4ed3f0e57052950ff85dd197222c4e262fac8c"
+    },
+    "app/feedback/page.tsx": {
+      "generated": "748cd35ea17ae6329031a5003faf5dfc4703b3c41838b90f79072da430b6622d",
+      "disk": "317aa38c7b9ffb16ac4703f8196bebc7224feb5fb58020780e6898e91b199c69"
+    },
+    "app/documents/page.tsx": {
+      "generated": "37bcda8ef999040da44e46ec9abdcac5d01540b6228ca203e5f67e9b418a0e45",
+      "disk": "d8548f7e9845f95654503ee418df336846611a1c664bb2e309ec0f5ab4dfda21"
+    },
+    "app/kb/page.tsx": {
+      "generated": "e21da65a6702464ebd27f721122aad2eac5b4b15a10d00b275497844b69b7c08",
+      "disk": "24ae3c6134ef8ad31974b30b0bdf2dd2c0bcfb6b8cbb19e9e5d035434b03622a"
+    },
+    "app/notifications/page.tsx": {
+      "generated": "3901dfaf0eb2b2cbd70fafc2d953275f5424414ca3860b0c8183624d0903d817",
+      "disk": "2724c39f4fb85e5e926f9278c2e96a8c1649fbfc93ca0d60babb3f6e80955c40"
+    },
+    "app/organizations/page.tsx": {
+      "generated": "a6341311160b957c667498988fb25d6a46eff9b066deafd3a7e76fd4f211cf8f",
+      "disk": "2dc9dbd6dcfcf5704caa15f9bc0706d46be20e49096689c046f63afb5afda2ab"
+    },
+    "app/projects/page.tsx": {
+      "generated": "477c18f343e8b12204a85be18125270b7106966bda798a4a36a3b4d7f7481ccf",
+      "disk": "a88c8af8e097146a6b073708d9d0c52ac95fbb95083d30c76e56a7d167a375b3"
+    },
+    "app/rbac-admin/page.tsx": {
+      "generated": "7eadc81fbbd93a86432d29df9b2c6a3b5dc64a8b8d71fecb7025402cb626be26",
+      "disk": "dc8ce53d6963c9e081fbe6326fe95c1e4e56a30542d31533974d26d8c54a59d4"
+    },
+    "app/search/page.tsx": {
+      "generated": "f7e5f3f026ad38c681aaa3180b6ecdc034144ed597cb8a02569e98448631d7fa",
+      "disk": "6e19086b7ce00d6a427d0cf12fc86c86333e3a8ef55d7e76776219d7b48130ab"
+    },
+    "app/storage/page.tsx": {
+      "generated": "13ddb4eac407c6411ab6cc5baf03802794c142544bd9b9fe7ca3a872d8cb005d",
+      "disk": "7254c646a64659f6660cee903ebbca158c70ca131dc5455192e2b9b2813668d6"
+    },
+    "app/tasks/page.tsx": {
+      "generated": "6dde2e1814bc9da5d0106137d7d11e9ef033be98720486c5e8c004401af0eba1",
+      "disk": "7b69740e3b5b5277efb4e7e7b8ce46366da0490da8100c4e495f39a368765b91"
+    },
+    "app/tickets/page.tsx": {
+      "generated": "9bd2a406e310966c9d171ac76d8abc2e4598c2ebb62ba32760ae8fe12f285b25",
+      "disk": "dfc5a5ed17d9807619d073e42ae10acfd03767acfcfb109e07f060fdfe4e18ee"
+    },
+    "app/whiteboard/page.tsx": {
+      "generated": "47654365c736d9ca9ef2297107ffb6e11e0260ffc3733703aac4edb1a0ac96a3",
+      "disk": "ee6f4b6af79e31451aeb6add44a3b94b71b27eaf5cabed5ab1fd40466b5173d1"
+    },
+    "app/workspaces/page.tsx": {
+      "generated": "5d48ed66717fb7705307d0c941b6f4053b8f4459f18c5915dc9e9f64cdc516f8",
+      "disk": "45be467cc1945bb540426286194bc7c0854b1f7da51ce136fda3584b158de84f"
+    },
+    "package.json": {
+      "generated": "06a46b266012820bb8f634c390d586d529cf3f3df6992ba4798f2e8c15b028ae",
+      "disk": "06a46b266012820bb8f634c390d586d529cf3f3df6992ba4798f2e8c15b028ae"
+    },
+    "tsconfig.json": {
+      "generated": "5981c52debc5a5f73d88bb56eabe14ccb7e02ac38cec58c8fc77f57f29ca0597",
+      "disk": "5981c52debc5a5f73d88bb56eabe14ccb7e02ac38cec58c8fc77f57f29ca0597"
+    },
+    "postcss.config.js": {
+      "generated": "fa650b380adfabb151a0b352f7135e107e6352345f899060f1c5c231228f94bf",
+      "disk": "fa650b380adfabb151a0b352f7135e107e6352345f899060f1c5c231228f94bf"
+    },
+    "tailwind.config.ts": {
+      "generated": "7bad3266cff4d82659d2246408cfe33e6b67b70299ce787f59111509540a766f",
+      "disk": "bf95b1fcade752f3b7280e4c22844330c2db6cb62567aa3a0b9b44761628542c"
+    },
+    "next.config.mjs": {
+      "generated": "73f18ea67787ab9d40bedbf6600bc6f822dfc31347374a54677d67a36567b20b",
+      "disk": "73f18ea67787ab9d40bedbf6600bc6f822dfc31347374a54677d67a36567b20b"
+    },
+    ".env.local": {
+      "generated": "a5924f857142242c18953fe006389926781048d90b2a8beac47d0d16232a4cf4",
+      "disk": "a5924f857142242c18953fe006389926781048d90b2a8beac47d0d16232a4cf4"
+    },
+    "app/globals.css": {
+      "generated": "ecbfe8b9473e9fbbb584a597760495c2fd9f8512bb757199db8d7d699036c0a0",
+      "disk": "ecbfe8b9473e9fbbb584a597760495c2fd9f8512bb757199db8d7d699036c0a0"
+    },
+    "app/layout.tsx": {
+      "generated": "56971b17c1956847fd5531b0bd25078eedd225711b9ec3f5a2ac4c605f87509a",
+      "disk": "116785263e019e47c5aadbd65d324010cc1974f08fb31026971166b7d3dfb4fb"
+    },
+    "app/page.tsx": {
+      "generated": "fb75c3f2ce49b09d9cb6cd2fab571894d834f9f0bbd3866433769fd9edcf6017",
+      "disk": "1fb575a698065600a62a7c58c6ba9312dee80eeaf693541f56941e367c7dd8c4"
+    },
+    "config/extensions.ts": {
+      "generated": "baf249b9bbdba3559a8f7f12fe218de6dfa17a9088227946e71b36ab0b345b05",
+      "disk": "51a395168f91040ef6db7f32c727e40036c8058a039717b5d245391b057bd61a"
+    },
+    "generated/lib/extensions.ts": {
+      "generated": "c2c748160ec3e92361313379ff416a0d451ae1cd3aba63889cf30e499a47fca7",
+      "disk": "c2c748160ec3e92361313379ff416a0d451ae1cd3aba63889cf30e499a47fca7"
+    },
+    "config/permissions.ts": {
+      "generated": "b07a21fc233f6609429498838fb4197edab3c85cc28b81ef96a299563e22c0bc",
+      "disk": "d29438c4806aac401274ba478198ca4f43f1bc7b0475503ee82bfc5132e783ac"
+    }
+  }
+}

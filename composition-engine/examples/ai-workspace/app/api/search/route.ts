@@ -1,9 +1,11 @@
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+// Generated route: /api/search
 import { NextResponse } from 'next/server';
+import { createSupabaseServerClient } from '../../../generated/lib/supabase/server';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = await createSupabaseServerClient();
   try {
     const { searchParams } = new URL(request.url);
     const query = searchParams.get('q') || '';

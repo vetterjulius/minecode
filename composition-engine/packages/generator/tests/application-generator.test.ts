@@ -40,6 +40,7 @@ const samplePlan: CompositionPlan = {
       path: '/auth/login',
       method: 'POST',
       description: 'Login endpoint',
+      behavior: 'auth.login',
     },
   ],
   ui: [

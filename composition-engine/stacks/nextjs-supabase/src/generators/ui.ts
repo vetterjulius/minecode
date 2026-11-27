@@ -127,7 +127,7 @@ export default function BillingSettingsPage() {
       const res = await fetch('/api/billing/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ organizationId, priceId }),
+        body: JSON.stringify({ organization_id: organizationId, price_id: priceId }),
       });
       const data = await res.json();
       if (data.success && data.url) {
@@ -188,6 +188,8 @@ export default function OrganizationsPage() {
   const [inviteOrgId, setInviteOrgId] = useState('');
   const [inviteRole, setInviteRole] = useState('member');
   const [inviteStatus, setInviteStatus] = useState('');
+  const [newOrgName, setNewOrgName] = useState('');
+  const [createStatus, setCreateStatus] = useState('');
   const [loading, setLoading] = useState(true);
 
   const fetchOrgs = async () => {
@@ -195,7 +197,7 @@ export default function OrganizationsPage() {
       const res = await fetch('/api/organizations');
       const data = await res.json();
       if (data.success) {
-        setOrganizations(data.organizations || []);
+        setOrganizations(data.data || []);
       }
     } catch (err: unknown) {
       console.error(err);
@@ -208,6 +210,29 @@ export default function OrganizationsPage() {
     fetchOrgs();
   }, []);
 
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setCreateStatus('Creating organization...');
+    try {
+      const res = await fetch('/api/organizations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newOrgName }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setCreateStatus('Organization created. You are its owner.');
+        setNewOrgName('');
+        fetchOrgs();
+      } else {
+        setCreateStatus('Error: ' + data.error);
+      }
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      setCreateStatus('Failed: ' + message);
+    }
+  };
+
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
     setInviteStatus('Sending invitation...');
@@ -215,7 +240,7 @@ export default function OrganizationsPage() {
       const res = await fetch('/api/organizations/invite', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: inviteEmail, organizationId: inviteOrgId, role: inviteRole }),
+        body: JSON.stringify({ email: inviteEmail, organization_id: inviteOrgId, role: inviteRole }),
       });
       const data = await res.json();
       if (data.success) {
@@ -238,7 +263,19 @@ export default function OrganizationsPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className="md:col-span-1 p-6 border rounded-xl bg-card space-y-4 shadow-sm h-fit">
+        <div className="md:col-span-1 space-y-8">
+        <div className="p-6 border rounded-xl bg-card space-y-4 shadow-sm h-fit">
+          <h2 className="text-xl font-bold">Create Organization</h2>
+          <form onSubmit={handleCreate} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Name</label>
+              <input type="text" value={newOrgName} onChange={e => setNewOrgName(e.target.value)} required className="w-full p-2 border rounded-md" />
+            </div>
+            <button type="submit" className="w-full p-2 bg-foreground text-background font-bold rounded-md hover:opacity-90">Create</button>
+            {createStatus && <p className="text-center text-sm font-semibold">{createStatus}</p>}
+          </form>
+        </div>
+        <div className="p-6 border rounded-xl bg-card space-y-4 shadow-sm h-fit">
           <h2 className="text-xl font-bold">Invite Member</h2>
           <form onSubmit={handleInvite} className="space-y-4">
             <div>
@@ -259,6 +296,7 @@ export default function OrganizationsPage() {
             <button type="submit" className="w-full p-2 bg-foreground text-background font-bold rounded-md hover:opacity-90">Invite User</button>
             {inviteStatus && <p className="text-center text-sm font-semibold">{inviteStatus}</p>}
           </form>
+        </div>
         </div>
 
         <div className="md:col-span-2 p-6 border rounded-xl bg-card space-y-4 shadow-sm">
@@ -301,16 +339,15 @@ export default function OrganizationsPage() {
           files[`app/${normalizedRoute}/page.tsx`] =
             `import React, { useState, useEffect } from 'react';
 
-interface RbacPermission {
-  id: string;
-  name: string;
+interface RbacGrant {
+  role: string;
+  permission: string;
 }
 
 interface RbacRole {
-  id: string;
   name: string;
   description?: string;
-  permission?: RbacPermission[];
+  role_permission?: RbacGrant[];
 }
 
 export default function RbacAdminPage() {
@@ -322,7 +359,7 @@ export default function RbacAdminPage() {
       const res = await fetch('/api/rbac/roles');
       const data = await res.json();
       if (data.success) {
-        setRoles(data.roles || []);
+        setRoles(data.data || []);
       }
     } catch (err: unknown) {
       console.error(err);
@@ -351,18 +388,18 @@ export default function RbacAdminPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
             {roles.map((role) => (
-              <div key={role.id} className="p-4 border rounded-xl bg-muted space-y-3 shadow-sm">
+              <div key={role.name} className="p-4 border rounded-xl bg-muted space-y-3 shadow-sm">
                 <div>
                   <h3 className="text-lg font-bold text-foreground">{role.name.toUpperCase()}</h3>
                   <p className="text-xs text-muted-foreground">{role.description || 'No description provided.'}</p>
                 </div>
-                {role.permission && role.permission.length > 0 && (
+                {role.role_permission && role.role_permission.length > 0 && (
                   <div className="space-y-1">
                     <p className="font-semibold text-xs text-muted-foreground">Granted Permissions:</p>
                     <div className="flex flex-wrap gap-1.5">
-                      {role.permission.map((p) => (
-                        <span key={p.id} className="px-2 py-0.5 text-xs font-mono font-bold rounded bg-foreground text-background shadow-sm">
-                          {p.name}
+                      {role.role_permission.map((p) => (
+                        <span key={p.permission} className="px-2 py-0.5 text-xs font-mono font-bold rounded bg-foreground text-background shadow-sm">
+                          {p.permission}
                         </span>
                       ))}
                     </div>
@@ -471,7 +508,7 @@ export default function StorageDashboardPage() {
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Organization ID (Optional)</label>
-              <input type="text" name="organizationId" className="w-full text-sm border rounded p-2" placeholder="uuid" />
+              <input type="text" name="organization_id" className="w-full text-sm border rounded p-2" placeholder="uuid" />
             </div>
             <button type="submit" className="w-full bg-foreground text-background py-2 rounded font-bold hover:opacity-95 text-sm">
               Upload
@@ -558,7 +595,7 @@ export default function NotificationCenterPage() {
       const res = await fetch('/api/notifications/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, channel, title, content }),
+        body: JSON.stringify({ user_id: userId, channel, title, content }),
       });
       const data = await res.json();
       if (data.success) {
@@ -869,7 +906,7 @@ export default function ChatInterfacePage() {
       const res = await fetch('/api/ai/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId, content: input }),
+        body: JSON.stringify({ session_id: sessionId, content: input }),
       });
       const data = await res.json();
       if (data.success && data.reply) {
@@ -971,7 +1008,7 @@ export default function WhiteboardCanvasPage() {
       const res = await fetch('/api/whiteboards', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, organizationId: orgId }),
+        body: JSON.stringify({ name, organization_id: orgId }),
       });
       const data = await res.json();
       if (data.success) {
@@ -1087,7 +1124,7 @@ export default function TicketInboxPage() {
       const res = await fetch('/api/tickets', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, priority, organizationId: orgId }),
+        body: JSON.stringify({ title, priority, organization_id: orgId }),
       });
       const data = await res.json();
       if (data.success) {
@@ -1187,7 +1224,6 @@ export default function FeedbackDashboardPage() {
   const [feedbacks, setFeedbacks] = useState<CustomerFeedbackRecord[]>([]);
   const [rating, setRating] = useState('5');
   const [comment, setComment] = useState('');
-  const [userId, setUserId] = useState('');
   const [orgId, setOrgId] = useState('');
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(true);
@@ -1217,7 +1253,7 @@ export default function FeedbackDashboardPage() {
       const res = await fetch('/api/feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ rating, comment, userId, organizationId: orgId }),
+        body: JSON.stringify({ rating: Number(rating), comment, organization_id: orgId }),
       });
       const data = await res.json();
       if (data.success) {
@@ -1260,10 +1296,6 @@ export default function FeedbackDashboardPage() {
             <div>
               <label className="block font-medium mb-1">Optional Comments</label>
               <textarea value={comment} onChange={e => setComment(e.target.value)} rows={3} className="w-full border rounded p-2" placeholder="Tell us how we can improve..." />
-            </div>
-            <div>
-              <label className="block font-medium mb-1">User ID</label>
-              <input type="text" value={userId} onChange={e => setUserId(e.target.value)} required className="w-full border rounded p-2" placeholder="uuid" />
             </div>
             <div>
               <label className="block font-medium mb-1">Organization ID</label>
@@ -1331,7 +1363,7 @@ export default function AnalyticsDashboardPage() {
     setLoading(true);
     try {
       const url = orgId
-        ? \`/api/analytics/metrics?organizationId=\${encodeURIComponent(orgId)}\`
+        ? \`/api/analytics/metrics?organization_id=\${encodeURIComponent(orgId)}\`
         : '/api/analytics/metrics';
       const res = await fetch(url);
       const data = await res.json();
@@ -1571,7 +1603,7 @@ export default function WorkspacesPage() {
       const res = await fetch('/api/workspaces', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, organizationId: orgId }),
+        body: JSON.stringify({ name, organization_id: orgId }),
       });
       const data = await res.json();
       if (data.success) {
@@ -1689,7 +1721,7 @@ export default function ProjectsPage() {
       const res = await fetch('/api/projects', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, description, organizationId: orgId, workspaceId }),
+        body: JSON.stringify({ name, description, organization_id: orgId, workspace_id: workspaceId }),
       });
       const data = await res.json();
       if (data.success) {
@@ -1818,7 +1850,7 @@ export default function TasksPage() {
       const res = await fetch('/api/tasks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, description, projectId, priority }),
+        body: JSON.stringify({ title, description, project_id: projectId, priority }),
       });
       const data = await res.json();
       if (data.success) {
@@ -1953,7 +1985,7 @@ export default function DocumentsPage() {
       const res = await fetch('/api/documents', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, content: contentBody, projectId }),
+        body: JSON.stringify({ title, content: contentBody, project_id: projectId }),
       });
       const data = await res.json();
       if (data.success) {

@@ -1,20 +1,37 @@
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+// Generated route: /api/rbac/roles
 import { NextResponse } from 'next/server';
+import { createSupabaseServerClient } from '../../../../generated/lib/supabase/server';
 
-/**
- * List available system roles.
- * Path: /api/rbac/roles
- */
-export async function GET(_request: Request) {
-  const supabase = createRouteHandlerClient({ cookies });
+export const dynamic = 'force-dynamic';
+
+function crudError(error: unknown) {
+  const code = (error as { code?: string } | null)?.code;
+  const message =
+    error instanceof Error
+      ? error.message
+      : ((error as { message?: string })?.message ?? String(error));
+  const status = code === '42501' ? 403 : 400;
+  return NextResponse.json({ success: false, error: message }, { status });
+}
+
+export async function GET(request: Request) {
+  const supabase = await createSupabaseServerClient();
   try {
-    const { data, error } = await supabase.from('role').select('*, permission(*)');
+    const params = new URL(request.url).searchParams;
+    let query = supabase
+      .from('role')
+      .select('*, role_permission(*)')
+      .order('name', { ascending: true });
 
+    for (const column of ['name', 'description']) {
+      const value = params.get(column);
+      if (value !== null) query = query.eq(column, value);
+    }
+
+    const { data, error } = await query;
     if (error) throw error;
-    return NextResponse.json({ success: true, roles: data });
+    return NextResponse.json({ success: true, data });
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    return NextResponse.json({ success: false, error: message }, { status: 500 });
+    return crudError(error);
   }
 }

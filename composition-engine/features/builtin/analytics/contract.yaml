@@ -33,6 +33,9 @@ provides:
       access:
         scope: tenant
         field: organizationId
+        permissions:
+          read: analytics.view
+          write: analytics.view
   permissions:
     - name: analytics.view
       description: View metric analytics dashboards
@@ -41,6 +44,10 @@ provides:
       path: /api/analytics/metrics
       method: GET
       description: Fetch organization usage metric logs.
+      crud:
+        entity: Metric
+        operation: list
+      permission: analytics.view
   ui:
     - name: AnalyticsDashboard
       route: analytics

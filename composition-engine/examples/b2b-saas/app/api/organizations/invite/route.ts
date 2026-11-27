@@ -1,15 +1,17 @@
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+// Generated route: /api/organizations/invite
 import { NextResponse } from 'next/server';
+import { createSupabaseServerClient } from '../../../../generated/lib/supabase/server';
+
+export const dynamic = 'force-dynamic';
 
 /**
  * Invite a new member via email.
  * Path: /api/organizations/invite
  */
 export async function POST(request: Request) {
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = await createSupabaseServerClient();
   try {
-    const { email, organizationId, role } = await request.json();
+    const { email, organization_id: organizationId, role } = await request.json();
     const token = crypto.randomUUID();
     const expiresAt = new Date(Date.now() + 259200 * 1000).toISOString();
 
