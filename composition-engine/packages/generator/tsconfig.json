@@ -8,6 +8,7 @@
   "references": [
     { "path": "../core" },
     { "path": "../composer" },
-    { "path": "../../stacks/nextjs-supabase" }
+    { "path": "../../stacks/nextjs-supabase" },
+    { "path": "../../stacks/openapi" }
   ]
 }

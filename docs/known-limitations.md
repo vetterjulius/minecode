@@ -4,7 +4,7 @@ This document outlines the known technical and architectural limitations of the 
 
 ## 1. Single Stack Adapter Support
 
-Currently, the system only supports the `nextjs-supabase` stack adapter. Generating applications using alternative frameworks (such as Vue, Svelte, Django, or databases like MongoDB or MySQL) is not supported in this release.
+Two stacks ship: `nextjs-supabase` (full application) and `openapi` (API specification only); see `docs/stacks.md`. Other frameworks (Vue, Svelte, Django) or databases (MongoDB, MySQL) are not supported yet. Builtin features are verified on `nextjs-supabase`; on `openapi` they are only documented.
 
 ## 2. Local-Only File-System Registry
 

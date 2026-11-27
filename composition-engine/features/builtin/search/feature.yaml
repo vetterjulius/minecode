@@ -7,6 +7,7 @@ maintainer:
   type: builtin
 stack:
   - nextjs-supabase
+  - openapi
 category: Data
 modules:
   - name: 'database/0007_search_schema.sql'

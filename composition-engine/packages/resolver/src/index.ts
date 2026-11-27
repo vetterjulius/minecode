@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import semver from 'semver';
-import { Blueprint, BlueprintValidationResult } from '@minecode/core';
+import { Blueprint, BlueprintValidationResult, DEFAULT_STACK_ID } from '@minecode/core';
 import { FileSystemRegistry, getRegistryInfo } from '@minecode/registry';
 
 export {
@@ -128,8 +128,8 @@ export class BlueprintValidator {
 
     let stackId = blueprint.stackId;
     if (!stackId) {
-      stackId = 'nextjs-supabase';
-      warnings.push(`Blueprint does not specify a stack. Defaulting to 'nextjs-supabase'.`);
+      stackId = DEFAULT_STACK_ID;
+      warnings.push(`Blueprint does not specify a stack. Defaulting to '${DEFAULT_STACK_ID}'.`);
     }
 
     if (blueprint.features) {

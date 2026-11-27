@@ -14,10 +14,11 @@ import {
   findMissingBehaviors,
 } from '@minecode/core';
 import { NextJsSupabaseAdapter } from '@minecode/nextjs-supabase';
+import { OpenApiAdapter } from '@minecode/openapi';
 
 /** Stacks that ship with Minecode. */
 export function createDefaultStackRegistry(): StackRegistry {
-  return new StackRegistry().register(new NextJsSupabaseAdapter());
+  return new StackRegistry().register(new NextJsSupabaseAdapter()).register(new OpenApiAdapter());
 }
 
 export const LOCK_FILE = 'app.lock.json';

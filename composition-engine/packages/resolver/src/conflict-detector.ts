@@ -1,4 +1,4 @@
-import { Feature } from '@minecode/core';
+import { DEFAULT_STACK_ID, Feature } from '@minecode/core';
 
 export class FeatureConflictError extends Error {
   public readonly conflicts: string[];
@@ -17,9 +17,9 @@ export class FeatureConflictDetector {
    * Scans a list of resolved features for conflicts.
    * Throws FeatureConflictError if any conflicts are detected.
    */
-  public detect(features: Feature[], stackId: string = 'nextjs-supabase'): void {
+  public detect(features: Feature[], stackId: string = DEFAULT_STACK_ID): void {
     const conflicts: string[] = [];
-    const resolvedStackId = stackId || 'nextjs-supabase';
+    const resolvedStackId = stackId || DEFAULT_STACK_ID;
 
     // 1. Check for duplicate capabilities (incompatible providers)
     // Map of capability -> list of feature IDs that provide it
