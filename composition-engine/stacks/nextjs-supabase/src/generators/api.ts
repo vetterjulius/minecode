@@ -1,4 +1,10 @@
 import { SubGenerator, CompositionPlan } from '@minecode/core';
+import {
+  STRIPE_SIGNATURE_LIB,
+  STRIPE_SIGNATURE_LIB_PATH,
+  buildCheckoutRoute,
+  buildWebhookRoute,
+} from './billing.js';
 
 export class NextjsSupabaseApiSubGenerator implements SubGenerator {
   public readonly id = 'nextjs-supabase-api';
@@ -97,60 +103,12 @@ export async function POST(request: Request) {
       }
       // 4. Billing: Checkout
       else if (fullRoutePath === 'api/billing/checkout') {
-        files[`app/${fullRoutePath}/route.ts`] = `import { NextResponse } from 'next/server';
-
-/**
- * ${desc}
- * Path: /${fullRoutePath}
- */
-export async function POST(_request: Request) {
-  try {
-    const checkoutSessionUrl = \`https://checkout.stripe.com/pay/session_mock_\${crypto.randomUUID()}\`;
-    return NextResponse.json({ success: true, url: checkoutSessionUrl });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    return NextResponse.json({ success: false, error: message }, { status: 400 });
-  }
-}
-`;
+        files[`app/${fullRoutePath}/route.ts`] = buildCheckoutRoute(desc, fullRoutePath);
       }
       // 5. Billing: Webhook
       else if (fullRoutePath === 'api/billing/webhook') {
-        files[`app/${fullRoutePath}/route.ts`] =
-          `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
-import { NextResponse } from 'next/server';
-
-/**
- * ${desc}
- * Path: /${fullRoutePath}
- */
-export async function POST(request: Request) {
-  const supabase = createRouteHandlerClient({ cookies });
-  try {
-    const payload = await request.json();
-    const eventType = payload.type;
-
-    if (eventType === 'checkout.session.completed') {
-      const session = payload.data.object;
-      const organizationId = session.metadata?.organizationId;
-      const stripeCustomerId = session.customer;
-
-      await supabase
-        .from('stripecustomer')
-        .insert({
-          organizationId,
-          stripeCustomerId
-        });
-    }
-
-    return NextResponse.json({ success: true, received: true });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    return NextResponse.json({ success: false, error: message }, { status: 400 });
-  }
-}
-`;
+        files[`app/${fullRoutePath}/route.ts`] = buildWebhookRoute(desc, fullRoutePath);
+        files[STRIPE_SIGNATURE_LIB_PATH] = STRIPE_SIGNATURE_LIB;
       }
       // 6. Orgs: Invite
       else if (fullRoutePath === 'api/organizations/invite') {

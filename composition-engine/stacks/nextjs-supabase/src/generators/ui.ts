@@ -1,4 +1,5 @@
 import { SubGenerator, CompositionPlan } from '@minecode/core';
+import { ensureUseClientDirectives } from './client-directive.js';
 
 export class NextjsSupabaseUiSubGenerator implements SubGenerator {
   public readonly id = 'nextjs-supabase-ui';
@@ -2083,6 +2084,6 @@ export function ${name}() {
       }
     }
 
-    return files;
+    return ensureUseClientDirectives(files);
   }
 }

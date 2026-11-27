@@ -1,25 +1,36 @@
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
+import { verifyStripeSignature } from '../../../../generated/lib/billing/verify-stripe-signature';
 
 /**
  * Stripe secure webhook endpoint handler.
  * Path: /api/billing/webhook
+ * Requires STRIPE_WEBHOOK_SECRET; requests without a valid Stripe signature are rejected.
  */
 export async function POST(request: Request) {
+  const secret = process.env.STRIPE_WEBHOOK_SECRET;
+  if (!secret) {
+    return NextResponse.json(
+      { success: false, error: 'STRIPE_WEBHOOK_SECRET is not configured' },
+      { status: 503 }
+    );
+  }
+
+  const rawBody = await request.text();
+  if (!verifyStripeSignature(rawBody, request.headers.get('stripe-signature'), secret)) {
+    return NextResponse.json({ success: false, error: 'Invalid signature' }, { status: 400 });
+  }
+
   const supabase = createRouteHandlerClient({ cookies });
   try {
-    const payload = await request.json();
-    const eventType = payload.type;
+    const payload = JSON.parse(rawBody);
 
-    if (eventType === 'checkout.session.completed') {
+    if (payload.type === 'checkout.session.completed') {
       const session = payload.data.object;
-      const organizationId = session.metadata?.organizationId;
-      const stripeCustomerId = session.customer;
-
       await supabase.from('stripecustomer').insert({
-        organizationId,
-        stripeCustomerId,
+        organizationId: session.metadata?.organizationId,
+        stripeCustomerId: session.customer,
       });
     }
 
