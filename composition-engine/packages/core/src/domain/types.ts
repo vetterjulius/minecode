@@ -36,17 +36,46 @@ export interface Dependency {
   optional?: boolean;
 }
 
+export type ReferentialAction = 'cascade' | 'restrict' | 'set null';
+
+export interface FieldReference {
+  entity?: string;
+  external?: string;
+  column?: string;
+  onDelete?: ReferentialAction;
+}
+
+export type GeneratedValue = 'uuid' | 'now' | 'auth-user';
+
 export interface EntityField {
   name: string;
   type: string;
   required?: boolean;
   description?: string;
+  references?: FieldReference;
+  generate?: GeneratedValue;
+  default?: string | number | boolean;
+  unique?: boolean;
+  primaryKey?: boolean;
+  indexed?: boolean;
+}
+
+export type AccessScope = 'tenant' | 'owner' | 'authenticated-read' | 'private';
+
+export type WriteMode = 'members' | 'insert-only' | 'server-only';
+
+export interface EntityAccess {
+  scope: AccessScope;
+  field?: string;
+  via?: string;
+  writes?: WriteMode;
 }
 
 export interface EntityDefinition {
   name: string;
   fields?: EntityField[];
   description?: string;
+  access?: EntityAccess;
 }
 
 export interface EventDefinition {
@@ -118,6 +147,7 @@ export interface DatabaseArtifact {
   entityName: string;
   fields: EntityField[];
   description?: string;
+  access?: EntityAccess;
 }
 
 export interface ApiArtifact {

@@ -3,51 +3,64 @@ provides:
     - notifications
   entities:
     - name: Notification
-      description: 'Notification tracking and status'
+      description: Notification tracking and status
       fields:
         - name: id
           type: uuid
           required: true
-          description: 'Primary key'
+          description: Primary key
+          generate: uuid
         - name: userId
           type: uuid
           required: true
-          description: 'Reference to User'
+          description: Reference to User
+          references:
+            entity: Profile
+            onDelete: cascade
         - name: channel
           type: string
           required: true
-          description: 'Notification delivery channel (email, sms, slack)'
+          description: Notification delivery channel (email, sms, slack)
         - name: title
           type: string
           required: true
-          description: 'Notification title or header'
+          description: Notification title or header
         - name: content
           type: string
           required: true
-          description: 'Notification body text'
+          description: Notification body text
         - name: status
           type: string
           required: true
-          description: 'Delivery status (pending, sent, failed)'
+          description: Delivery status (pending, sent, failed)
+          default: pending
         - name: createdAt
           type: timestamp
           required: true
-          description: 'Timestamp of notification'
+          description: Timestamp of notification
+          generate: now
+      access:
+        scope: owner
+        field: userId
   permissions:
     - name: notifications.read
-      description: 'Read notifications history'
+      description: Read notifications history
     - name: notifications.write
-      description: 'Send and manage notifications'
+      description: Send and manage notifications
   api:
+    - name: ListNotifications
+      path: /api/notifications
+      method: GET
+      description: List notifications of the current user.
     - name: SendNotification
       path: /api/notifications/send
       method: POST
-      description: 'Send a new notification.'
+      description: Send a new notification.
   ui:
     - name: NotificationCenter
       route: notifications
       slot: main
-      description: 'User notification inbox UI.'
+      description: User notification inbox UI.
 requires:
   features:
     - database

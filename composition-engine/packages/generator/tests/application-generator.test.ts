@@ -93,6 +93,7 @@ const samplePlan: CompositionPlan = {
       name: '0001_init.sql',
       type: 'database',
       description: 'Database initial migration',
+      content: 'CREATE EXTENSION IF NOT EXISTS "pgcrypto";\n',
     },
   ],
   extensionPoints: [],
@@ -144,8 +145,11 @@ test('test_Generate_ValidCompositionPlan_SeparatesGeneratedAndConfigAndAppFiles'
   const componentContent = fs.readFileSync(componentPath, 'utf8');
   expect(componentContent).toContain('export function LoginForm()');
 
-  const migrationPath = path.join(tempDir, 'supabase/migrations/0001_init.sql');
-  const tableMigrationPath = path.join(tempDir, 'supabase/migrations/user_table.sql');
+  const migrationPath = path.join(tempDir, 'supabase/migrations/20260101000000_init.sql');
+  const tableMigrationPath = path.join(
+    tempDir,
+    'supabase/migrations/20260101000001_create_user.sql'
+  );
   expect(fs.existsSync(migrationPath)).toBe(true);
   expect(fs.existsSync(tableMigrationPath)).toBe(true);
 });

@@ -44,9 +44,28 @@ export function verifyStripeSignature(
 }
 `;
 
-function relativeLibImport(routePath: string): string {
+export const SUPABASE_ADMIN_LIB_PATH = 'lib/supabase/admin.ts';
+
+export const SUPABASE_ADMIN_LIB = `import { createClient } from '@supabase/supabase-js';
+
+/**
+ * Service-role client for trusted server code (webhooks, background jobs).
+ * It bypasses row level security: never import it from client components
+ * and never expose the service role key to the browser.
+ */
+export function createAdminClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) {
+    throw new Error('NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required');
+  }
+  return createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
+}
+`;
+
+function generatedLibImport(routePath: string, lib: string): string {
   const depth = routePath.split('/').length + 1;
-  return `${'../'.repeat(depth)}generated/lib/billing/verify-stripe-signature`;
+  return `${'../'.repeat(depth)}generated/lib/${lib}`;
 }
 
 export function buildCheckoutRoute(description: string, routePath: string): string {
@@ -67,15 +86,15 @@ export async function POST(_request: Request) {
 }
 
 export function buildWebhookRoute(description: string, routePath: string): string {
-  return `import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
-import { NextResponse } from 'next/server';
-import { verifyStripeSignature } from '${relativeLibImport(routePath)}';
+  return `import { NextResponse } from 'next/server';
+import { createAdminClient } from '${generatedLibImport(routePath, 'supabase/admin')}';
+import { verifyStripeSignature } from '${generatedLibImport(routePath, 'billing/verify-stripe-signature')}';
 
 /**
  * ${description}
  * Path: /${routePath}
- * Requires STRIPE_WEBHOOK_SECRET; requests without a valid Stripe signature are rejected.
+ * Requires STRIPE_WEBHOOK_SECRET and SUPABASE_SERVICE_ROLE_KEY. Requests without a valid
+ * Stripe signature are rejected before the body is parsed.
  */
 export async function POST(request: Request) {
   const secret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -91,22 +110,35 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: false, error: 'Invalid signature' }, { status: 400 });
   }
 
-  const supabase = createRouteHandlerClient({ cookies });
+  let payload;
   try {
-    const payload = JSON.parse(rawBody);
+    payload = JSON.parse(rawBody);
+  } catch {
+    return NextResponse.json({ success: false, error: 'Invalid JSON' }, { status: 400 });
+  }
 
-    if (payload.type === 'checkout.session.completed') {
-      const session = payload.data.object;
-      await supabase.from('stripecustomer').insert({
-        organizationId: session.metadata?.organizationId,
-        stripeCustomerId: session.customer,
-      });
-    }
+  if (payload.type !== 'checkout.session.completed') {
+    return NextResponse.json({ success: true, received: true, ignored: true });
+  }
 
+  const session = payload.data?.object;
+  const organizationId = session?.metadata?.organizationId;
+  if (!organizationId || !session?.customer) {
+    return NextResponse.json({ success: true, received: true, ignored: true });
+  }
+
+  try {
+    const { error } = await createAdminClient()
+      .from('stripe_customer')
+      .upsert(
+        { organization_id: organizationId, stripe_customer_id: session.customer },
+        { onConflict: 'stripe_customer_id' }
+      );
+    if (error) throw error;
     return NextResponse.json({ success: true, received: true });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    return NextResponse.json({ success: false, error: message }, { status: 400 });
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
   }
 }
 `;

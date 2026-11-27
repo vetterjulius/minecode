@@ -1,5 +1,5 @@
 import { StackAdapter, CompositionPlan, SubGenerator } from '@minecode/core';
-import { SupabaseDatabaseSubGenerator } from './generators/database.js';
+import { SupabaseDatabaseSubGenerator } from './generators/database/index.js';
 import { NextjsSupabaseApiSubGenerator } from './generators/api.js';
 import { NextjsSupabaseUiSubGenerator } from './generators/ui.js';
 import { NextjsNavigationSubGenerator } from './generators/navigation.js';
@@ -52,7 +52,7 @@ export class NextJsSupabaseAdapter implements StackAdapter {
   }
 }
 
-export * from './generators/database.js';
+export * from './generators/database/index.js';
 export * from './generators/api.js';
 export * from './generators/ui.js';
 export * from './generators/navigation.js';

@@ -7,7 +7,7 @@ interface SystemNotification {
   title: string;
   channel: string;
   content: string;
-  userid: string;
+  user_id: string;
   status: string;
 }
 
@@ -145,7 +145,7 @@ export default function NotificationCenterPage() {
                   </div>
                   <p className="text-muted-foreground">{notif.content}</p>
                   <p className="text-xs text-muted-foreground/80 font-mono">
-                    To: {notif.userid} • Status: {notif.status}
+                    To: {notif.user_id} • Status: {notif.status}
                   </p>
                 </div>
               ))}

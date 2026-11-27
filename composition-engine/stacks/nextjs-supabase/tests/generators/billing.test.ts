@@ -4,6 +4,7 @@ import ts from 'typescript';
 import { describe, test, expect } from 'vitest';
 import {
   STRIPE_SIGNATURE_LIB,
+  SUPABASE_ADMIN_LIB,
   buildCheckoutRoute,
   buildWebhookRoute,
 } from '../../src/generators/billing.js';
@@ -90,5 +91,45 @@ describe('billing route templates', () => {
     const route = buildCheckoutRoute('d', 'api/billing/checkout');
     expect(route).toContain('status: 501');
     expect(route).not.toContain('session_mock');
+  });
+});
+
+describe('webhook persistence', () => {
+  const route = buildWebhookRoute('d', 'api/billing/webhook');
+
+  test('test_BuildWebhookRoute_Generated_WritesWithAdminClientNotUserSession', () => {
+    expect(route).toContain('createAdminClient()');
+    expect(route).not.toContain('createRouteHandlerClient');
+    expect(route).toContain("from '../../../../generated/lib/supabase/admin'");
+  });
+
+  test('test_BuildWebhookRoute_Generated_UpsertsOnStripeCustomerIdForRetries', () => {
+    expect(route).toContain(".from('stripe_customer')");
+    expect(route).toContain('.upsert(');
+    expect(route).toContain("onConflict: 'stripe_customer_id'");
+  });
+
+  test('test_BuildWebhookRoute_Generated_UsesSnakeCaseColumns', () => {
+    expect(route).toContain('organization_id: organizationId');
+    expect(route).toContain('stripe_customer_id: session.customer');
+  });
+
+  test('test_BuildWebhookRoute_Generated_DatabaseFailureReturns500SoStripeRetries', () => {
+    expect(route).toMatch(/status: 500/);
+  });
+
+  test('test_BuildWebhookRoute_Generated_InvalidJsonReturns400', () => {
+    expect(route).toContain("error: 'Invalid JSON'");
+  });
+
+  test('test_BuildWebhookRoute_Generated_OtherEventTypesAreAcknowledged', () => {
+    expect(route).toContain("payload.type !== 'checkout.session.completed'");
+    expect(route).toContain('ignored: true');
+  });
+
+  test('test_SupabaseAdminLib_Generated_RequiresServiceRoleKeyAndDoesNotPersistSession', () => {
+    expect(SUPABASE_ADMIN_LIB).toContain('SUPABASE_SERVICE_ROLE_KEY');
+    expect(SUPABASE_ADMIN_LIB).toContain('persistSession: false');
+    expect(SUPABASE_ADMIN_LIB).not.toContain('NEXT_PUBLIC_SUPABASE_SERVICE');
   });
 });

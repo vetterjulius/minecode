@@ -43,29 +43,47 @@ stackCompatibility:
 Declares what capabilities the feature provides and any structural artifacts it registers (e.g., database tables, API handlers, UI routes, navigation settings, permissions, custom SQL migrations, and extension points).
 
 ```yaml
-# Example contract
-database:
-  - id: 'auth:User'
-    entityName: 'User'
-    fields:
-      - name: 'id'
-        type: 'uuid'
-        required: true
-      - name: 'email'
-        type: 'string'
-        required: true
-ui:
-  - id: 'auth:LoginForm'
-    name: 'LoginForm'
-    component: 'LoginForm.tsx'
-    slot: 'auth-slot'
-navigation:
-  - id: 'nav:dashboard'
-    name: 'dashboard'
-    label: 'Dashboard'
-    path: '/dashboard'
-    order: 1
+# Example contract (see composition-engine/features/builtin/* for real ones)
+provides:
+  capabilities:
+    - tickets
+  entities:
+    - name: Ticket
+      description: Support ticket of an organization
+      fields:
+        - name: id
+          type: uuid
+          required: true
+          generate: uuid
+        - name: organizationId
+          type: uuid
+          required: true
+          references: { entity: Organization, onDelete: cascade }
+        - name: title
+          type: string
+          required: true
+        - name: createdAt
+          type: timestamp
+          required: true
+          generate: now
+      access:
+        scope: tenant
+        field: organizationId
+  api:
+    - name: ListTickets
+      path: /api/tickets
+      method: GET
+      description: List support tickets.
+  ui:
+    - name: TicketBoard
+      route: tickets
+      slot: main
+  permissions:
+    - name: tickets.read
+      description: Read tickets
 ```
+
+See [Entities, schema and access rules](#entities-schema-and-access-rules) for the entity options.
 
 ### `dependencies.yaml`
 
@@ -137,8 +155,8 @@ export interface StackAdapter {
 
 Under v0.2, Stack Adapters delegate code generation to **Artifact-Grouped Sub-Generators** located directly within the stack package (such as `composition-engine/stacks/nextjs-supabase/src/generators/`):
 
-- **`database.ts`**: Relational tables, schemas, and static database types.
-- **`api.ts`**: API route definitions (generic templates and specialized feature templates like Auth or AI Chat).
+- **`database/`**: Tables, foreign keys, indexes, row level security policies, flat Supabase migrations and static row types, generated from `plan.database` (see below).
+- **`api.ts`**: API route definitions. A route without a generator is an error (`UnsupportedContractError`); there is no generic fallback.
 - **`ui.ts`**: Page structures, navigation screens, and custom components.
 - **`navigation.ts`**: Hierarchical navigation configs.
 - **`workspace.ts`**: Development environments and startup workspaces.
@@ -163,4 +181,49 @@ If your new feature has unique requirements not covered by the generic templates
 1. **Custom Database Types/Fields:** If the new feature requires custom Postgres types or functions, update the SQL generator logic within the adapter to map these types correctly.
 2. **Specific API Route Behaviors:** The adapter generates files under `app/api/` based on the API routes listed in the plan. If your route handlers need specific middleware, third-party SDK clients, or environment-variable bindings, ensure the generator writes the correct imports and handler bodies.
 3. **Specific UI Components & Pages:** The adapter translates UI artifacts into page components or custom templates. If your feature relies on specialized Tailwind styles, icons, or specific components, update the React templates in the adapter or register them as standard exports in the generated application.
-4. **Custom Database Migrations:** If your feature relies on predefined raw database files, place the SQL files in virtual directories inside the feature directory (such as `modules/database/`), declare them under the `migrations` section of the feature's contract, and ensure the Stack Adapter copies or resolves these SQL contents during compilation.
+4. **Custom Database Migrations:** Tables are generated from entities; do not write `CREATE TABLE` by hand. Raw SQL is only for things entities cannot express (for example an extension such as `pg_trgm`). Declare it as a migration module with its SQL content; a migration without content fails the build. Raw migrations run before the generated tables.
+
+---
+
+## 5. Entities, Schema and Access Rules
+
+Entities declared in `contract.yaml` are the single source of truth for the database. The Supabase generator turns them into tables, foreign keys, indexes, row level security (RLS) policies and TypeScript row types. Do not add hand-written `CREATE TABLE` SQL for entities.
+
+### Field options
+
+| Option              | Meaning                                                                                                                       |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `type`              | `uuid`, `string`, `text`, `integer`, `float`, `boolean`, `timestamp`, `json` (unknown types fail the build)                   |
+| `required`          | `NOT NULL`                                                                                                                    |
+| `primaryKey`        | Part of the primary key. Without any flag, a field named `id` is the key. Several flagged fields form a composite key         |
+| `generate`          | `uuid` (`gen_random_uuid()`), `now` (`now()`), `auth-user` (`auth.uid()`)                                                     |
+| `default`           | Literal default value                                                                                                         |
+| `unique`, `indexed` | `UNIQUE` constraint, secondary index. References and the access field are indexed automatically                               |
+| `references`        | `{ entity, column?, onDelete? }` for another entity, or `{ external: 'auth.users', ... }` for a table outside the composition |
+
+### Access rules
+
+Each entity can declare one `access` rule. An entity without one is private: RLS is enabled and no policy exists, so only the service role can read it.
+
+| Scope                | Visible and writable for                                                                                                                             |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tenant` + `field`   | Members of the organization referenced by `field`. Add `via: Parent` when the field references a parent entity that itself has a direct tenant scope |
+| `owner` + `field`    | The user whose id is stored in `field` (must reference `Profile`)                                                                                    |
+| `authenticated-read` | Every signed-in user may read, nobody may write                                                                                                      |
+| `private`            | Nobody except the service role                                                                                                                       |
+
+`writes` narrows write access for `tenant` and `owner`: `members` (default, insert/update/delete), `insert-only` (append-only, for example audit logs) or `server-only` (reads only; writes need the service role, for example memberships or billing data).
+
+Tenant rules need the `organizations` feature (entities `Organization` and `Membership`). The generator validates all of this and names the entity and feature that is wrong.
+
+### Conventions
+
+- Tables and columns are `snake_case` (`StripeCustomer.organizationId` is `stripe_customer.organization_id`). Row types in `types/database.ts` use the column names, so API responses are `snake_case`.
+- Migrations are flat and timestamp-prefixed: `supabase/migrations/<timestamp>_<name>.sql`. Raw feature migrations come first, then one file per entity in dependency order, then RLS helpers, policies and the `auth.users` to `profile` trigger.
+- Generated migrations only create (`CREATE TABLE IF NOT EXISTS`). Changing an entity later does not alter an existing database yet (see known limitations).
+
+### Checklist for a new feature
+
+1. `pnpm build` and `pnpm build:example` regenerate the examples; commit them.
+2. `pnpm test` runs the generated migrations on PostgreSQL (PGlite), checks RLS behaviour, and checks that every table, column and `fetch` target used by the generated app exists.
+3. `pnpm verify:examples` type-checks and builds the generated apps. CI runs both.

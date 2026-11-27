@@ -28,3 +28,11 @@ The "Real-World" SaaS example will serve as the ultimate proving ground for cust
 - **Clean Extensibility Boundaries:** Provide first-class support for inserting custom frontend pages, custom API endpoints, and custom database schema rules through robust contribution hooks.
 - **Deeper Extension Handlers:** Improve the generation of `/extensions` and `/config` directories to provide type-safe interfaces where developers can hook in custom business logic without touching or overwriting the main compiled engine paths.
 - **Dynamic Migrations:** Support combining raw SQL migrations with custom typescript-based migration runner scripts for complex schema upgrade patterns.
+
+---
+
+## Status (November 2026)
+
+- **Done:** generated apps build in CI; entity-driven schema with foreign keys, tenant RLS and flat migrations; strict generation (no placeholder routes or migrations); routes consistent with the schema; Stripe webhook signature verification.
+- **Open:** features still depend on hard-coded generators in the stack (`api.ts`, `ui.ts`); route-level permission checks and seeded roles; modern Next.js and `@supabase/ssr`; file ownership manifest, lockfile and extension wiring; real checkout and AI provider. See `docs/known-limitations.md` section 8.
+

@@ -3,49 +3,58 @@ provides:
     - audit-logging
   entities:
     - name: AuditLog
-      description: 'Audit log entry tracking security events'
+      description: Audit log entry tracking security events
       fields:
         - name: id
           type: uuid
           required: true
-          description: 'Primary key'
+          description: Primary key
+          generate: uuid
         - name: action
           type: string
           required: true
-          description: 'Type of event or action executed'
+          description: Type of event or action executed
         - name: actorId
           type: uuid
           required: false
-          description: 'User ID of the actor initiating the event'
+          description: User ID of the actor initiating the event
+          references:
+            entity: Profile
+            onDelete: set null
         - name: entityName
           type: string
           required: false
-          description: 'Name of the altered database entity'
+          description: Name of the altered database entity
         - name: entityId
           type: string
           required: false
-          description: 'Identifier of the altered entity'
+          description: Identifier of the altered entity
         - name: payload
           type: string
           required: false
-          description: 'Event context metadata'
+          description: Event context metadata
         - name: createdAt
           type: timestamp
           required: true
-          description: 'Timestamp of the log entry'
+          description: Timestamp of the log entry
+          generate: now
+      access:
+        scope: owner
+        field: actorId
+        writes: insert-only
   permissions:
     - name: audit.read
-      description: 'View full system audit logs'
+      description: View full system audit logs
   api:
     - name: GetAuditLogs
       path: /api/audit-logs
       method: GET
-      description: 'Fetch and filter system audit logs.'
+      description: Fetch and filter system audit logs.
   ui:
     - name: AuditLogDashboard
       route: audit-logs
       slot: main
-      description: 'Audit log history and analytics UI.'
+      description: Audit log history and analytics UI.
 requires:
   features:
     - database

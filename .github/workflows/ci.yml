@@ -38,7 +38,13 @@ jobs:
         run: pnpm build
 
       - name: Check generated examples are up to date
-        run: git diff --exit-code -- composition-engine/examples
+        run: |
+          changes="$(git status --porcelain -- composition-engine/examples)"
+          if [ -n "$changes" ]; then
+            echo "Generated examples are out of date. Run 'pnpm build' and commit the result:"
+            echo "$changes"
+            exit 1
+          fi
 
       - name: Run tests with coverage
         run: pnpm test:coverage

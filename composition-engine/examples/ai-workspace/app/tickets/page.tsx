@@ -7,8 +7,8 @@ interface SupportTicket {
   title: string;
   status: string;
   priority: string;
-  assigneeid?: string;
-  organizationid: string;
+  assignee_id?: string;
+  organization_id: string;
 }
 
 export default function TicketInboxPage() {
@@ -130,7 +130,7 @@ export default function TicketInboxPage() {
                   <div className="space-y-1">
                     <p className="font-bold text-base">{t.title}</p>
                     <p className="text-xs text-muted-foreground font-mono">
-                      Org: {t.organizationid} • Assignee: {t.assigneeid || 'unassigned'}
+                      Org: {t.organization_id} • Assignee: {t.assignee_id || 'unassigned'}
                     </p>
                   </div>
                   <div className="flex gap-2">

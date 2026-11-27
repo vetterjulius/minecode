@@ -24,8 +24,8 @@ export async function POST(request: Request) {
         name: file.name,
         path: filePath,
         size: file.size,
-        mimetype: file.type,
-        organizationid: organizationId,
+        mime_type: file.type,
+        organization_id: organizationId,
       })
       .select()
       .single();

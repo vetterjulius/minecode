@@ -5,10 +5,10 @@ import React, { useState, useEffect } from 'react';
 interface AuditLogEntry {
   id: string;
   action: string;
-  actorid?: string;
-  entityname?: string;
-  entityid?: string;
-  createdat: string;
+  actor_id?: string;
+  entity_name?: string;
+  entity_id?: string;
+  created_at: string;
 }
 
 export default function AuditLogDashboardPage() {
@@ -82,11 +82,11 @@ export default function AuditLogDashboardPage() {
               {logs.map((log) => (
                 <tr key={log.id} className="hover:bg-muted/30">
                   <td className="p-3 font-semibold text-blue-600">{log.action}</td>
-                  <td className="p-3 font-mono text-xs">{log.actorid || 'anonymous'}</td>
-                  <td className="p-3">{log.entityname || '-'}</td>
-                  <td className="p-3 font-mono text-xs">{log.entityid || '-'}</td>
+                  <td className="p-3 font-mono text-xs">{log.actor_id || 'anonymous'}</td>
+                  <td className="p-3">{log.entity_name || '-'}</td>
+                  <td className="p-3 font-mono text-xs">{log.entity_id || '-'}</td>
                   <td className="p-3 text-muted-foreground">
-                    {new Date(log.createdat).toLocaleString()}
+                    {new Date(log.created_at).toLocaleString()}
                   </td>
                 </tr>
               ))}

@@ -3,59 +3,71 @@ provides:
     - tasks
   entities:
     - name: Task
-      description: 'App task'
+      description: App task
       fields:
         - name: id
           type: uuid
           required: true
-          description: 'Primary key'
+          description: Primary key
+          generate: uuid
         - name: title
           type: string
           required: true
-          description: 'Title of the task'
+          description: Title of the task
         - name: description
           type: text
           required: false
-          description: 'Optional description'
+          description: Optional description
         - name: status
           type: string
           required: true
-          description: 'Task status'
+          description: Task status
         - name: priority
           type: string
           required: true
-          description: 'Task priority'
-        - name: projectid
+          description: Task priority
+        - name: projectId
           type: uuid
           required: true
-          description: 'Reference to Project'
-        - name: assigneeid
+          description: Reference to Project
+          references:
+            entity: Project
+            onDelete: cascade
+        - name: assigneeId
           type: uuid
           required: false
-          description: 'Reference to User'
-        - name: createdat
+          description: Reference to User
+          references:
+            entity: Profile
+            onDelete: set null
+        - name: createdAt
           type: timestamp
           required: true
-          description: 'Task creation timestamp'
+          description: Task creation timestamp
+          generate: now
+      access:
+        scope: tenant
+        field: projectId
+        via: Project
   permissions:
     - name: task.read
-      description: 'Read task details'
+      description: Read task details
     - name: task.write
-      description: 'Modify task details'
+      description: Modify task details
   api:
     - name: ListTasks
       path: /api/tasks
       method: GET
-      description: 'List tasks for a project.'
+      description: List tasks for a project.
     - name: CreateTask
       path: /api/tasks
       method: POST
-      description: 'Create a new task.'
+      description: Create a new task.
   ui:
     - name: TasksDashboard
       route: tasks
       slot: main
-      description: 'Tasks management dashboard.'
+      description: Tasks management dashboard.
 requires:
   features:
     - database

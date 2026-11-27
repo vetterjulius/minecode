@@ -8,7 +8,7 @@ export async function GET(_request: Request) {
     const { data, error } = await supabase
       .from('workspace')
       .select('*')
-      .order('createdat', { ascending: false });
+      .order('created_at', { ascending: false });
 
     if (error) throw error;
     return NextResponse.json({ success: true, data });
@@ -35,7 +35,7 @@ export async function POST(request: Request) {
       .insert({
         id: crypto.randomUUID(),
         name,
-        organizationid: organizationId,
+        organization_id: organizationId,
       })
       .select()
       .single();

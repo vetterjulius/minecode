@@ -1,5 +1,6 @@
 import { test, expect } from 'vitest';
 import { CompositionPlan } from '@minecode/core';
+import { UnsupportedContractError } from '../src/generators/errors.js';
 import { NextJsSupabaseAdapter } from '../src/index.js';
 
 test('test_NextJsSupabaseAdapter_Instantiation_HasCorrectStackId', () => {
@@ -38,24 +39,23 @@ test('test_DatabaseEntities_Generate_CreatesDdlAndTypes', () => {
 
   const files = adapter.generate(plan);
 
-  expect(files['supabase/migrations/user_table.sql']).toBeDefined();
-  expect(files['types/database.ts']).toBeDefined();
-
-  const sql = files['supabase/migrations/user_table.sql'];
+  const sql = files['supabase/migrations/20260101000000_create_user.sql'];
+  expect(sql).toBeDefined();
   expect(sql).toContain('CREATE TABLE IF NOT EXISTS "user"');
   expect(sql).toContain('"id" UUID PRIMARY KEY NOT NULL');
   expect(sql).toContain('"email" VARCHAR(255) NOT NULL');
   expect(sql).toContain('"age" INTEGER');
-  expect(sql).toContain('"isActive" BOOLEAN NOT NULL');
-  expect(sql).toContain('"createdAt" TIMESTAMP WITH TIME ZONE NOT NULL');
+  expect(sql).toContain('"is_active" BOOLEAN NOT NULL');
+  expect(sql).toContain('"created_at" TIMESTAMPTZ NOT NULL');
 
   const ts = files['types/database.ts'];
-  expect(ts).toContain('export interface User {');
+  expect(ts).toBeDefined();
+  expect(ts).toContain('export interface UserRow {');
   expect(ts).toContain('id: string;');
   expect(ts).toContain('email: string;');
-  expect(ts).toContain('age?: number;');
-  expect(ts).toContain('isActive: boolean;');
-  expect(ts).toContain('createdAt: string;');
+  expect(ts).toContain('age?: number | null;');
+  expect(ts).toContain('is_active: boolean;');
+  expect(ts).toContain('created_at: string;');
 });
 
 test('test_ApiRoutes_Generate_CreatesNextJsAppRouterHandlers', () => {
@@ -153,6 +153,7 @@ test('test_Migrations_Generate_CreatesMigrationSqlFiles', () => {
         name: '0001_init.sql',
         type: 'database',
         description: 'Initial database migrations',
+        content: '-- Migration: 0001_init.sql\n-- Initial database migrations\n',
       },
     ],
     extensionPoints: [],
@@ -160,8 +161,8 @@ test('test_Migrations_Generate_CreatesMigrationSqlFiles', () => {
 
   const files = adapter.generate(plan);
 
-  expect(files['supabase/migrations/0001_init.sql']).toBeDefined();
-  const migCode = files['supabase/migrations/0001_init.sql'];
+  expect(files['supabase/migrations/20260101000000_init.sql']).toBeDefined();
+  const migCode = files['supabase/migrations/20260101000000_init.sql'];
   expect(migCode).toContain('Migration: 0001_init.sql');
   expect(migCode).toContain('Initial database migrations');
 });
@@ -301,4 +302,32 @@ test('test_NextJsSupabaseAdapter_GenerateWithRunnableOption_CreatesWorkspaceConf
   expect(homePageCode).toContain('Test SaaS');
   expect(homePageCode).toContain('Overview');
   expect(homePageCode).toContain('Route: /dashboard');
+});
+
+test('test_Api_Generate_RouteWithoutGenerator_ThrowsNamingFeatureAndRoute', () => {
+  const adapter = new NextJsSupabaseAdapter();
+  const plan: CompositionPlan = {
+    applicationName: 'Test SaaS',
+    stackId: 'nextjs-supabase',
+    database: [],
+    api: [
+      {
+        id: 'mystery:GetThings',
+        featureId: 'mystery',
+        name: 'GetThings',
+        path: '/api/things',
+        method: 'GET',
+        description: 'Unknown route',
+      },
+    ],
+    ui: [],
+    navigation: [],
+    events: [],
+    permissions: [],
+    migrations: [],
+    extensionPoints: [],
+  };
+
+  expect(() => adapter.generate(plan)).toThrow(UnsupportedContractError);
+  expect(() => adapter.generate(plan)).toThrow(/GET \/api\/things.*feature 'mystery'/);
 });
