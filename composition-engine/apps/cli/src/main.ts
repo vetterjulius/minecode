@@ -8,7 +8,12 @@ import {
   ApplicationGenerator,
   createDefaultStackRegistry,
 } from '@minecode/generator';
-import { FileSystemRegistry } from '@minecode/registry';
+import {
+  FileSystemRegistry,
+  discoverFeaturePackages,
+  loadStackBehaviors,
+  type FeaturePackage,
+} from '@minecode/registry';
 import * as readline from 'readline';
 import {
   parseBlueprintYaml,
@@ -23,7 +28,7 @@ import {
   FeatureConflictDetector,
 } from '@minecode/resolver';
 import { Composer } from '@minecode/composer';
-import { DEFAULT_STACK_ID } from '@minecode/core';
+import { DEFAULT_STACK_ID, type StackRegistry } from '@minecode/core';
 
 const colors = {
   red: (text: string) => `\x1b[31m${text}\x1b[39m`,
@@ -77,7 +82,8 @@ export interface ProcessedBlueprintResult {
 
 export function processBlueprintFile(
   blueprintPath: string,
-  featuresDir: string
+  featuresDir: string,
+  featurePackages: FeaturePackage[] = []
 ): ProcessedBlueprintResult {
   const errors: string[] = [];
   const warnings: string[] = [];
@@ -96,7 +102,10 @@ export function processBlueprintFile(
   }
 
   // Load Registry
-  const registry = new FileSystemRegistry(featuresDir);
+  const registry = new FileSystemRegistry([
+    featuresDir,
+    ...featurePackages.flatMap((p) => (p.featuresDir ? [p.featuresDir] : [])),
+  ]);
   try {
     registry.load();
   } catch (error: any) {
@@ -150,9 +159,37 @@ export function processBlueprintFile(
   return { success: true, errors, warnings, blueprint, resolvedFeatures };
 }
 
+/**
+ * Discovers feature packages installed next to the blueprint and loads the behavior
+ * implementations they ship for the available stacks.
+ */
+export async function prepareProject(
+  blueprintPath: string
+): Promise<{ featurePackages: FeaturePackage[]; stacks: StackRegistry; errors: string[] }> {
+  const stacks = createDefaultStackRegistry();
+  const errors: string[] = [];
+  let featurePackages: FeaturePackage[] = [];
+  try {
+    featurePackages = discoverFeaturePackages(path.dirname(blueprintPath));
+    for (const pkg of featurePackages) {
+      for (const stackId of Object.keys(pkg.stackModules)) {
+        const adapter = stacks.list().find((s) => s.stackId === stackId);
+        if (!adapter) continue; // package supports a stack this installation does not have
+        if (!adapter.registerBehaviors) {
+          throw new Error(`Stack '${stackId}' does not accept behaviors from feature packages`);
+        }
+        adapter.registerBehaviors(await loadStackBehaviors(pkg, stackId));
+      }
+    }
+  } catch (error: any) {
+    errors.push(`Feature package loading failed: ${error.message || String(error)}`);
+  }
+  return { featurePackages, stacks, errors };
+}
+
 export function runValidateCommand(
   blueprintPathArg?: string,
-  options?: { features?: string }
+  options?: { features?: string; featurePackages?: FeaturePackage[] }
 ): { success: boolean; errors: string[]; warnings: string[] } {
   const blueprintPath = path.resolve(process.cwd(), blueprintPathArg || 'app.yaml');
   const featuresDir =
@@ -161,12 +198,19 @@ export function runValidateCommand(
     process.env.FEATURES_DIR ||
     'composition-engine/features';
 
-  return processBlueprintFile(blueprintPath, featuresDir);
+  return processBlueprintFile(blueprintPath, featuresDir, options?.featurePackages);
 }
 
 export function runBuildCommand(
   blueprintPathArg?: string,
-  options?: { features?: string; outDir?: string; runnable?: boolean; force?: boolean }
+  options?: {
+    features?: string;
+    outDir?: string;
+    runnable?: boolean;
+    force?: boolean;
+    featurePackages?: FeaturePackage[];
+    stacks?: StackRegistry;
+  }
 ): { success: boolean; errors: string[]; warnings: string[] } {
   const blueprintPath = path.resolve(process.cwd(), blueprintPathArg || 'app.yaml');
   const featuresDir =
@@ -176,7 +220,7 @@ export function runBuildCommand(
     'composition-engine/features';
   const outDir = options?.outDir || path.resolve(process.cwd(), 'app');
 
-  const result = processBlueprintFile(blueprintPath, featuresDir);
+  const result = processBlueprintFile(blueprintPath, featuresDir, options?.featurePackages);
   if (!result.success) {
     return result;
   }
@@ -190,7 +234,7 @@ export function runBuildCommand(
     const plan = composer.compose(result.resolvedFeatures!, result.blueprint);
 
     // Generate application files
-    const generator = new ApplicationGenerator(outDir);
+    const generator = new ApplicationGenerator(outDir, options?.stacks);
     const report = generator.generate(plan, {
       runnable: options?.runnable !== false,
       force: options?.force === true,
@@ -836,8 +880,18 @@ program
   )
   .argument('[blueprintPath]', 'Path to the app.yaml blueprint file', 'app.yaml')
   .option('-f, --features <dir>', 'Path to features registry directory')
-  .action((blueprintPath, options) => {
-    const result = runValidateCommand(blueprintPath, options);
+  .action(async (blueprintPath, options) => {
+    const project = await prepareProject(path.resolve(process.cwd(), blueprintPath || 'app.yaml'));
+    if (project.errors.length > 0) {
+      console.error(colors.red('Build Failed:'));
+      project.errors.forEach((e) => console.error(colors.red(`  - ${e}`)));
+      process.exit(1);
+    }
+    const result = runValidateCommand(blueprintPath, {
+      ...options,
+      featurePackages: project.featurePackages,
+      stacks: project.stacks,
+    });
     if (result.warnings.length > 0) {
       console.warn(colors.yellow('Warnings:'));
       result.warnings.forEach((w) => console.warn(colors.yellow(`  - ${w}`)));
@@ -861,8 +915,18 @@ program
   .option('-o, --out-dir <dir>', 'Output directory', 'app')
   .option('--no-runnable', 'Disable generation of standard workspace config and root files')
   .option('--force', 'Overwrite files even if they were edited since the last generation')
-  .action((blueprintPath, options) => {
-    const result = runBuildCommand(blueprintPath, options);
+  .action(async (blueprintPath, options) => {
+    const project = await prepareProject(path.resolve(process.cwd(), blueprintPath || 'app.yaml'));
+    if (project.errors.length > 0) {
+      console.error(colors.red('Build Failed:'));
+      project.errors.forEach((e) => console.error(colors.red(`  - ${e}`)));
+      process.exit(1);
+    }
+    const result = runBuildCommand(blueprintPath, {
+      ...options,
+      featurePackages: project.featurePackages,
+      stacks: project.stacks,
+    });
     if (result.warnings.length > 0) {
       console.warn(colors.yellow('Warnings:'));
       result.warnings.forEach((w) => console.warn(colors.yellow(`  - ${w}`)));

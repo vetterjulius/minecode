@@ -331,6 +331,11 @@ export interface StackAdapter {
   /** Behavior ids this stack implements, or '*' when it documents or accepts any behavior. */
   readonly behaviors: readonly string[] | '*';
   readonly layout: StackOutputLayout;
+  /**
+   * Accepts behavior implementations shipped by feature packages (id → stack-specific builder).
+   * Absent when the stack takes no external behaviors.
+   */
+  registerBehaviors?(behaviors: Record<string, unknown>): void;
   generate(plan: CompositionPlan, options?: { runnable?: boolean }): Record<string, string>;
 }
 

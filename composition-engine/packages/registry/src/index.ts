@@ -10,24 +10,20 @@ import {
   getSchemaInfo,
 } from '@minecode/schemas';
 
+import { RegistryError } from './errors.js';
+export { RegistryError } from './errors.js';
+
 export function getRegistryInfo(): string {
   return `Minecode Registry relying on: ${getSchemaInfo()}`;
 }
 
-export class RegistryError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = 'RegistryError';
-    Object.setPrototypeOf(this, RegistryError.prototype);
-  }
-}
-
 export class FileSystemRegistry {
   private features: Map<string, Feature> = new Map();
-  private rootPath: string;
+  private rootPaths: string[];
 
-  constructor(rootPath: string = 'features') {
-    this.rootPath = rootPath;
+  /** One or more feature roots, e.g. the project's own plus those of installed feature packages. */
+  constructor(rootPath: string | string[] = 'features') {
+    this.rootPaths = Array.isArray(rootPath) ? rootPath : [rootPath];
   }
 
   /**
@@ -36,7 +32,7 @@ export class FileSystemRegistry {
    */
   public load(): void {
     this.features.clear();
-    const featureDirs = this.findFeatureDirs(this.rootPath);
+    const featureDirs = this.rootPaths.flatMap((root) => this.findFeatureDirs(root));
 
     for (const dir of featureDirs) {
       try {
@@ -252,3 +248,5 @@ export class FileSystemRegistry {
     return feature;
   }
 }
+
+export * from './feature-packages.js';

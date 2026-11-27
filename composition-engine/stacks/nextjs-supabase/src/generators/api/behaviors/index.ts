@@ -52,12 +52,37 @@ export const BEHAVIORS: Record<string, BehaviorBuilder> = {
   }),
 };
 
-export function behaviorFor(id: string, apiId: string): BehaviorBuilder {
-  const builder = BEHAVIORS[id];
-  if (!builder) {
-    throw new UnsupportedContractError(
-      `API '${apiId}' names behavior '${id}', which stack 'nextjs-supabase' does not implement`
-    );
+/** Behaviors available to one generation run: the stack's own plus those contributed by feature packages. */
+export class BehaviorRegistry {
+  private readonly builders = new Map<string, BehaviorBuilder>(Object.entries(BEHAVIORS));
+
+  public register(id: string, builder: BehaviorBuilder): void {
+    if (typeof builder !== 'function') {
+      throw new UnsupportedContractError(`Behavior '${id}' must be a function`);
+    }
+    if (this.builders.has(id)) {
+      throw new UnsupportedContractError(
+        `Behavior '${id}' is already implemented by stack 'nextjs-supabase'`
+      );
+    }
+    this.builders.set(id, builder);
   }
-  return builder;
+
+  public ids(): string[] {
+    return [...this.builders.keys()].sort();
+  }
+
+  public get(id: string, apiId: string): BehaviorBuilder {
+    const builder = this.builders.get(id);
+    if (!builder) {
+      throw new UnsupportedContractError(
+        `API '${apiId}' names behavior '${id}', which stack 'nextjs-supabase' does not implement`
+      );
+    }
+    return builder;
+  }
+}
+
+export function behaviorFor(id: string, apiId: string): BehaviorBuilder {
+  return new BehaviorRegistry().get(id, apiId);
 }
