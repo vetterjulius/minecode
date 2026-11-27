@@ -159,7 +159,7 @@ test('test_Generate_UnsupportedStackId_ThrowsError', () => {
   const generator = new ApplicationGenerator(tempDir);
   const badPlan = { ...samplePlan, stackId: 'django-postgres' };
 
-  expect(() => generator.generate(badPlan)).toThrow("Unsupported stack ID: 'django-postgres'.");
+  expect(() => generator.generate(badPlan)).toThrow("Unknown stack 'django-postgres'");
 });
 
 test('test_Instantiated_MissingOutputDirectory_ThrowsError', () => {
