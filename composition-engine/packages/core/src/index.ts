@@ -7,3 +7,4 @@ export function getCoreInfo(): string {
 export * from './boundary-validator.js';
 export * from './domain/types.js';
 export * from './schema-lock.js';
+export * from './stack-registry.js';

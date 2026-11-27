@@ -3,7 +3,11 @@
 import { Command } from 'commander';
 import * as fs from 'fs';
 import * as path from 'path';
-import { getGeneratorInfo, ApplicationGenerator } from '@minecode/generator';
+import {
+  getGeneratorInfo,
+  ApplicationGenerator,
+  createDefaultStackRegistry,
+} from '@minecode/generator';
 import { FileSystemRegistry } from '@minecode/registry';
 import * as readline from 'readline';
 import {
@@ -19,6 +23,7 @@ import {
   FeatureConflictDetector,
 } from '@minecode/resolver';
 import { Composer } from '@minecode/composer';
+import { DEFAULT_STACK_ID } from '@minecode/core';
 
 const colors = {
   red: (text: string) => `\x1b[31m${text}\x1b[39m`,
@@ -131,7 +136,7 @@ export function processBlueprintFile(
   // 3. Detect Conflicts
   try {
     const conflictDetector = new FeatureConflictDetector();
-    const stackId = blueprint.stackId || 'nextjs-supabase';
+    const stackId = blueprint.stackId || DEFAULT_STACK_ID;
     conflictDetector.detect(resolvedFeatures, stackId);
   } catch (error: any) {
     if (error.conflicts && Array.isArray(error.conflicts)) {
@@ -869,6 +874,16 @@ program
       process.exit(1);
     } else {
       process.exit(0);
+    }
+  });
+
+program
+  .command('stacks')
+  .description('List available target stacks')
+  .action(() => {
+    for (const stack of createDefaultStackRegistry().list()) {
+      const marker = stack.stackId === DEFAULT_STACK_ID ? ' (default)' : '';
+      console.log(`${stack.stackId}${marker}\n  ${stack.description}`);
     }
   });
 

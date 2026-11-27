@@ -12,6 +12,7 @@
   "dependencies": {
     "@minecode/core": "workspace:*",
     "@minecode/composer": "workspace:*",
-    "@minecode/nextjs-supabase": "workspace:*"
+    "@minecode/nextjs-supabase": "workspace:*",
+    "@minecode/openapi": "workspace:*"
   }
 }

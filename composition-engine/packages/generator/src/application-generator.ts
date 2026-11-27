@@ -2,19 +2,26 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { execSync } from 'child_process';
 import { createHash } from 'crypto';
-import { CompositionPlan, GeneratedFileRecord, SchemaLock, createSnapshot } from '@minecode/core';
+import {
+  CompositionPlan,
+  DEFAULT_STACK_ID,
+  GeneratedFileRecord,
+  SchemaLock,
+  StackAdapter,
+  StackRegistry,
+  StackSupportError,
+  createSnapshot,
+  findMissingBehaviors,
+} from '@minecode/core';
 import { NextJsSupabaseAdapter } from '@minecode/nextjs-supabase';
+import { OpenApiAdapter } from '@minecode/openapi';
+
+/** Stacks that ship with Minecode. */
+export function createDefaultStackRegistry(): StackRegistry {
+  return new StackRegistry().register(new NextJsSupabaseAdapter()).register(new OpenApiAdapter());
+}
 
 export const LOCK_FILE = 'app.lock.json';
-
-const ROOT_FILES = new Set([
-  'package.json',
-  'tsconfig.json',
-  'postcss.config.js',
-  'tailwind.config.ts',
-  'next.config.mjs',
-  '.env.local',
-]);
 
 const sha256 = (text: string) => createHash('sha256').update(text).digest('hex');
 
@@ -38,18 +45,17 @@ export function readLock(outDir: string): SchemaLock | undefined {
   return lock;
 }
 
-function countMigrations(files: Record<string, string>): number {
-  return Object.keys(files).filter((f) => f.startsWith('supabase/migrations/')).length;
-}
-
 export class ApplicationGenerator {
   public readonly outDir: string;
 
-  constructor(outDir: string) {
+  private readonly stacks: StackRegistry;
+
+  constructor(outDir: string, stacks: StackRegistry = createDefaultStackRegistry()) {
     if (!outDir) {
       throw new Error('Output directory path must be specified.');
     }
     this.outDir = outDir;
+    this.stacks = stacks;
   }
 
   public generate(
@@ -60,25 +66,17 @@ export class ApplicationGenerator {
       throw new Error('Composition plan must be specified.');
     }
 
-    const skeletonDirs = [
-      path.join(this.outDir, 'app'),
-      path.join(this.outDir, 'generated'),
-      path.join(this.outDir, 'extensions'),
-      path.join(this.outDir, 'config'),
-    ];
+    const adapter: StackAdapter = this.stacks.get(plan.stackId || DEFAULT_STACK_ID);
+    const missing = findMissingBehaviors(plan, adapter);
+    if (missing.length > 0) throw new StackSupportError(adapter.stackId, missing);
 
-    for (const dir of skeletonDirs) {
+    fs.mkdirSync(this.outDir, { recursive: true });
+    for (const dir of adapter.layout.skeleton.map((d) => path.join(this.outDir, d))) {
       if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
       }
     }
 
-    const stackId = plan.stackId || 'nextjs-supabase';
-    if (stackId !== 'nextjs-supabase') {
-      throw new Error(`Unsupported stack ID: '${stackId}'.`);
-    }
-
-    const adapter = new NextJsSupabaseAdapter();
     const baseline = readLock(this.outDir);
     const virtualFiles = adapter.generate(
       baseline ? { ...plan, schemaBaseline: baseline } : plan,
@@ -92,7 +90,11 @@ export class ApplicationGenerator {
         plan.migrations.map((m) => m.name),
         plan.featureConfig
       ),
-      migrationCount: (baseline?.migrationCount ?? 0) + countMigrations(virtualFiles),
+      migrationCount:
+        (baseline?.migrationCount ?? 0) +
+        Object.keys(virtualFiles).filter((f) =>
+          adapter.layout.isMigration(adapter.layout.resolve(f))
+        ).length,
     };
     const previous = baseline?.files ?? {};
     const report: GenerationReport = { written: [], unchanged: [], conflicts: [], orphaned: [] };
@@ -102,8 +104,8 @@ export class ApplicationGenerator {
     const produced = new Set<string>();
 
     for (const [relPath, content] of Object.entries(virtualFiles)) {
-      const targetRel = this.targetPath(relPath);
-      if (targetRel.startsWith('extensions/')) {
+      const targetRel = adapter.layout.resolve(relPath);
+      if (adapter.layout.isScaffold(targetRel)) {
         // Application code: scaffolded once, then owned by the developer. Not in the manifest.
         const scaffold = path.join(this.outDir, targetRel);
         if (fs.existsSync(scaffold)) {
@@ -152,7 +154,7 @@ export class ApplicationGenerator {
       }
     }
     for (const rel of Object.keys(previous)) {
-      const isMigration = rel.startsWith('supabase/migrations/');
+      const isMigration = adapter.layout.isMigration(rel);
       if (!produced.has(rel) && !isMigration && fs.existsSync(path.join(this.outDir, rel))) {
         report.orphaned.push(rel);
       }
@@ -170,7 +172,7 @@ export class ApplicationGenerator {
         // Formatting is best effort; the manifest hashes what is on disk either way.
       }
     }
-    for (const rel of report.written.filter((f) => !f.startsWith('extensions/'))) {
+    for (const rel of report.written.filter((f) => !adapter.layout.isScaffold(f))) {
       records[rel].disk = sha256(fs.readFileSync(path.join(this.outDir, rel), 'utf8'));
     }
 
@@ -181,19 +183,5 @@ export class ApplicationGenerator {
       'utf8'
     );
     return report;
-  }
-
-  /** Where a generated (virtual) file lives inside the application directory. */
-  private targetPath(relPath: string): string {
-    if (
-      relPath.startsWith('app/') ||
-      relPath.startsWith('config/') ||
-      relPath.startsWith('supabase/migrations/') ||
-      relPath.startsWith('extensions/') ||
-      ROOT_FILES.has(relPath)
-    ) {
-      return relPath;
-    }
-    return `generated/${relPath}`;
   }
 }

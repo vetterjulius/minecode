@@ -313,8 +313,24 @@ export interface Application {
   engineVersion: string;
 }
 
+/** Where a stack puts generated files and which of them are owned by whom. */
+export interface StackOutputLayout {
+  /** Directories created up front in the application folder. */
+  readonly skeleton: string[];
+  /** Maps a path produced by the stack to its location inside the application folder. */
+  resolve(generatedPath: string): string;
+  /** Application-owned files: scaffolded once, then never overwritten or tracked. */
+  isScaffold(outputPath: string): boolean;
+  /** Schema migration files; they are emitted once and numbered by the lock. */
+  isMigration(outputPath: string): boolean;
+}
+
 export interface StackAdapter {
   readonly stackId: string;
+  readonly description: string;
+  /** Behavior ids this stack implements, or '*' when it documents or accepts any behavior. */
+  readonly behaviors: readonly string[] | '*';
+  readonly layout: StackOutputLayout;
   generate(plan: CompositionPlan, options?: { runnable?: boolean }): Record<string, string>;
 }
 

@@ -11,6 +11,7 @@ import {
   FeatureConflictDetector,
 } from '@minecode/resolver';
 import { Composer } from '@minecode/composer';
+import { DEFAULT_STACK_ID } from '@minecode/core';
 
 let registryLoadError: Error | null = null;
 const featuresDir =
@@ -72,7 +73,7 @@ function processBlueprint(blueprintStr: string) {
   // 3. Detect Conflicts
   try {
     const conflictDetector = new FeatureConflictDetector();
-    const stackId = blueprint.stackId || 'nextjs-supabase';
+    const stackId = blueprint.stackId || DEFAULT_STACK_ID;
     conflictDetector.detect(resolvedFeatures, stackId);
   } catch (error: any) {
     if (error.conflicts && Array.isArray(error.conflicts)) {

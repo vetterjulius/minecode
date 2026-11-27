@@ -11,6 +11,7 @@ import {
   PermissionArtifact,
   MigrationArtifact,
   ExtensionPointArtifact,
+  DEFAULT_STACK_ID,
 } from '@minecode/core';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -83,7 +84,7 @@ export class Composer {
    * Generates a deterministic CompositionPlan from a resolved feature graph and blueprint.
    */
   public compose(resolvedFeatures: Feature[], blueprint: Blueprint): CompositionPlan {
-    const stackId = blueprint.stackId || 'nextjs-supabase';
+    const stackId = blueprint.stackId || DEFAULT_STACK_ID;
     const applicationName = blueprint.applicationName || 'Minecode Application';
 
     // 1. Database (Entities)
