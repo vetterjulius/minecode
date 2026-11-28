@@ -94,6 +94,9 @@ provides:
           type: timestamp
           required: true
           description: Expiration timestamp
+        - name: acceptedAt
+          type: timestamp
+          description: Set when the invitation was accepted; an invitation works only once
       access:
         scope: tenant
         field: organizationId
@@ -128,6 +131,11 @@ provides:
       description: Invite a new member via email.
       behavior: organizations.invite
       permission: org.invite
+    - name: AcceptInvitation
+      path: /api/organizations/accept-invitation
+      method: POST
+      description: Accept an invitation by token and join the organization.
+      behavior: organizations.accept-invitation
   ui:
     - name: OrganizationsDashboard
       route: organizations

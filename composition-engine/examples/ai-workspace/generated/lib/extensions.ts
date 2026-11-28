@@ -12,6 +12,30 @@ export type BeforeCreateHook = (row: Row, context: HookContext) => Row | void | 
 /** Runs after a successful insert. Throwing here is reported to the caller as an error. */
 export type AfterCreateHook = (row: Row, context: HookContext) => void | Promise<void>;
 
+/** Runs before an update with the submitted changes. Return the changes to apply; throw to reject. */
+export type BeforeUpdateHook = (
+  changes: Row,
+  context: HookContext & { id: string }
+) => Row | void | Promise<Row | void>;
+
+/** Runs after a successful update with the updated row. */
+export type AfterUpdateHook = (
+  row: Row,
+  context: HookContext & { id: string }
+) => void | Promise<void>;
+
+/** Runs before a delete. Throw to veto it. */
+export type BeforeDeleteHook = (
+  id: string,
+  context: HookContext & { id: string }
+) => void | Promise<void>;
+
+/** Runs after a successful delete with the deleted row. */
+export type AfterDeleteHook = (
+  row: Row,
+  context: HookContext & { id: string }
+) => void | Promise<void>;
+
 export interface Extensions {
   hooks?: {
     'Document.afterCreate'?: AfterCreateHook;
@@ -19,7 +43,11 @@ export interface Extensions {
     'Feedback.afterCreate'?: AfterCreateHook;
     'Feedback.beforeCreate'?: BeforeCreateHook;
     'Project.afterCreate'?: AfterCreateHook;
+    'Project.afterDelete'?: AfterDeleteHook;
+    'Project.afterUpdate'?: AfterUpdateHook;
     'Project.beforeCreate'?: BeforeCreateHook;
+    'Project.beforeDelete'?: BeforeDeleteHook;
+    'Project.beforeUpdate'?: BeforeUpdateHook;
     'Task.afterCreate'?: AfterCreateHook;
     'Task.beforeCreate'?: BeforeCreateHook;
     'Ticket.afterCreate'?: AfterCreateHook;

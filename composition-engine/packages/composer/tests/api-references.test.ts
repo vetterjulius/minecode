@@ -82,6 +82,24 @@ describe('API reference validation', () => {
     expect(plan.extensionPoints.every((e) => e.type === 'function')).toBe(true);
   });
 
+  test('test_Compose_UpdateAndDelete_DeriveTheirHooks', () => {
+    const plan = new Composer().compose(
+      [
+        feature([
+          { name: 'Upd', path: '/api/things/:id', crud: { entity: 'Thing', operation: 'update' } },
+          { name: 'Del', path: '/api/things/:id', crud: { entity: 'Thing', operation: 'delete' } },
+        ]),
+      ],
+      blueprint
+    );
+    expect(plan.extensionPoints.map((e) => e.name)).toEqual([
+      'Thing.afterDelete',
+      'Thing.afterUpdate',
+      'Thing.beforeDelete',
+      'Thing.beforeUpdate',
+    ]);
+  });
+
   test('test_Compose_ListEndpointOnly_DerivesNoHooks', () => {
     const plan = new Composer().compose(
       [

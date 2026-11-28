@@ -3,6 +3,12 @@ import { buildCrudHandler, crudImports } from './api/crud.js';
 import { generatedLibImport, SUPABASE_SERVER_LIB, SUPABASE_SERVER_LIB_PATH } from './billing.js';
 import { BehaviorRegistry } from './api/behaviors/index.js';
 import { EntityIndex } from './api/types.js';
+import { rbacActive } from './database/rbac.js';
+import {
+  guardHandler,
+  PERMISSION_GUARD_LIB,
+  PERMISSION_GUARD_LIB_PATH,
+} from './api/permission-guard.js';
 import { UnsupportedContractError } from './errors.js';
 
 /** Import path of extensions/index.ts, relative to app/<routePath>/route.ts. */
@@ -21,7 +27,9 @@ interface RoutePiece {
 
 function routePathOf(api: ApiArtifact): string {
   const normalized = api.path.replace(/^\/+|\/+$/g, '');
-  return normalized.startsWith('api/') ? normalized : `api/${normalized}`;
+  const withApi = normalized.startsWith('api/') ? normalized : `api/${normalized}`;
+  // ':id' segments become Next.js dynamic segments
+  return withApi.replace(/(^|\/):([A-Za-z_][A-Za-z0-9_]*)(?=\/|$)/g, '$1[$2]');
 }
 
 function splitImports(source: string): { imports: string[]; code: string } {
@@ -29,7 +37,7 @@ function splitImports(source: string): { imports: string[]; code: string } {
   return { imports, code: source.replace(IMPORT_LINE, '').trim() + '\n' };
 }
 
-function pieceFor(
+function rawPieceFor(
   api: ApiArtifact,
   routePath: string,
   entities: EntityIndex,
@@ -71,6 +79,30 @@ function pieceFor(
   return { method, imports, helpers: [], code };
 }
 
+function pieceFor(
+  api: ApiArtifact,
+  routePath: string,
+  entities: EntityIndex,
+  extraFiles: Record<string, string>,
+  behaviors: BehaviorRegistry,
+  checkPermissions: boolean
+): RoutePiece {
+  const piece = rawPieceFor(api, routePath, entities, extraFiles, behaviors);
+  if (!checkPermissions || !api.permission) return piece;
+  extraFiles[PERMISSION_GUARD_LIB_PATH] = PERMISSION_GUARD_LIB;
+  const serverClientImport = generatedLibImport(routePath, 'supabase/server');
+  const guarded = guardHandler(piece.code, piece.method, api.permission, serverClientImport);
+  return {
+    ...piece,
+    code: guarded.code,
+    imports: [
+      ...piece.imports,
+      ...guarded.imports,
+      `import { createSupabaseServerClient } from '${serverClientImport}';`,
+    ],
+  };
+}
+
 function assembleRoute(routePath: string, pieces: RoutePiece[]): string {
   const imports = [...new Set(pieces.flatMap((p) => p.imports))].sort();
   const helpers = [...new Set(pieces.flatMap((p) => p.helpers))];
@@ -102,12 +134,13 @@ export class NextjsSupabaseApiSubGenerator implements SubGenerator {
     const entities: EntityIndex = new Map<string, DatabaseArtifact>(
       plan.database.map((d) => [d.entityName, d])
     );
+    const checkPermissions = rbacActive(plan.database);
     const files: Record<string, string> = {};
     const byPath = new Map<string, RoutePiece[]>();
 
     for (const api of plan.api) {
       const routePath = routePathOf(api);
-      const piece = pieceFor(api, routePath, entities, files, this.behaviors);
+      const piece = pieceFor(api, routePath, entities, files, this.behaviors, checkPermissions);
       const pieces = byPath.get(routePath) ?? [];
       if (pieces.some((p) => p.method === piece.method)) {
         throw new UnsupportedContractError(

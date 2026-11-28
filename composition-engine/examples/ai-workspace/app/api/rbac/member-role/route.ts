@@ -1,6 +1,7 @@
 // Generated route: /api/rbac/member-role
 import { NextResponse } from 'next/server';
 import { createSupabaseServerClient } from '../../../../generated/lib/supabase/server';
+import { requirePermission } from '../../../../generated/lib/permissions';
 
 export const dynamic = 'force-dynamic';
 
@@ -8,7 +9,7 @@ export const dynamic = 'force-dynamic';
  * Change the role of an organization member.
  * Path: /api/rbac/member-role
  */
-export async function PUT(request: Request) {
+async function handlePUT(request: Request) {
   const supabase = await createSupabaseServerClient();
   try {
     const { organization_id: organizationId, user_id: userId, role } = await request.json();
@@ -33,4 +34,10 @@ export async function PUT(request: Request) {
     const message = error instanceof Error ? error.message : String(error);
     return NextResponse.json({ success: false, error: message }, { status: 400 });
   }
+}
+
+export async function PUT(...args: Parameters<typeof handlePUT>) {
+  const denied = await requirePermission(args[0], await createSupabaseServerClient(), 'rbac.write');
+  if (denied) return denied;
+  return handlePUT(...args);
 }

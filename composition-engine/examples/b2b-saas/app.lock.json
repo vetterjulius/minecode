@@ -131,6 +131,10 @@
           "expiresAt": {
             "type": "timestamp",
             "required": true
+          },
+          "acceptedAt": {
+            "type": "timestamp",
+            "required": false
           }
         },
         "access": {
@@ -310,15 +314,15 @@
       }
     }
   },
-  "migrationCount": 15,
+  "migrationCount": 16,
   "files": {
     "supabase/migrations/20260101000000_create_organization.sql": {
       "generated": "ba5c46dad26cd894ee249e191e9cf383e00b7f13653be80fdc11f0fce902fd8d",
       "disk": "ba5c46dad26cd894ee249e191e9cf383e00b7f13653be80fdc11f0fce902fd8d"
     },
     "supabase/migrations/20260101000001_create_invitation.sql": {
-      "generated": "2fb6e998d0f05c95290154dc567dead2bfbdbf6fb978728a9398ab6b498d8772",
-      "disk": "2fb6e998d0f05c95290154dc567dead2bfbdbf6fb978728a9398ab6b498d8772"
+      "generated": "a5c536cea1586c7dd6c1e7bc5c761681fc29a8dbf536c406305f2577ee779521",
+      "disk": "a5c536cea1586c7dd6c1e7bc5c761681fc29a8dbf536c406305f2577ee779521"
     },
     "supabase/migrations/20260101000002_create_profile.sql": {
       "generated": "5ee5e0966564f9cabbdc0f4f11ae7936a1f3dfca920b1c08b3b991f246caa6c7",
@@ -353,8 +357,8 @@
       "disk": "335ecc4b88913c254b8722015f01dcbffa2ba034086fc05237674da37d5da455"
     },
     "supabase/migrations/20260101000010_rbac_helpers.sql": {
-      "generated": "e3cc6e56f285706220356f7edd71ae02cda72466effd1c9cc0446e5ffd233df8",
-      "disk": "e3cc6e56f285706220356f7edd71ae02cda72466effd1c9cc0446e5ffd233df8"
+      "generated": "6e7ef7b53aa54327a50115f2eb24193e9228fbf3a33a00b3e1605078c90b3c9b",
+      "disk": "6e7ef7b53aa54327a50115f2eb24193e9228fbf3a33a00b3e1605078c90b3c9b"
     },
     "supabase/migrations/20260101000011_rbac_seed.sql": {
       "generated": "d3ef5fc5c278dc1e4808a06f5c9e68a1404f423300934cd689b46ed8e212cfd5",
@@ -364,21 +368,29 @@
       "generated": "4d2f02b9f62cff9e31160fb8311bf39ae248553b1d69851c7ecc60e5c96b9d3a",
       "disk": "4d2f02b9f62cff9e31160fb8311bf39ae248553b1d69851c7ecc60e5c96b9d3a"
     },
-    "supabase/migrations/20260101000013_rls_policies.sql": {
+    "supabase/migrations/20260101000013_invitation_function.sql": {
+      "generated": "dd33e1f3d07cad4a681665b4c2fd905dab5a4655232ea5170abb3c7f10aa6bce",
+      "disk": "dd33e1f3d07cad4a681665b4c2fd905dab5a4655232ea5170abb3c7f10aa6bce"
+    },
+    "supabase/migrations/20260101000014_rls_policies.sql": {
       "generated": "9bd71b278191479703893dea4fa2de8a2863ad37e194e38fb06a2bbe50b0b808",
       "disk": "9bd71b278191479703893dea4fa2de8a2863ad37e194e38fb06a2bbe50b0b808"
     },
-    "supabase/migrations/20260101000014_profile_sync.sql": {
+    "supabase/migrations/20260101000015_profile_sync.sql": {
       "generated": "327beac6d0412d4cca4b8c898342e5fa0909d441c73fa00f6af647d9c6d1798e",
       "disk": "327beac6d0412d4cca4b8c898342e5fa0909d441c73fa00f6af647d9c6d1798e"
     },
     "generated/types/database.ts": {
-      "generated": "271148c4c37055a27fb22f61678de209f84e86dc2487a20221ee6d308d04616b",
-      "disk": "271148c4c37055a27fb22f61678de209f84e86dc2487a20221ee6d308d04616b"
+      "generated": "c169bc315f23040b476ab0a00231ecb7f387c7c8f899b4e181232769a1b90662",
+      "disk": "c169bc315f23040b476ab0a00231ecb7f387c7c8f899b4e181232769a1b90662"
     },
     "generated/lib/supabase/server.ts": {
       "generated": "2c8b92ba25c434bc3eae1a5ab87189dbf15dbf98fd5d4224826c7b2347bdb1e1",
       "disk": "2c8b92ba25c434bc3eae1a5ab87189dbf15dbf98fd5d4224826c7b2347bdb1e1"
+    },
+    "generated/lib/permissions.ts": {
+      "generated": "6915a0702593151bcaaac957ffa73da15c99b87a38d9633083d8762f14ffb03a",
+      "disk": "6915a0702593151bcaaac957ffa73da15c99b87a38d9633083d8762f14ffb03a"
     },
     "generated/lib/billing/verify-stripe-signature.ts": {
       "generated": "8f3f5d2a39855e45a1d712112fe5b23be9bde48b0c22b7e11a9b09dae91217ce",
@@ -401,28 +413,32 @@
       "disk": "ea058211de6a9810ef1debeded5ea159b621a72742a8d60b869887839db4a84e"
     },
     "app/api/billing/checkout/route.ts": {
-      "generated": "26a8a7599cba21baa9e7af8725256bd980f2352857c3a1e645ebe4b9c3625ccb",
-      "disk": "26a8a7599cba21baa9e7af8725256bd980f2352857c3a1e645ebe4b9c3625ccb"
+      "generated": "49fb7370cb50b24194608072a268b7bf94742bbbb24d80eaa0e82b5daf884e9e",
+      "disk": "49fb7370cb50b24194608072a268b7bf94742bbbb24d80eaa0e82b5daf884e9e"
     },
     "app/api/billing/webhook/route.ts": {
       "generated": "6b77d18cf37e95eca4679e691fe0694e4a0a091f987390528e64b309a4836895",
       "disk": "6b77d18cf37e95eca4679e691fe0694e4a0a091f987390528e64b309a4836895"
     },
+    "app/api/organizations/accept-invitation/route.ts": {
+      "generated": "e76c55a1bdb3cbea1efb2afc9ccc64438d87ba930762344fdd38a7f8e880d7cb",
+      "disk": "e76c55a1bdb3cbea1efb2afc9ccc64438d87ba930762344fdd38a7f8e880d7cb"
+    },
     "app/api/organizations/route.ts": {
-      "generated": "1d5be5a8292a2332f5e99b6f69d31e0bdb52215573e58938a2d2173992de2cae",
-      "disk": "703d8749b234539d3ed03b82893a2890f13067e199d173d1043d30bac3d6f1e9"
+      "generated": "7f4eeb07cd7c8b632c1a9e33112ecf44543cbffcdbccfb2bf3d7bb537fa18e35",
+      "disk": "63092d68e8208d927a9beacb68c1d563f5a4ea963a16290252324356422826d6"
     },
     "app/api/organizations/invite/route.ts": {
-      "generated": "57806843ee4f4134cf6476d22f0302d68328d57b3693e8d7bd81aa72f3626f45",
-      "disk": "57806843ee4f4134cf6476d22f0302d68328d57b3693e8d7bd81aa72f3626f45"
+      "generated": "4eea2071380ca5a3d355aa0d319fb536282623df556a64827ed85baad481ddd4",
+      "disk": "00f51ef805b27692cc40d950c23ce3af962d1ee23043814987c64f60fdaa3304"
     },
     "app/api/rbac/member-role/route.ts": {
-      "generated": "1629abce9a75d18f7d580dc35ce001123970c129d2ea496f5628db4f8902f210",
-      "disk": "1629abce9a75d18f7d580dc35ce001123970c129d2ea496f5628db4f8902f210"
+      "generated": "ae2b70a3bafa0592c96cd673bfe0adcb674db52f31e5b8d180cf747bae81622b",
+      "disk": "c66bf7448c7940a891e4086337e8227d506cd50d969275eb1bc6f3e0941a9a4e"
     },
     "app/api/rbac/roles/route.ts": {
-      "generated": "0359e69c039f5fedf79091e89683052dbcbf439a6b5b26ed8d6c3ba1b35e6ccc",
-      "disk": "33115db0b3a76f88cbb09c32b4c77b40c28d4fc75db92f4e73274c0ef981f5c6"
+      "generated": "9b38a562b3d506d00e6a58e5f43460309d4ffc4605af9cd8c2ae24339167b285",
+      "disk": "f03d984f63a8288916c6b5040ee5bd35dcf8da1a31be99ba64e123802a534b5a"
     },
     "app/auth/login/page.tsx": {
       "generated": "3a9f3ed9437b3be33ef5ace17425ccc1cced37786232f5eb76d4ebdac9d11a0c",

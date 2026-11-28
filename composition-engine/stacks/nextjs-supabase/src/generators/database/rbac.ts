@@ -45,6 +45,26 @@ $$;
 `;
 }
 
+/** Lists the caller's permissions per organization; routes use it to check endpoint permissions. */
+export function buildMyPermissionsFunction(): string {
+  const membership = quote(tableName(MEMBERSHIP));
+  const grants = quote(tableName(ROLE_PERMISSION));
+  return `-- Permissions of the current user, per organization (used by route handlers).
+CREATE OR REPLACE FUNCTION public.my_permissions()
+RETURNS TABLE (organization_id uuid, permission text)
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT m."organization_id", rp."permission"
+  FROM public.${membership} m
+  JOIN public.${grants} rp ON rp."role" = m."role"
+  WHERE m."user_id" = auth.uid();
+$$;
+`;
+}
+
 function literal(value: string): string {
   return `'${value.replace(/'/g, "''")}'`;
 }
