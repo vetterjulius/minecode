@@ -388,6 +388,10 @@
       "generated": "2c8b92ba25c434bc3eae1a5ab87189dbf15dbf98fd5d4224826c7b2347bdb1e1",
       "disk": "2c8b92ba25c434bc3eae1a5ab87189dbf15dbf98fd5d4224826c7b2347bdb1e1"
     },
+    "generated/lib/billing/create-checkout-session.ts": {
+      "generated": "16be25c3d0ccfdb5a0b1736da369baccae3d9bf8a423b6d260f2183626555f66",
+      "disk": "16be25c3d0ccfdb5a0b1736da369baccae3d9bf8a423b6d260f2183626555f66"
+    },
     "generated/lib/permissions.ts": {
       "generated": "6915a0702593151bcaaac957ffa73da15c99b87a38d9633083d8762f14ffb03a",
       "disk": "6915a0702593151bcaaac957ffa73da15c99b87a38d9633083d8762f14ffb03a"
@@ -413,8 +417,8 @@
       "disk": "ea058211de6a9810ef1debeded5ea159b621a72742a8d60b869887839db4a84e"
     },
     "app/api/billing/checkout/route.ts": {
-      "generated": "49fb7370cb50b24194608072a268b7bf94742bbbb24d80eaa0e82b5daf884e9e",
-      "disk": "49fb7370cb50b24194608072a268b7bf94742bbbb24d80eaa0e82b5daf884e9e"
+      "generated": "87e45681ef66c1e4b663e0a21755c8d0b14275d76253fd65655ee99e790ba6c2",
+      "disk": "a26472980e7a5b2f8e0760d5edfd00b216049c5f1579d66b0aa16843b30ef75f"
     },
     "app/api/billing/webhook/route.ts": {
       "generated": "6b77d18cf37e95eca4679e691fe0694e4a0a091f987390528e64b309a4836895",
@@ -477,12 +481,12 @@
       "disk": "bf95b1fcade752f3b7280e4c22844330c2db6cb62567aa3a0b9b44761628542c"
     },
     "next.config.mjs": {
-      "generated": "73f18ea67787ab9d40bedbf6600bc6f822dfc31347374a54677d67a36567b20b",
-      "disk": "73f18ea67787ab9d40bedbf6600bc6f822dfc31347374a54677d67a36567b20b"
+      "generated": "3d7b10a51ee49fcfd9fe4d3e4fea244d253c326ed618797f8f039efc25da0033",
+      "disk": "3d7b10a51ee49fcfd9fe4d3e4fea244d253c326ed618797f8f039efc25da0033"
     },
     ".env.local": {
-      "generated": "a5924f857142242c18953fe006389926781048d90b2a8beac47d0d16232a4cf4",
-      "disk": "a5924f857142242c18953fe006389926781048d90b2a8beac47d0d16232a4cf4"
+      "generated": "b1a99101ab1f9575cf2a95d65a059b5556c090e8e4b11d4c722a18d56aba50c7",
+      "disk": "b1a99101ab1f9575cf2a95d65a059b5556c090e8e4b11d4c722a18d56aba50c7"
     },
     "app/globals.css": {
       "generated": "ecbfe8b9473e9fbbb584a597760495c2fd9f8512bb757199db8d7d699036c0a0",

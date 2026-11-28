@@ -95,6 +95,17 @@ export default config;
 `;
 
       files['next.config.mjs'] = `/** @type {import('next').NextConfig} */
+
+// Shared secrets may live in a .env one level above the app (the project root). Variables that
+// are already set, e.g. from .env.local, are never overwritten.
+for (const file of ['../.env']) {
+  try {
+    if (typeof process.loadEnvFile === 'function') process.loadEnvFile(file);
+  } catch {
+    // no such file
+  }
+}
+
 const nextConfig = {
   reactStrictMode: true,
 };
@@ -107,6 +118,12 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 # Server only. Never expose these to the browser.
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 STRIPE_WEBHOOK_SECRET=whsec_your-webhook-secret
+# Optional integrations. Uncomment and fill in, or put them in a .env in the project root (see next.config.mjs).
+# STRIPE_SECRET_KEY=sk_test_your-secret-key
+# ANTHROPIC_API_KEY=your-anthropic-key
+# OPENAI_API_KEY=your-openai-key
+# AI_PROVIDER=anthropic
+# AI_MODEL=
 `;
 
       files['app/globals.css'] = `@tailwind base;

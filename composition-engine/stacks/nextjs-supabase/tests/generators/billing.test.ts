@@ -5,7 +5,6 @@ import { describe, test, expect } from 'vitest';
 import {
   STRIPE_SIGNATURE_LIB,
   SUPABASE_ADMIN_LIB,
-  buildCheckoutRoute,
   buildWebhookRoute,
 } from '../../src/generators/billing.js';
 
@@ -85,12 +84,6 @@ describe('billing route templates', () => {
     expect(route.indexOf('verifyStripeSignature(rawBody')).toBeLessThan(
       route.indexOf('JSON.parse')
     );
-  });
-
-  test('test_BuildCheckoutRoute_Generated_ReturnsNotImplementedAndNoMockUrl', () => {
-    const route = buildCheckoutRoute('d', 'api/billing/checkout');
-    expect(route).toContain('status: 501');
-    expect(route).not.toContain('session_mock');
   });
 });
 
