@@ -15,3 +15,17 @@ AS $$
       AND rp."permission" = permission_name
   );
 $$;
+
+-- Permissions of the current user, per organization (used by route handlers).
+CREATE OR REPLACE FUNCTION public.my_permissions()
+RETURNS TABLE (organization_id uuid, permission text)
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT m."organization_id", rp."permission"
+  FROM public."membership" m
+  JOIN public."role_permission" rp ON rp."role" = m."role"
+  WHERE m."user_id" = auth.uid();
+$$;

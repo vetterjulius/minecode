@@ -2,6 +2,7 @@
 import { NextResponse } from 'next/server';
 import { createSupabaseServerClient } from '../../../generated/lib/supabase/server';
 import { extensions } from '../../../extensions';
+import { requirePermission } from '../../../generated/lib/permissions';
 
 export const dynamic = 'force-dynamic';
 
@@ -40,7 +41,7 @@ function checkBody(
   return null;
 }
 
-export async function GET(request: Request) {
+async function handleGET(request: Request) {
   const supabase = await createSupabaseServerClient();
   try {
     const params = new URL(request.url).searchParams;
@@ -62,7 +63,17 @@ export async function GET(request: Request) {
   }
 }
 
-export async function POST(request: Request) {
+export async function GET(...args: Parameters<typeof handleGET>) {
+  const denied = await requirePermission(
+    args[0],
+    await createSupabaseServerClient(),
+    'whiteboard.view'
+  );
+  if (denied) return denied;
+  return handleGET(...args);
+}
+
+async function handlePOST(request: Request) {
   const supabase = await createSupabaseServerClient();
   try {
     const body = await request.json();
@@ -91,4 +102,14 @@ export async function POST(request: Request) {
   } catch (error) {
     return crudError(error);
   }
+}
+
+export async function POST(...args: Parameters<typeof handlePOST>) {
+  const denied = await requirePermission(
+    args[0],
+    await createSupabaseServerClient(),
+    'whiteboard.create'
+  );
+  if (denied) return denied;
+  return handlePOST(...args);
 }

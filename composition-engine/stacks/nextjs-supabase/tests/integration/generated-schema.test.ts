@@ -338,6 +338,96 @@ describe('generated migrations on PostgreSQL', () => {
     });
   });
 
+  describe('my_permissions', () => {
+    test('test_MyPermissions_AsAdmin_ListsGrantsOfOwnOrganizationOnly', async () => {
+      const rows = await asUser(
+        db,
+        ALICE,
+        async () =>
+          (
+            await db.query<{ organization_id: string; permission: string }>(
+              `SELECT * FROM my_permissions()`
+            )
+          ).rows
+      );
+      expect(rows.length).toBeGreaterThan(0);
+      expect(new Set(rows.map((r) => r.organization_id))).toEqual(new Set([ORG_A]));
+      expect(rows.some((r) => r.permission === 'project.write')).toBe(true);
+      expect(rows.some((r) => r.permission === 'rbac.write')).toBe(false); // admin default
+    });
+
+    test('test_MyPermissions_AsStranger_IsEmpty', async () => {
+      const rows = await asUser(
+        db,
+        '00000000-0000-0000-0000-0000000000ff',
+        async () => (await db.query(`SELECT * FROM my_permissions()`)).rows
+      );
+      expect(rows).toEqual([]);
+    });
+  });
+
+  describe('accept_invitation', () => {
+    const GINA = '00000000-0000-0000-0000-000000000a01';
+    const HANK = '00000000-0000-0000-0000-000000000a02';
+    const ORG = '10000000-0000-0000-0000-0000000000a1';
+
+    beforeAll(async () => {
+      await db.exec(`
+        INSERT INTO auth.users (id, email, raw_user_meta_data) VALUES
+          ('${GINA}', 'Gina@Example.com', '{}'), ('${HANK}', 'hank@example.com', '{}');
+        INSERT INTO organization (id, name) VALUES ('${ORG}', 'Invite Inc');
+      `);
+    });
+
+    const invite = (token: string, email: string, extra = '', role = 'member') =>
+      db.exec(
+        `INSERT INTO invitation (organization_id, email, role, token, expires_at)
+         VALUES ('${ORG}', '${email}', '${role}', '${token}', now() + interval '1 day') ${extra}`
+      );
+    const accept = (user: string, token: string) =>
+      asUser(db, user, () => db.query(`SELECT * FROM accept_invitation('${token}')`));
+
+    test('test_AcceptInvitation_WithMatchingEmail_CreatesMembershipWithInvitedRole', async () => {
+      await invite('tok-ok', 'gina@example.com');
+      const { rows } = await accept(GINA, 'tok-ok');
+      expect(rows[0]).toMatchObject({ organization_id: ORG, user_id: GINA, role: 'member' });
+    });
+
+    test('test_AcceptInvitation_SecondUse_IsRejected', async () => {
+      await expect(accept(GINA, 'tok-ok')).rejects.toThrow(/already used/);
+    });
+
+    test('test_AcceptInvitation_ForDifferentEmail_IsDenied', async () => {
+      await invite('tok-other', 'someone-else@example.com');
+      await expect(accept(HANK, 'tok-other')).rejects.toThrow(/different email/);
+      const { rows } = await db.query(`SELECT 1 FROM membership WHERE user_id = '${HANK}'`);
+      expect(rows).toEqual([]);
+    });
+
+    test('test_AcceptInvitation_Expired_IsRejected', async () => {
+      await db.exec(
+        `INSERT INTO invitation (organization_id, email, role, token, expires_at)
+         VALUES ('${ORG}', 'hank@example.com', 'member', 'tok-old', now() - interval '1 day')`
+      );
+      await expect(accept(HANK, 'tok-old')).rejects.toThrow(/expired/);
+    });
+
+    test('test_AcceptInvitation_UnknownToken_IsRejected', async () => {
+      await expect(accept(HANK, 'nope')).rejects.toThrow(/Invalid invitation/);
+    });
+
+    test('test_AcceptInvitation_UnknownRole_IsRejected', async () => {
+      await invite('tok-role', 'hank@example.com', '', 'superuser');
+      await expect(accept(HANK, 'tok-role')).rejects.toThrow(/unknown role/);
+    });
+
+    test('test_AcceptInvitation_WithoutAuthenticatedUser_IsDenied', async () => {
+      await expect(db.query(`SELECT accept_invitation('x')`)).rejects.toThrow(
+        /Authentication required/
+      );
+    });
+  });
+
   describe('organization functions', () => {
     const EVE = '00000000-0000-0000-0000-00000000000e';
     const FRANK = '00000000-0000-0000-0000-00000000000f';

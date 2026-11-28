@@ -1,6 +1,7 @@
 // Generated route: /api/storage/files
 import { NextResponse } from 'next/server';
 import { createSupabaseServerClient } from '../../../../generated/lib/supabase/server';
+import { requirePermission } from '../../../../generated/lib/permissions';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,7 +15,7 @@ function crudError(error: unknown) {
   return NextResponse.json({ success: false, error: message }, { status });
 }
 
-export async function GET(request: Request) {
+async function handleGET(request: Request) {
   const supabase = await createSupabaseServerClient();
   try {
     const params = new URL(request.url).searchParams;
@@ -39,4 +40,14 @@ export async function GET(request: Request) {
   } catch (error) {
     return crudError(error);
   }
+}
+
+export async function GET(...args: Parameters<typeof handleGET>) {
+  const denied = await requirePermission(
+    args[0],
+    await createSupabaseServerClient(),
+    'storage.read'
+  );
+  if (denied) return denied;
+  return handleGET(...args);
 }

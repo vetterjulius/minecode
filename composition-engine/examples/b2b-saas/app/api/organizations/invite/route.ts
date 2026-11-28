@@ -1,6 +1,7 @@
 // Generated route: /api/organizations/invite
 import { NextResponse } from 'next/server';
 import { createSupabaseServerClient } from '../../../../generated/lib/supabase/server';
+import { requirePermission } from '../../../../generated/lib/permissions';
 
 export const dynamic = 'force-dynamic';
 
@@ -8,7 +9,7 @@ export const dynamic = 'force-dynamic';
  * Invite a new member via email.
  * Path: /api/organizations/invite
  */
-export async function POST(request: Request) {
+async function handlePOST(request: Request) {
   const supabase = await createSupabaseServerClient();
   try {
     const { email, organization_id: organizationId, role } = await request.json();
@@ -33,4 +34,10 @@ export async function POST(request: Request) {
     const message = error instanceof Error ? error.message : String(error);
     return NextResponse.json({ success: false, error: message }, { status: 400 });
   }
+}
+
+export async function POST(...args: Parameters<typeof handlePOST>) {
+  const denied = await requirePermission(args[0], await createSupabaseServerClient(), 'org.invite');
+  if (denied) return denied;
+  return handlePOST(...args);
 }

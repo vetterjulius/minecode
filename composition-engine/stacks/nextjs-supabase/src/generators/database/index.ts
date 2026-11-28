@@ -13,8 +13,18 @@ import { MigrationSequence } from './migration-files.js';
 import { slugify, tableName } from './naming.js';
 import { orderByReferences } from './ordering.js';
 import { buildProfileSync, findAuthProfile } from './profile-sync.js';
-import { buildOrgFunctions, orgFunctionsActive } from './org-functions.js';
-import { buildPermissionFunction, buildRbacSeed, rbacActive } from './rbac.js';
+import {
+  buildInvitationFunction,
+  buildOrgFunctions,
+  invitationFunctionActive,
+  orgFunctionsActive,
+} from './org-functions.js';
+import {
+  buildMyPermissionsFunction,
+  buildPermissionFunction,
+  buildRbacSeed,
+  rbacActive,
+} from './rbac.js';
 import { buildPolicies, buildRlsHelpers, usesTenantAccess } from './rls.js';
 import { buildRowTypes } from './row-types.js';
 import { validateSchemaPlan } from './validate.js';
@@ -77,11 +87,17 @@ export class SupabaseDatabaseSubGenerator implements SubGenerator {
       migrations.add('rls_helpers', buildRlsHelpers());
     }
     if (rbac && triggered(SEED_TRIGGERS)) {
-      migrations.add('rbac_helpers', buildPermissionFunction());
+      migrations.add(
+        'rbac_helpers',
+        buildPermissionFunction() + '\n' + buildMyPermissionsFunction()
+      );
       migrations.add('rbac_seed', buildRbacSeed(plan));
     }
     if (orgFunctionsActive(entities) && triggered(['add-entity'])) {
       migrations.add('organization_functions', buildOrgFunctions(entities));
+    }
+    if (invitationFunctionActive(entities) && triggered(['add-entity'])) {
+      migrations.add('invitation_function', buildInvitationFunction(entities));
     }
     if (policies) {
       migrations.add('rls_policies', buildPolicies(entities, rbac));

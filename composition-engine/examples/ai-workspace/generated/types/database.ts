@@ -114,6 +114,8 @@ export interface InvitationRow {
   token: string;
   /** Expiration timestamp */
   expires_at: string;
+  /** Set when the invitation was accepted; an invitation works only once */
+  accepted_at?: string | null;
 }
 
 /** User membership inside an organization (table "membership") */

@@ -48,7 +48,7 @@ function checkBody(
 `;
 
 export interface CrudHandler {
-  method: 'GET' | 'POST';
+  method: 'GET' | 'POST' | 'PATCH' | 'DELETE';
   code: string;
   helpers: string[];
   /** True when the handler calls application hooks from extensions/. */
@@ -152,6 +152,133 @@ ${allowed.replace(/^ {4}/gm, '        ')}
 `;
 }
 
+/** Name of the trailing `:param` path segment that identifies one row. */
+export function idParamOf(api: ApiArtifact): string {
+  const last = api.path.replace(/\/+$/, '').split('/').pop() ?? '';
+  const match = /^:([A-Za-z_][A-Za-z0-9_]*)$/.exec(last);
+  if (!match) {
+    throw new UnsupportedContractError(
+      `API '${api.id}': crud '${api.crud?.operation}' needs a path ending in ':<param>' (e.g. /api/things/:id), got '${api.path}'`
+    );
+  }
+  return match[1];
+}
+
+function primaryKeyColumn(api: ApiArtifact, entity: DatabaseArtifact): string {
+  const pk = primaryKeyFields(entity.fields);
+  if (pk.length !== 1) {
+    throw new UnsupportedContractError(
+      `API '${api.id}': crud '${api.crud?.operation}' needs a single-column primary key on '${entity.entityName}'`
+    );
+  }
+  return columnName(pk[0].name);
+}
+
+const PARAMS_ARG = (param: string) =>
+  `request: Request,\n  { params }: { params: Promise<{ ${param}: string }> }`;
+
+function buildGet(api: ApiArtifact, entity: DatabaseArtifact, entities: EntityIndex): string {
+  const param = idParamOf(api);
+  return `export async function GET(
+  ${PARAMS_ARG(param)}
+) {
+  const supabase = await createSupabaseServerClient();
+  try {
+    const { ${param} } = await params;
+    const { data, error } = await supabase
+      .from('${tableName(entity.entityName)}')
+      .select('${buildEmbeds(api, entities)}')
+      .eq('${primaryKeyColumn(api, entity)}', ${param})
+      .maybeSingle();
+    if (error) throw error;
+    if (!data) return NextResponse.json({ success: false, error: 'Not found' }, { status: 404 });
+    return NextResponse.json({ success: true, data });
+  } catch (error) {
+    return crudError(error);
+  }
+}
+`;
+}
+
+function buildUpdate(api: ApiArtifact, entity: DatabaseArtifact): string {
+  const param = idParamOf(api);
+  const pk = new Set(primaryKeyFields(entity.fields).map((f) => f.name));
+  const writable = entity.fields.filter((f) => isWritable(f) && !pk.has(f.name));
+  const allowed = writable.map((f) => `        ${columnName(f.name)}: '${kindOf(f)}',`).join('\n');
+  return `export async function PATCH(
+  ${PARAMS_ARG(param)}
+) {
+  const supabase = await createSupabaseServerClient();
+  try {
+    const { ${param} } = await params;
+    const body = await request.json();
+    const problem = checkBody(
+      body,
+      {
+${allowed}
+      },
+      []
+    );
+    if (problem) {
+      return NextResponse.json({ success: false, error: problem }, { status: 400 });
+    }
+    if (Object.keys(body).length === 0) {
+      return NextResponse.json({ success: false, error: 'No fields to update' }, { status: 400 });
+    }
+
+    const { data: auth } = await supabase.auth.getUser();
+    const context = { userId: auth.user?.id ?? null, id: ${param} };
+    const before = extensions.hooks?.['${entity.entityName}.beforeUpdate'];
+    const patch = (before ? await before(body, context) : undefined) ?? body;
+
+    const { data, error } = await supabase
+      .from('${tableName(entity.entityName)}')
+      .update(patch)
+      .eq('${primaryKeyColumn(api, entity)}', ${param})
+      .select()
+      .maybeSingle();
+    if (error) throw error;
+    if (!data) return NextResponse.json({ success: false, error: 'Not found' }, { status: 404 });
+
+    await extensions.hooks?.['${entity.entityName}.afterUpdate']?.(data, context);
+    return NextResponse.json({ success: true, data });
+  } catch (error) {
+    return crudError(error);
+  }
+}
+`;
+}
+
+function buildDelete(api: ApiArtifact, entity: DatabaseArtifact): string {
+  const param = idParamOf(api);
+  return `export async function DELETE(
+  ${PARAMS_ARG(param)}
+) {
+  const supabase = await createSupabaseServerClient();
+  try {
+    const { ${param} } = await params;
+    const { data: auth } = await supabase.auth.getUser();
+    const context = { userId: auth.user?.id ?? null, id: ${param} };
+    await extensions.hooks?.['${entity.entityName}.beforeDelete']?.(${param}, context);
+
+    const { data, error } = await supabase
+      .from('${tableName(entity.entityName)}')
+      .delete()
+      .eq('${primaryKeyColumn(api, entity)}', ${param})
+      .select()
+      .maybeSingle();
+    if (error) throw error;
+    if (!data) return NextResponse.json({ success: false, error: 'Not found' }, { status: 404 });
+
+    await extensions.hooks?.['${entity.entityName}.afterDelete']?.(data, context);
+    return NextResponse.json({ success: true, data });
+  } catch (error) {
+    return crudError(error);
+  }
+}
+`;
+}
+
 export function buildCrudHandler(api: ApiArtifact, entities: EntityIndex): CrudHandler {
   const crud = api.crud;
   if (!crud) throw new UnsupportedContractError(`API '${api.id}' has no crud definition`);
@@ -171,9 +298,26 @@ export function buildCrudHandler(api: ApiArtifact, entities: EntityIndex): CrudH
         helpers: [CRUD_ERROR_HELPER, CRUD_BODY_HELPER],
         usesExtensions: true,
       };
-    default:
-      throw new UnsupportedContractError(
-        `API '${api.id}': crud operation '${crud.operation}' is not supported by stack 'nextjs-supabase' yet`
-      );
+    case 'get':
+      return {
+        method: 'GET',
+        code: buildGet(api, entity, entities),
+        helpers: [CRUD_ERROR_HELPER],
+        usesExtensions: false,
+      };
+    case 'update':
+      return {
+        method: 'PATCH',
+        code: buildUpdate(api, entity),
+        helpers: [CRUD_ERROR_HELPER, CRUD_BODY_HELPER],
+        usesExtensions: true,
+      };
+    case 'delete':
+      return {
+        method: 'DELETE',
+        code: buildDelete(api, entity),
+        helpers: [CRUD_ERROR_HELPER],
+        usesExtensions: true,
+      };
   }
 }

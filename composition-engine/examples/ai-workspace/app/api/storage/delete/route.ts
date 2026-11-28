@@ -1,10 +1,11 @@
 // Generated route: /api/storage/delete
 import { NextResponse } from 'next/server';
 import { createSupabaseServerClient } from '../../../../generated/lib/supabase/server';
+import { requirePermission } from '../../../../generated/lib/permissions';
 
 export const dynamic = 'force-dynamic';
 
-export async function DELETE(request: Request) {
+async function handleDELETE(request: Request) {
   const supabase = await createSupabaseServerClient();
   try {
     const { id, path } = await request.json();
@@ -26,4 +27,14 @@ export async function DELETE(request: Request) {
     const message = error instanceof Error ? error.message : String(error);
     return NextResponse.json({ success: false, error: message }, { status: 400 });
   }
+}
+
+export async function DELETE(...args: Parameters<typeof handleDELETE>) {
+  const denied = await requirePermission(
+    args[0],
+    await createSupabaseServerClient(),
+    'storage.write'
+  );
+  if (denied) return denied;
+  return handleDELETE(...args);
 }

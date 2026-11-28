@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS "invitation" (
   "email" VARCHAR(255) NOT NULL,
   "role" VARCHAR(255) NOT NULL,
   "token" VARCHAR(255) NOT NULL UNIQUE,
-  "expires_at" TIMESTAMPTZ NOT NULL
+  "expires_at" TIMESTAMPTZ NOT NULL,
+  "accepted_at" TIMESTAMPTZ
 );
 CREATE INDEX IF NOT EXISTS "idx_invitation_organization_id" ON "invitation" ("organization_id");

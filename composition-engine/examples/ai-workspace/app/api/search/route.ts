@@ -1,10 +1,11 @@
 // Generated route: /api/search
 import { NextResponse } from 'next/server';
 import { createSupabaseServerClient } from '../../../generated/lib/supabase/server';
+import { requirePermission } from '../../../generated/lib/permissions';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: Request) {
+async function handleGET(request: Request) {
   const supabase = await createSupabaseServerClient();
   try {
     const { searchParams } = new URL(request.url);
@@ -44,4 +45,14 @@ export async function GET(request: Request) {
     const message = error instanceof Error ? error.message : String(error);
     return NextResponse.json({ success: false, error: message }, { status: 500 });
   }
+}
+
+export async function GET(...args: Parameters<typeof handleGET>) {
+  const denied = await requirePermission(
+    args[0],
+    await createSupabaseServerClient(),
+    'search.query'
+  );
+  if (denied) return denied;
+  return handleGET(...args);
 }

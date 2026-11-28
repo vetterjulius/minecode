@@ -187,7 +187,7 @@ If your new feature has unique requirements not covered by the generic templates
 
 ## Custom logic in an application
 
-Do not edit generated files. Application code goes in `extensions/index.ts` (created once, never overwritten). Generic `create` endpoints call `extensions.hooks['<Entity>.beforeCreate']` and `['<Entity>.afterCreate']`; the types are in `generated/lib/extensions.ts`.
+Do not edit generated files. Application code goes in `extensions/index.ts` (created once, never overwritten). Generic `create`, `update` and `delete` endpoints call `extensions.hooks['<Entity>.beforeCreate'|'afterCreate'|'beforeUpdate'|'afterUpdate'|'beforeDelete'|'afterDelete']`; the types are in `generated/lib/extensions.ts`.
 
 ```ts
 export const extensions: Extensions = {
@@ -245,3 +245,16 @@ Tenant rules need the `organizations` feature (entities `Organization` and `Memb
 1. `pnpm build` and `pnpm build:example` regenerate the examples; commit them.
 2. `pnpm test` runs the generated migrations on PostgreSQL (PGlite), checks RLS behaviour, and checks that every table, column and `fetch` target used by the generated app exists.
 3. `pnpm verify:examples` type-checks and builds the generated apps. CI runs both.
+
+### Row endpoints (`get`, `update`, `delete`)
+
+Row operations address one row by its single-column primary key. The contract path ends in a `:param` segment
+(`/api/projects/:id`), which the stack turns into a dynamic route. Methods are fixed: `get` is `GET`, `update` is
+`PATCH` (only writable, non-key columns, at least one field), `delete` is `DELETE`. A row that does not exist or is not
+visible to the caller answers 404.
+
+### Endpoint permissions
+
+An endpoint with `permission: x.write` is checked in the route before it runs when the composition has roles
+(`rbac`). If the request carries an `organization_id` (query or JSON body), the caller must hold the permission in that
+organization, otherwise in at least one. Row level security still applies on top.

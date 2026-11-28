@@ -79,6 +79,22 @@ function collectFeatureConfig(
   return result;
 }
 
+/** Hooks every generic write endpoint exposes, per crud operation. */
+const CRUD_HOOKS: Record<string, [string, string][]> = {
+  create: [
+    ['beforeCreate', 'validate or adjust the row before it is inserted; throw to reject'],
+    ['afterCreate', 'react to the inserted row (notifications, audit, integrations)'],
+  ],
+  update: [
+    ['beforeUpdate', 'validate or adjust the changes before they are applied; throw to reject'],
+    ['afterUpdate', 'react to the updated row (notifications, audit, integrations)'],
+  ],
+  delete: [
+    ['beforeDelete', 'veto the deletion of a row by id; throw to reject'],
+    ['afterDelete', 'react to the deleted row (cleanup, audit, integrations)'],
+  ],
+};
+
 export class Composer {
   /**
    * Generates a deterministic CompositionPlan from a resolved feature graph and blueprint.
@@ -373,11 +389,9 @@ export class Composer {
 
     // Every generic create endpoint can be customized before and after the insert.
     for (const endpoint of api) {
-      if (endpoint.crud?.operation !== 'create') continue;
-      for (const [phase, description] of [
-        ['beforeCreate', 'validate or adjust the row before it is inserted; throw to reject'],
-        ['afterCreate', 'react to the inserted row (notifications, audit, integrations)'],
-      ]) {
+      const operation = endpoint.crud?.operation;
+      if (!endpoint.crud || !operation || !(operation in CRUD_HOOKS)) continue;
+      for (const [phase, description] of CRUD_HOOKS[operation]) {
         const name = `${endpoint.crud.entity}.${phase}`;
         if (extensionPointsMap.has(name)) continue;
         extensionPointsMap.set(name, {

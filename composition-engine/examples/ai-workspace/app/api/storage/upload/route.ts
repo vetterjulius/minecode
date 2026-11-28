@@ -1,10 +1,11 @@
 // Generated route: /api/storage/upload
 import { NextResponse } from 'next/server';
 import { createSupabaseServerClient } from '../../../../generated/lib/supabase/server';
+import { requirePermission } from '../../../../generated/lib/permissions';
 
 export const dynamic = 'force-dynamic';
 
-export async function POST(request: Request) {
+async function handlePOST(request: Request) {
   const supabase = await createSupabaseServerClient();
   try {
     const formData = await request.formData();
@@ -39,4 +40,14 @@ export async function POST(request: Request) {
     const message = error instanceof Error ? error.message : String(error);
     return NextResponse.json({ success: false, error: message }, { status: 400 });
   }
+}
+
+export async function POST(...args: Parameters<typeof handlePOST>) {
+  const denied = await requirePermission(
+    args[0],
+    await createSupabaseServerClient(),
+    'storage.write'
+  );
+  if (denied) return denied;
+  return handlePOST(...args);
 }

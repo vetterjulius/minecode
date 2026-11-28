@@ -1,6 +1,7 @@
 // Generated route: /api/ai/chat
 import { NextResponse } from 'next/server';
 import { createSupabaseServerClient } from '../../../../generated/lib/supabase/server';
+import { requirePermission } from '../../../../generated/lib/permissions';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,7 +15,7 @@ function crudError(error: unknown) {
   return NextResponse.json({ success: false, error: message }, { status });
 }
 
-export async function GET(request: Request) {
+async function handleGET(request: Request) {
   const supabase = await createSupabaseServerClient();
   try {
     const params = new URL(request.url).searchParams;
@@ -33,7 +34,17 @@ export async function GET(request: Request) {
   }
 }
 
-export async function POST(request: Request) {
+export async function GET(...args: Parameters<typeof handleGET>) {
+  const denied = await requirePermission(
+    args[0],
+    await createSupabaseServerClient(),
+    'chat.access'
+  );
+  if (denied) return denied;
+  return handleGET(...args);
+}
+
+async function handlePOST(request: Request) {
   const supabase = await createSupabaseServerClient();
   try {
     const { session_id: sessionId, content } = await request.json();
@@ -79,4 +90,14 @@ export async function POST(request: Request) {
     const message = error instanceof Error ? error.message : String(error);
     return NextResponse.json({ success: false, error: message }, { status: 400 });
   }
+}
+
+export async function POST(...args: Parameters<typeof handlePOST>) {
+  const denied = await requirePermission(
+    args[0],
+    await createSupabaseServerClient(),
+    'chat.access'
+  );
+  if (denied) return denied;
+  return handlePOST(...args);
 }

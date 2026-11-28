@@ -138,12 +138,54 @@ describe('generic crud routes', () => {
     ).toThrow(/needs method GET/);
   });
 
-  test('test_Generate_UnsupportedCrudOperation_ThrowsNamingTheOperation', () => {
+  test('test_Generate_RowOperationsOnIdPath_ProduceDynamicRouteWithAllHandlers', () => {
+    const at = '/api/things/:id';
+    const files = generate([
+      api({ name: 'Get', path: at, method: 'GET', crud: { entity: 'Thing', operation: 'get' } }),
+      api({
+        name: 'Upd',
+        path: at,
+        method: 'PATCH',
+        crud: { entity: 'Thing', operation: 'update' },
+      }),
+      api({
+        name: 'Del',
+        path: at,
+        method: 'DELETE',
+        crud: { entity: 'Thing', operation: 'delete' },
+      }),
+    ]);
+    const route = files['app/api/things/[id]/route.ts'];
+    expect(route).toContain('export async function GET(');
+    expect(route).toContain('export async function PATCH(');
+    expect(route).toContain('export async function DELETE(');
+    expect(route).toContain('Promise<{ id: string }>');
+    expect(route).toContain("extensions.hooks?.['Thing.beforeUpdate']");
+    expect(route).toContain("extensions.hooks?.['Thing.afterDelete']");
+    expect(route).toContain('{ status: 404 }');
+    // update never accepts the primary key or generated columns
+    expect(route).not.toMatch(/PATCH[\s\S]*\bid: '/);
+  });
+
+  test('test_Generate_RowOperationWithoutIdParam_Throws', () => {
     expect(() =>
       generate([
         api({ name: 'Del', method: 'DELETE', crud: { entity: 'Thing', operation: 'delete' } }),
       ])
-    ).toThrow(/'delete' is not supported/);
+    ).toThrow(/needs a path ending in ':<param>'/);
+  });
+
+  test('test_Generate_RowOperationOnEntityWithSinglePrimaryKey_Works', () => {
+    expect(() =>
+      generate([
+        api({
+          name: 'Get',
+          path: '/api/parts/:id',
+          method: 'GET',
+          crud: { entity: 'Part', operation: 'get' },
+        }),
+      ])
+    ).not.toThrow();
   });
 });
 
@@ -199,5 +241,63 @@ describe('behavior routes', () => {
     expect(route).toContain('export async function GET(');
     expect(route).toContain('export async function POST(');
     expect(route.match(/^import \{ NextResponse \}/gm)).toHaveLength(1);
+  });
+});
+
+describe('permission guard', () => {
+  const guardPlan = (rbac: boolean) =>
+    ({
+      applicationName: 'x',
+      stackId: 'nextjs-supabase',
+      database: [
+        {
+          id: 'f:Thing',
+          featureId: 'f',
+          entityName: 'Thing',
+          fields: [
+            { name: 'id', type: 'uuid', primaryKey: true, generate: 'uuid' },
+            { name: 'name', type: 'string', required: true },
+          ],
+        },
+        ...(rbac
+          ? ['Role', 'Permission', 'RolePermission', 'Membership'].map((n) => ({
+              id: `r:${n}`,
+              featureId: 'r',
+              entityName: n,
+              fields: [{ name: 'id', type: 'uuid', primaryKey: true, generate: 'uuid' }],
+            }))
+          : []),
+      ],
+      api: [
+        {
+          id: 'f:create',
+          featureId: 'f',
+          name: 'create',
+          path: '/api/things',
+          method: 'POST',
+          crud: { entity: 'Thing', operation: 'create' },
+          permission: 'things.write',
+        },
+      ],
+      ui: [],
+      navigation: [],
+      events: [],
+      permissions: [],
+      migrations: [],
+      extensionPoints: [],
+    }) as unknown as CompositionPlan;
+
+  test('wraps the handler so the permission is checked before it runs', () => {
+    const files = new NextjsSupabaseApiSubGenerator().generate(guardPlan(true));
+    const route = files['app/api/things/route.ts'];
+    expect(route).toContain('async function handlePOST(');
+    expect(route).toMatch(/requirePermission\(\s*args\[0\],[\s\S]*'things\.write'/);
+    expect(route.indexOf('requirePermission(')).toBeLessThan(route.indexOf('return handlePOST'));
+    expect(files['lib/permissions.ts']).toContain('my_permissions');
+  });
+
+  test('does not guard when no roles exist to check against', () => {
+    const files = new NextjsSupabaseApiSubGenerator().generate(guardPlan(false));
+    expect(files['app/api/things/route.ts']).not.toContain('requirePermission');
   });
 });

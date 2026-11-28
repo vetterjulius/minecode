@@ -70,6 +70,30 @@ provides:
         entity: Project
         operation: create
       permission: project.write
+    - name: GetProject
+      path: /api/projects/:id
+      method: GET
+      description: Fetch one project.
+      crud:
+        entity: Project
+        operation: get
+      permission: project.read
+    - name: UpdateProject
+      path: /api/projects/:id
+      method: PATCH
+      description: Update a project.
+      crud:
+        entity: Project
+        operation: update
+      permission: project.write
+    - name: DeleteProject
+      path: /api/projects/:id
+      method: DELETE
+      description: Delete a project.
+      crud:
+        entity: Project
+        operation: delete
+      permission: project.write
   ui:
     - name: ProjectsDashboard
       route: projects

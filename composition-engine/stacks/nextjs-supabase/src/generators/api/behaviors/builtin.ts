@@ -389,3 +389,21 @@ export async function PUT(request: Request) {
     });
 ${RPC_ERROR}`;
 }
+
+/** Behavior 'organizations.accept-invitation': calls accept_invitation(), which creates the membership. */
+export function organizationsAcceptInvitation(ctx: BehaviorContext): string {
+  return `${rpcRouteHead(ctx)}
+/**
+ * ${ctx.description}
+ * Path: /${ctx.routePath}
+ */
+export async function POST(request: Request) {
+  const supabase = await createSupabaseServerClient();
+  try {
+    const { token } = await request.json();
+    if (typeof token !== 'string' || token === '') {
+      return NextResponse.json({ success: false, error: 'Missing field: token' }, { status: 400 });
+    }
+    const { data, error } = await supabase.rpc('accept_invitation', { invite_token: token });
+${RPC_ERROR}`;
+}
