@@ -258,3 +258,10 @@ visible to the caller answers 404.
 An endpoint with `permission: x.write` is checked in the route before it runs when the composition has roles
 (`rbac`). If the request carries an `organization_id` (query or JSON body), the caller must hold the permission in that
 organization, otherwise in at least one. Row level security still applies on top.
+
+### Secrets and provider keys
+
+Generated routes read credentials from the environment and answer 503 when one is missing:
+`STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`, `ANTHROPIC_API_KEY` or `OPENAI_API_KEY`
+(plus optional `AI_PROVIDER`, `AI_MODEL`). Put them in `.env.local` of the app or in a shared `.env` in the project root
+(one level above the app); `next.config.mjs` loads the latter without overriding variables that are already set.

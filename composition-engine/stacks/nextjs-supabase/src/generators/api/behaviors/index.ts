@@ -4,12 +4,18 @@ import {
   STRIPE_SIGNATURE_LIB_PATH,
   SUPABASE_ADMIN_LIB,
   SUPABASE_ADMIN_LIB_PATH,
-  buildCheckoutRoute,
   buildWebhookRoute,
 } from '../../billing.js';
+import {
+  AI_COMPLETE_LIB,
+  AI_COMPLETE_LIB_PATH,
+  STRIPE_CHECKOUT_LIB,
+  STRIPE_CHECKOUT_LIB_PATH,
+  buildAiChatRoute,
+  buildCheckoutRoute,
+} from '../../providers.js';
 import { BehaviorBuilder } from '../types.js';
 import {
-  aiChatPost,
   authLogin,
   authLogout,
   authResetPassword,
@@ -43,8 +49,14 @@ export const BEHAVIORS: Record<string, BehaviorBuilder> = {
   'storage.delete': plain(storageDelete),
   'notifications.send': plain(notificationsSend),
   'search.query': plain(searchQuery),
-  'ai.chat.post': plain(aiChatPost),
-  'billing.checkout': (ctx) => ({ source: buildCheckoutRoute(ctx.description, ctx.routePath) }),
+  'ai.chat.post': (ctx) => ({
+    source: buildAiChatRoute(ctx.routePath, ctx.serverClientImport),
+    extraFiles: { [AI_COMPLETE_LIB_PATH]: AI_COMPLETE_LIB },
+  }),
+  'billing.checkout': (ctx) => ({
+    source: buildCheckoutRoute(ctx.description, ctx.routePath, ctx.serverClientImport),
+    extraFiles: { [STRIPE_CHECKOUT_LIB_PATH]: STRIPE_CHECKOUT_LIB },
+  }),
   'billing.webhook': (ctx) => ({
     source: buildWebhookRoute(ctx.description, ctx.routePath),
     extraFiles: {

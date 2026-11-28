@@ -1,4 +1,5 @@
 // Generated route: /api/ai/chat
+import { AiNotConfiguredError, completeChat } from '../../../../generated/lib/ai/complete';
 import { NextResponse } from 'next/server';
 import { createSupabaseServerClient } from '../../../../generated/lib/supabase/server';
 import { requirePermission } from '../../../../generated/lib/permissions';
@@ -44,6 +45,13 @@ export async function GET(...args: Parameters<typeof handleGET>) {
   return handleGET(...args);
 }
 
+const HISTORY_LIMIT = 20;
+
+/**
+ * Stores the user's message, asks the configured AI provider (see lib/ai/complete.ts) with the
+ * recent history of the session and stores the answer. Requires ANTHROPIC_API_KEY or OPENAI_API_KEY.
+ * Path: /api/ai/chat
+ */
 async function handlePOST(request: Request) {
   const supabase = await createSupabaseServerClient();
   try {
@@ -56,39 +64,39 @@ async function handlePOST(request: Request) {
       );
     }
 
-    const { error: userMsgError } = await supabase.from('chat_message').insert({
-      session_id: sessionId,
-      role: 'user',
-      content,
-    });
-
+    const { error: userMsgError } = await supabase
+      .from('chat_message')
+      .insert({ session_id: sessionId, role: 'user', content });
     if (userMsgError) throw userMsgError;
 
-    const replies = [
-      'I would be glad to help you with that support request!',
-      "I've analyzed your account. It seems your Stripe billing subscription is fully active.",
-      'To invite new team members, go to the Organizations page and send an invitation link.',
-      'Could you please elaborate on the technical error you are facing in the console?',
-      'I can assist you in creating a support ticket! Please specify the priority.',
-    ];
-    const mockReply = replies[Math.floor(Math.random() * replies.length)];
+    const { data: history, error: historyError } = await supabase
+      .from('chat_message')
+      .select('role, content')
+      .eq('session_id', sessionId)
+      .order('created_at', { ascending: false })
+      .limit(HISTORY_LIMIT);
+    if (historyError) throw historyError;
+    const turns = (history ?? [])
+      .reverse()
+      .filter((m) => m.role === 'user' || m.role === 'assistant')
+      .map((m) => ({ role: m.role as 'user' | 'assistant', content: String(m.content) }));
+
+    const reply = await completeChat(turns, {
+      system: 'You are a helpful support assistant for this application.',
+    });
 
     const { data: assistantMsg, error: assistantMsgError } = await supabase
       .from('chat_message')
-      .insert({
-        session_id: sessionId,
-        role: 'assistant',
-        content: mockReply,
-      })
+      .insert({ session_id: sessionId, role: 'assistant', content: reply })
       .select()
       .single();
-
     if (assistantMsgError) throw assistantMsgError;
 
     return NextResponse.json({ success: true, reply: assistantMsg });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    return NextResponse.json({ success: false, error: message }, { status: 400 });
+    const status = error instanceof AiNotConfiguredError ? 503 : 400;
+    return NextResponse.json({ success: false, error: message }, { status });
   }
 }
 

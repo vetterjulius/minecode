@@ -99,23 +99,6 @@ export function generatedLibImport(routePath: string, lib: string): string {
   return `${'../'.repeat(depth)}generated/lib/${lib}`;
 }
 
-export function buildCheckoutRoute(description: string, routePath: string): string {
-  return `import { NextResponse } from 'next/server';
-
-/**
- * ${description}
- * Path: /${routePath}
- * Not implemented: no Stripe checkout session is created yet.
- */
-export async function POST(_request: Request) {
-  return NextResponse.json(
-    { success: false, error: 'Stripe checkout is not implemented yet' },
-    { status: 501 }
-  );
-}
-`;
-}
-
 export function buildWebhookRoute(description: string, routePath: string): string {
   return `import { NextResponse } from 'next/server';
 import { createAdminClient } from '${generatedLibImport(routePath, 'supabase/admin')}';
