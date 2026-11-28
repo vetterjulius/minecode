@@ -9,11 +9,25 @@ permissions:
   contents: read
 
 jobs:
+  # The secrets context is not available in a job-level `if`, so the token check is a separate job.
+  check:
+    name: Check Vercel token
+    runs-on: ubuntu-latest
+    if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+    outputs:
+      enabled: ${{ steps.token.outputs.enabled }}
+    steps:
+      - id: token
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          if [ -n "$VERCEL_TOKEN" ]; then echo "enabled=true" >> "$GITHUB_OUTPUT"; else echo "enabled=false" >> "$GITHUB_OUTPUT"; fi
+
   deploy:
     name: Deploy to Vercel
+    needs: check
     runs-on: ubuntu-latest
-    # Run only if we are in the main repo and the Vercel token is configured
-    if: ${{ github.event.pull_request.head.repo.full_name == github.repository && secrets.VERCEL_TOKEN != '' }}
+    if: ${{ needs.check.outputs.enabled == 'true' }}
 
     steps:
       - name: Checkout repository
