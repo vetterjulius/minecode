@@ -1,0 +1,11 @@
+# Template only (directories starting with "_" are not validated or run).
+# Requirement text is what the agent sees: plain product language, no Minecode vocabulary.
+id: _template
+tier: in-catalog # in-catalog | near-catalog | out-of-catalog
+requirement: >
+  Describe the application a customer would ask for, in product terms only.
+followUp: >
+  One additional requirement, applied after the first version was accepted.
+limits:
+  turns: 10
+  minutes: 60

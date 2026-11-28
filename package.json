@@ -15,7 +15,9 @@
     "format:check": "prettier --check \"**/*.{ts,json,md,yaml,yml}\"",
     "check-boundaries": "node scripts/validate-package-boundaries.js && node scripts/check-evaluation-boundary.js",
     "verify:examples": "node scripts/verify-generated-apps.js",
-    "check-circular": "dpdm --exit-code circular:1 \"composition-engine/packages/*/src/**/*.ts\" \"composition-engine/apps/*/src/**/*.ts\" \"composition-engine/stacks/*/src/**/*.ts\""
+    "check-circular": "dpdm --exit-code circular:1 \"composition-engine/packages/*/src/**/*.ts\" \"composition-engine/apps/*/src/**/*.ts\" \"composition-engine/stacks/*/src/**/*.ts\"",
+    "eval": "node evaluation/harness/cli.mjs",
+    "eval:validate": "node evaluation/harness/cli.mjs validate-tasks && node evaluation/harness/cli.mjs validate-records"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.6.0",
@@ -26,6 +28,7 @@
     "eslint": "^9.20.1",
     "eslint-config-prettier": "^10.0.1",
     "globals": "^15.15.0",
+    "js-yaml": "^5.2.3",
     "prettier": "^3.5.1",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.24.0",
