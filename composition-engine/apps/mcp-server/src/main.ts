@@ -20,6 +20,15 @@ import {
 } from '@minecode/resolver';
 import { Composer } from '@minecode/composer';
 import { DEFAULT_STACK_ID } from '@minecode/core';
+import {
+  AUTHORING_GUIDE,
+  PROVIDER_KINDS,
+  findProviders,
+  listStacks,
+  planApplication,
+  suggestFeatures,
+  type ProviderKind,
+} from './agent-tools.js';
 
 let registryLoadError: Error | null = null;
 const featuresDir =
@@ -198,6 +207,43 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
               type: 'string',
               description: 'YAML or JSON string representing the application blueprint to resolve',
             },
+          },
+          required: ['blueprint'],
+        },
+      },
+      {
+        name: 'list_stacks',
+        description:
+          'List the target stacks this engine can generate for, including the behaviors each implements',
+        inputSchema: { type: 'object', properties: {} },
+      },
+      {
+        name: 'find_provider',
+        description:
+          'Find which features provide an entity, capability, permission, api path/name, behavior id or hook (e.g. kind=entity name=Invoice)',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            kind: { type: 'string', enum: [...PROVIDER_KINDS] },
+            name: { type: 'string', description: 'Name or path to look for (case-insensitive)' },
+          },
+          required: ['kind', 'name'],
+        },
+      },
+      {
+        name: 'get_authoring_guide',
+        description:
+          'Read this first: how to describe an application with a blueprint, the workflow with these tools, and the rules of the generated app',
+        inputSchema: { type: 'object', properties: {} },
+      },
+      {
+        name: 'plan_application',
+        description:
+          'Dry run: validate and compose a blueprint and report the entities, endpoints, permissions and extension hooks the engine decided on, plus anything the stack cannot implement. Writes no files.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            blueprint: { type: 'string', description: 'YAML or JSON blueprint' },
           },
           required: ['blueprint'],
         },
@@ -409,6 +455,70 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         };
       }
 
+      case 'list_stacks':
+        return { content: [{ type: 'text', text: JSON.stringify(listStacks(stacks), null, 2) }] };
+
+      case 'get_authoring_guide':
+        return { content: [{ type: 'text', text: AUTHORING_GUIDE }] };
+
+      case 'find_provider': {
+        const kind = args?.kind as ProviderKind;
+        const name = args?.name;
+        if (!PROVIDER_KINDS.includes(kind) || typeof name !== 'string' || !name) {
+          return {
+            content: [
+              {
+                type: 'text',
+                text: `kind must be one of ${PROVIDER_KINDS.join(', ')} and name is required.`,
+              },
+            ],
+            isError: true,
+          };
+        }
+        return {
+          content: [
+            { type: 'text', text: JSON.stringify(findProviders(registry, kind, name), null, 2) },
+          ],
+        };
+      }
+
+      case 'plan_application': {
+        const blueprintStr = args?.blueprint;
+        if (typeof blueprintStr !== 'string' || !blueprintStr) {
+          return {
+            content: [
+              {
+                type: 'text',
+                text: 'Blueprint content is required and must be a non-empty string.',
+              },
+            ],
+            isError: true,
+          };
+        }
+        const result = processBlueprint(blueprintStr);
+        if (!result.valid) {
+          return {
+            content: [
+              {
+                type: 'text',
+                text: `Blueprint is not valid:\n${result.errors.map((e) => `  - ${e}`).join('\n')}`,
+              },
+            ],
+            isError: true,
+          };
+        }
+        try {
+          await stacksReady;
+          const summary = planApplication(result.blueprint, result.resolvedFeatures, stacks);
+          return { content: [{ type: 'text', text: JSON.stringify(summary, null, 2) }] };
+        } catch (error: any) {
+          return {
+            content: [{ type: 'text', text: `Planning failed: ${error.message || String(error)}` }],
+            isError: true,
+          };
+        }
+      }
+
       case 'validate_blueprint': {
         const blueprintStr = args?.blueprint;
         if (typeof blueprintStr !== 'string' || !blueprintStr) {
@@ -433,6 +543,9 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
                   valid: result.valid,
                   errors: result.errors,
                   warnings: result.warnings,
+                  suggestions: result.blueprint?.features
+                    ? suggestFeatures(registry, Object.keys(result.blueprint.features))
+                    : [],
                 },
                 null,
                 2

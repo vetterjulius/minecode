@@ -41,8 +41,8 @@ test('test_ListFeatures_NoParameters_ReturnsCompactFeatureList', async () => {
 
   // Call tools/list
   const toolsResponse = await listToolsHandler({ method: 'tools/list' });
-  // Now includes our 3 new tools, so total is 4 + 3 = 7
-  expect(toolsResponse.tools).toHaveLength(7);
+  // Registry tools (3), blueprint tools (3), agent knowledge tools (4), compose (1)
+  expect(toolsResponse.tools).toHaveLength(11);
 
   // Call tools/call for list_features
   const response = await callToolHandler({
