@@ -60,3 +60,18 @@ behaviors with the matching stacks. Rules:
 - Features are declared compatible with a stack through `metadata.stack`; a package that ships no module for a stack
   simply cannot be used with it.
 - Stack modules are executed code. Install feature packages only from sources you trust, as with any npm dependency.
+
+## MCP tools for agents
+
+The MCP server is the interface an agent uses (the evaluation treats it as a black box). Besides the registry tools
+(`list_features`, `get_feature`, `search_features`, `get_feature_schema`) and the blueprint tools (`validate_blueprint`,
+`resolve_blueprint`, `compose_application`) it offers knowledge and planning tools:
+
+| Tool                  | Purpose                                                                                       |
+| --------------------- | --------------------------------------------------------------------------------------------- |
+| `get_authoring_guide` | Workflow, blueprint format and the rules of the generated app. Meant to be read first.        |
+| `list_stacks`         | Available target stacks and the behaviors each implements.                                    |
+| `find_provider`       | Which features provide an entity, capability, permission, api, behavior or hook.              |
+| `plan_application`    | Dry run: entities, endpoints, permissions, extension hooks and unsupported behaviors; no I/O. |
+
+`validate_blueprint` also returns `suggestions` ("did you mean") for unknown feature ids.
