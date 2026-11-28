@@ -93,12 +93,13 @@ Open:
 
 ## 10. Dependencies on engineering work
 
-Done in the framework: generated apps build and enforce tenancy and role permissions in the database; contracts name generic CRUD or behaviors; schema evolution through `app.lock.json`.
+Done in the framework: generated apps build and enforce tenancy and role permissions in the database; routes check endpoint permissions; contracts name generic CRUD or behaviors; schema evolution through `app.lock.json` with a file ownership manifest (follow-ups do not overwrite custom code); knowledge and planning tools in the MCP server; a real AI provider and Stripe checkout (behind environment keys); invitations can be accepted.
 
-Still open and relevant to the study:
+Done in the evaluation: a harness (`harness/`, see `README.md`) that scores a saved workspace (migrations apply, row level security facts, committed secrets, optional build), records follow-up diff size, validates tasks and run records, and analyses runs per tool with bootstrap confidence intervals and an exact Wilcoxon test.
 
-1. Route-level permission checks and role assignment for new members, so security results do not mix engine gaps with agent mistakes.
-2. A file ownership manifest so a follow-up requirement can be applied without overwriting custom code (needed for H4).
-3. Knowledge and validation tools in the MCP server so an agent can learn the catalog and check a blueprint.
-4. A real AI provider and checkout behavior instead of canned replies and a 501, otherwise in-catalog tasks that need them cannot pass.
-5. The evaluation harness itself (new, in this directory): runs oracles on a saved workspace and writes run records.
+Still open:
+
+1. A hidden acceptance suite format and runner that talks to a running application (needed for `tenantLeaks`, `acceptancePassed`, `acceptanceTotal`). This needs a decision on how a candidate app is started (Supabase local stack in a container versus a PostgreSQL-only mode).
+2. The first tasks, written and frozen, with an independent reviewer.
+3. Condition C: choice of the starter template, before any result is seen.
+4. A pilot to estimate variance and find harness bugs. Until it has run, the statistics code is tested on synthetic data only.

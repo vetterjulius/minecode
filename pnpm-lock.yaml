@@ -31,6 +31,9 @@ importers:
       globals:
         specifier: ^15.15.0
         version: 15.15.0
+      js-yaml:
+        specifier: ^5.2.3
+        version: 5.2.3
       prettier:
         specifier: ^3.5.1
         version: 3.9.6
