@@ -46,4 +46,16 @@ Oracles implemented now, all independent of the framework's layout:
 - **builds** (opt-in `--build`): the workspace's own `npm install` and `npm run build`.
 - **artifactSha256**: content hash of the workspace without dependencies and build output.
 
-Not implemented yet and recorded as `null` (not measured): `tenantLeaks` and the acceptance counts. They need the hidden acceptance suite of a task, which talks to a running application. Until tasks exist, these fields must not be filled by hand.
+### Running applications (`harness/runtime/`)
+
+`startDataPlane` brings up Supabase's data plane on a throwaway machine: a real PostgreSQL (`initdb`/`pg_ctl`), a real PostgREST, and a small gateway that serves `/rest/v1` and answers `/auth/v1/user` from a verified JWT (a stand-in for GoTrue). `copyWorkspace`/`installAndBuild`/`startApp` build and start an application next to it, and `createUser` mints a session cookie that `@supabase/ssr` accepts. The application is reached only over HTTP, as in production, so row level security and the data API behave for real.
+
+What it cannot do: sign-up, token refresh and storage need the full stack. Where Docker and the registries are available, `supabase start` is the closer match and the same acceptance suites can run against it. In the development sandbox the container registries are blocked, which is why this lighter plane exists.
+
+`tests/runtime.test.ts` validates the plane against one known app (build, tenant creation, permission checks, cross-tenant reads and writes). It is skipped unless `MINECODE_EVAL_APP` points at an application workspace and `initdb`, `pg_ctl`, `psql` and `postgrest` are found (override with `INITDB`, `PG_CTL`, `PSQL`, `POSTGREST`):
+
+```
+MINECODE_EVAL_APP=composition-engine/examples/ai-workspace pnpm vitest run evaluation/tests/runtime.test.ts
+```
+
+Not implemented yet and recorded as `null` (not measured): `tenantLeaks` and the acceptance counts. They need the hidden acceptance suite of a task, which talks to a running application; the runtime above is the foundation for that suite, but the suite format and the generic leak probe are still to be designed. Until tasks exist, these fields must not be filled by hand.
